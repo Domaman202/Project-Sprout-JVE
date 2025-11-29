@@ -1,6 +1,8 @@
 @file:Suppress("UNUSED")
 package ru.pht.sprout.module
 
+import ru.pht.sprout.module.parser.ParserException
+
 data class Module(
     val name: String,
     val version: String,
@@ -11,8 +13,8 @@ data class Module(
     val injectInto: Boolean,
     val injectIntoDependencies: Boolean,
     val injectFrom: Boolean,
-    val imports: List<IntermoduleData>,
-    val exports: List<IntermoduleData>,
+    val imports: ListOrAny<IntermoduleData>,
+    val exports: ListOrAny<IntermoduleData>,
     val features: List<Pair<String, Boolean>>,
     val sources: List<PathOrDependency>,
     val resources: List<PathOrDependency>,
@@ -21,24 +23,24 @@ data class Module(
     data class Dependency(
         val name: String,
         val version: StringOrAny,
-        val uses: List<String>,
-        val adapters: List<String>,
+        val uses: Boolean,
+        val adapters: ListOrAny<String>,
         val injectInto: Boolean,
         val injectIntoDependencies: Boolean,
         val injectFrom: Boolean,
-        val features: StringListOrAny,
-        val disableFeatures: StringListOrAny
+        val features: ListOrAny<String>,
+        val disableFeatures: ListOrAny<String>
     ) {
         class Builder {
             var name: String? = null
             var version: StringOrAny? = null
-            var uses: List<String>? = null
-            var adapters: List<String>? = null
+            var uses: Boolean? = null
+            var adapters: ListOrAny<String>? = null
             var injectInto: Boolean? = null
             var injectIntoDependencies: Boolean? = null
             var injectFrom: Boolean? = null
-            var features: StringListOrAny? = null
-            var disableFeatures: StringListOrAny? = null
+            var features: ListOrAny<String>? = null
+            var disableFeatures: ListOrAny<String>? = null
 
             fun name(value: String): Builder {
                 this.name = value
@@ -58,21 +60,21 @@ data class Module(
                 return this.version
             }
 
-            fun uses(value: List<String>): Builder {
+            fun uses(value: Boolean): Builder {
                 this.uses = value
                 return this
             }
 
-            fun uses(): List<String>? {
+            fun uses(): Boolean? {
                 return this.uses
             }
 
-            fun adapters(value: List<String>): Builder {
-                this.adapters = value
+            fun adapters(value: ListOrAny<String>): Builder {
+                this.adapters = this.adapters with value
                 return this
             }
 
-            fun adapters(): List<String>? {
+            fun adapters(): ListOrAny<String>? {
                 return this.adapters
             }
 
@@ -103,35 +105,35 @@ data class Module(
                 return this.injectFrom
             }
 
-            fun features(value: StringListOrAny): Builder {
-                this.features = value
+            fun features(value: ListOrAny<String>): Builder {
+                this.features = this.features with value
                 return this
             }
 
-            fun features(): StringListOrAny? {
+            fun features(): ListOrAny<String>? {
                 return this.features
             }
 
-            fun disableFeatures(value: StringListOrAny): Builder {
-                this.disableFeatures = value
+            fun disableFeatures(value: ListOrAny<String>): Builder {
+                this.disableFeatures = this.disableFeatures with value
                 return this
             }
 
-            fun disableFeatures(): StringListOrAny? {
+            fun disableFeatures(): ListOrAny<String>? {
                 return this.disableFeatures
             }
 
             fun build(): Dependency {
                 return Dependency(
-                    this.name ?: throw RuntimeException("Неинициализированное обязательное поле: name"),
+                    this.name ?: throw ParserException.NotInitializedException("name"),
                     this.version ?: StringOrAny.ANY,
-                    this.uses ?: emptyList(),
-                    this.adapters ?: emptyList(),
+                    this.uses ?: false,
+                    this.adapters ?: ListOrAny.empty(),
                     this.injectInto ?: false,
                     this.injectIntoDependencies ?: false,
                     this.injectFrom ?: false,
-                    this.features ?: StringListOrAny.EMPTY,
-                    this.disableFeatures ?: StringListOrAny.EMPTY,
+                    this.features ?: ListOrAny.empty(),
+                    this.disableFeatures ?: ListOrAny.empty(),
                 )
             }
         }
@@ -160,8 +162,8 @@ data class Module(
         }
 
         companion object {
-            fun ofDirectory(directory: String): PathOrDependency {
-                return PathOrDependency(directory, null)
+            fun ofPath(path: String): PathOrDependency {
+                return PathOrDependency(path, null)
             }
 
             fun ofDependency(dependency: Dependency): PathOrDependency {
@@ -189,22 +191,27 @@ data class Module(
         }
     }
 
-    class StringListOrAny private constructor(private val list: List<String>?, private val any: Boolean) {
+    class ListOrAny<T> private constructor(private val list: List<T>?, private val any: Boolean) {
         val isList: Boolean
             get() = !this.any
         val isAny: Boolean
             get() = this.any
 
-        fun list(): List<String> {
+        fun list(): List<T> {
             return this.list!!
         }
 
         companion object {
-            val ANY = StringListOrAny(null, true)
-            val EMPTY = StringListOrAny(emptyList(), false)
+            fun <T> any(): ListOrAny<T> {
+                return ListOrAny(null, true)
+            }
 
-            fun ofList(list: List<String>): StringListOrAny {
-                return StringListOrAny(list, false)
+            fun <T> empty(): ListOrAny<T> {
+                return ListOrAny(emptyList(), false)
+            }
+
+            fun <T> ofList(list: List<T>): ListOrAny<T> {
+                return ListOrAny(list, false)
             }
         }
     }
@@ -219,8 +226,8 @@ data class Module(
         var injectInto: Boolean? = null
         var injectIntoDependencies: Boolean? = null
         var injectFrom: Boolean? = null
-        var imports: List<IntermoduleData>? = null
-        var exports: List<IntermoduleData>? = null
+        var imports: ListOrAny<IntermoduleData>? = null
+        var exports: ListOrAny<IntermoduleData>? = null
         var features: List<Pair<String, Boolean>>? = null
         var sources: List<PathOrDependency>? = null
         var resources: List<PathOrDependency>? = null
@@ -254,7 +261,7 @@ data class Module(
         }
 
         fun authors(value: List<String>): Builder {
-            this.authors = value
+            this.authors = this.authors with value
             return this
         }
 
@@ -263,7 +270,7 @@ data class Module(
         }
 
         fun dependencies(value: List<Dependency>): Builder {
-            this.dependencies = value
+            this.dependencies = this.dependencies with value
             return this
         }
 
@@ -272,7 +279,7 @@ data class Module(
         }
 
         fun uses(value: List<String>): Builder {
-            this.uses = value
+            this.uses = this.uses with value
             return this
         }
 
@@ -280,26 +287,53 @@ data class Module(
             return this.uses
         }
 
-        fun imports(value: List<IntermoduleData>): Builder {
-            this.imports = value
+        fun injectInto(value: Boolean): Builder {
+            this.injectInto = value
             return this
         }
 
-        fun imports(): List<IntermoduleData>? {
+        fun injectInto(): Boolean? {
+            return this.injectInto
+        }
+
+        fun injectIntoDependencies(value: Boolean): Builder {
+            this.injectIntoDependencies = value
+            return this
+        }
+
+        fun injectIntoDependencies(): Boolean? {
+            return this.injectIntoDependencies
+        }
+
+        fun injectFrom(value: Boolean): Builder {
+            this.injectFrom = value
+            return this
+        }
+
+        fun injectFrom(): Boolean? {
+            return this.injectFrom
+        }
+
+        fun imports(value: ListOrAny<IntermoduleData>): Builder {
+            this.imports = this.imports with value
+            return this
+        }
+
+        fun imports(): ListOrAny<IntermoduleData>? {
             return this.imports
         }
 
-        fun exports(value: List<IntermoduleData>): Builder {
-            this.exports = value
+        fun exports(value: ListOrAny<IntermoduleData>): Builder {
+            this.exports = this.exports with value
             return this
         }
 
-        fun exports(): List<IntermoduleData>? {
+        fun exports(): ListOrAny<IntermoduleData>? {
             return this.exports
         }
 
         fun features(value: List<Pair<String, Boolean>>): Builder {
-            this.features = value
+            this.features = this.features with value
             return this
         }
 
@@ -308,7 +342,7 @@ data class Module(
         }
 
         fun sources(value: List<PathOrDependency>): Builder {
-            this.sources = value
+            this.sources = this.sources with value
             return this
         }
 
@@ -317,7 +351,7 @@ data class Module(
         }
 
         fun resources(value: List<PathOrDependency>): Builder {
-            this.resources = value
+            this.resources = this.resources with value
             return this
         }
 
@@ -326,7 +360,7 @@ data class Module(
         }
 
         fun plugins(value: List<PathOrDependency>): Builder {
-            this.plugins = value
+            this.plugins = this.plugins with value
             return this
         }
 
@@ -336,8 +370,8 @@ data class Module(
 
         fun build(): Module {
             return Module(
-                this.name ?: throw RuntimeException("Неинициализированное обязательное поле: name"),
-                this.version ?: throw RuntimeException("Неинициализированное обязательное поле: version"),
+                this.name ?: throw ParserException.NotInitializedException("name"),
+                this.version ?: throw ParserException.NotInitializedException("vers"),
                 this.description ?: "",
                 this.authors ?: emptyList(),
                 this.dependencies ?: emptyList(),
@@ -345,13 +379,35 @@ data class Module(
                 this.injectInto ?: false,
                 this.injectIntoDependencies ?: false,
                 this.injectFrom ?: false,
-                this.imports ?: emptyList(),
-                this.exports ?: emptyList(),
+                this.imports ?: ListOrAny.empty(),
+                this.exports ?: ListOrAny.empty(),
                 this.features ?: emptyList(),
                 this.sources ?: emptyList(),
                 this.resources ?: emptyList(),
                 this.plugins ?: emptyList(),
             )
+        }
+    }
+
+    companion object {
+        infix fun <E> List<E>?.with(second: List<E>): List<E> {
+            this ?: return second
+            val new = ArrayList<E>()
+            new.addAll(this)
+            new.addAll(second)
+            return new
+        }
+
+        infix fun <E> ListOrAny<E>?.with(second: ListOrAny<E>): ListOrAny<E> {
+            this ?: return second
+            if (this.isAny)
+                return this
+            if (second.isAny)
+                return second
+            val new = ArrayList<E>()
+            new.addAll(this.list())
+            new.addAll(second.list())
+            return ListOrAny.ofList(new)
         }
     }
 }

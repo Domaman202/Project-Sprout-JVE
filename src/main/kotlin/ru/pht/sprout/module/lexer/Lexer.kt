@@ -2,16 +2,17 @@ package ru.pht.sprout.module.lexer
 
 import ru.pht.sprout.module.lexer.Token.Type.*
 
-class Lexer(val source: String) {
+class Lexer(val source: String) : Iterator<Token> {
     var ptr: Int = 0
     var line: Int = 0
     var column: Int = 0
 
-    fun hasNext(): Boolean {
+    override fun hasNext(): Boolean {
         return ptr < source.length
     }
 
-    fun nextToken(): Token {
+    @Throws(LexerException::class)
+    override fun next(): Token {
         skipWS()
         val start = ptr
         return when (val char = pop()) {
@@ -41,12 +42,12 @@ class Lexer(val source: String) {
                         else -> value.append(char)
                     }
                 }
-                throw LexerException.EOF()
+                throw LexerException.UncompletedString(start)
             }
             ';' -> {
                 while (ptr < source.length && peek() != '\n')
                     pop()
-                nextToken()
+                next()
             }
             else -> {
                 val column = column
@@ -70,6 +71,7 @@ class Lexer(val source: String) {
                         "uses" -> ID_USES
                         "inject-from" -> ID_INJECT_FROM
                         "inject-into" -> ID_INJECT_INTO
+                        "inject-into-deps" -> ID_INJECT_INTO_DEPENDENCIES
                         "features" -> ID_FEATURES
                         "no-features" -> ID_NO_FEATURES
                         "imports" -> ID_IMPORTS

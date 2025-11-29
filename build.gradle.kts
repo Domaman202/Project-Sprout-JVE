@@ -17,6 +17,8 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:3.3.0")
     implementation("io.ktor:ktor-client-cio-jvm:3.3.0")
     testImplementation(kotlin("test"))
+    testImplementation("org.mockito:mockito-core:5.20.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:6.1.0")
 }
 
 tasks.test {

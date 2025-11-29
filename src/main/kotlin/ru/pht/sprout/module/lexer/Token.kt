@@ -48,6 +48,8 @@ class Token(val position: Position, val type: Type, val value: String) {
         ID_INJECT_FROM,
         // inject-into
         ID_INJECT_INTO,
+        // inject-into-deps
+        ID_INJECT_INTO_DEPENDENCIES,
 
         // features
         ID_FEATURES,

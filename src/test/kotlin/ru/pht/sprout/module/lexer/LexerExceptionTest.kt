@@ -1,9 +1,9 @@
 package ru.pht.sprout.module.lexer
 
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.lang.reflect.Modifier
@@ -30,23 +30,50 @@ class LexerExceptionTest {
         }
 
         @Test
-        fun `printLC should format line and column correctly`() {
-            val lexer = Lexer("test")
-            lexer.line = 2
-            lexer.column = 5
+        fun `getLineInfo should return correct line info`() {
+            val source = "line1\nline2\nline3"
+            val lexer = Lexer(source)
 
-            val exception = object : LexerException("test") {
-                override fun print(lexer: Lexer, builder: StringBuilder): StringBuilder {
-                    return builder.append("test")
-                }
-            }
+            // Устанавливаем указатель на начало второй строки
+            lexer.ptr = 7 // позиция 'l' в "line2"
+            lexer.line = 1
+            lexer.column = 0
 
-            // Use reflection to test protected method
-            val printLCMethod = LexerException::class.java.getDeclaredMethod("printLC", Lexer::class.java)
-            printLCMethod.isAccessible = true
-            val result = printLCMethod.invoke(exception, lexer) as String
+            val (location, lineStart, lineEnd) = LexerException.getLineInfo(lexer)
 
-            assertEquals("[3, 6]", result) // +1 because display is 1-based
+            assertEquals("[2, 1]", location) // line+1, column+1
+            assertEquals(6, lineStart) // начало второй строки (после \n)
+            assertEquals(11, lineEnd) // конец второй строки (перед \n)
+        }
+
+        @Test
+        fun `getLineInfo should handle first line correctly`() {
+            val source = "single line"
+            val lexer = Lexer(source)
+            lexer.ptr = 3
+            lexer.line = 0
+            lexer.column = 3
+
+            val (location, lineStart, lineEnd) = LexerException.getLineInfo(lexer)
+
+            assertEquals("[1, 4]", location)
+            assertEquals(0, lineStart)
+            assertEquals(source.length, lineEnd)
+        }
+
+        @Test
+        fun `getLineInfo should handle last line correctly`() {
+            val source = "line1\nline2"
+            val lexer = Lexer(source)
+            lexer.ptr = 9 // позиция 'e' в "line2"
+            lexer.line = 1
+            lexer.column = 3
+
+            val (location, lineStart, lineEnd) = LexerException.getLineInfo(lexer)
+
+            assertEquals("[2, 4]", location)
+            assertEquals(6, lineStart)
+            assertEquals(source.length, lineEnd) // нет \n в конце
         }
     }
 
@@ -301,7 +328,7 @@ class LexerExceptionTest {
             val lexer = Lexer("unknown")
 
             val exception = assertThrows(LexerException.InvalidIdentifier::class.java) {
-                lexer.nextToken()
+                lexer.next()
             }
 
             assertEquals("unknown", exception.identifier)
@@ -312,7 +339,7 @@ class LexerExceptionTest {
             val lexer = Lexer("@")
 
             assertThrows(LexerException.InvalidIdentifier::class.java) {
-                lexer.nextToken()
+                lexer.next()
             }
         }
 
@@ -321,7 +348,7 @@ class LexerExceptionTest {
             val lexer = Lexer("")
 
             assertThrows(LexerException.EOF::class.java) {
-                lexer.nextToken()
+                lexer.next()
             }
         }
 
@@ -331,12 +358,12 @@ class LexerExceptionTest {
             val lexer = Lexer(source)
 
             // Read first token
-            val firstToken = lexer.nextToken()
+            val firstToken = lexer.next()
             assertEquals(Token.Type.ID_MODULE, firstToken.type)
 
             // Next token should throw InvalidIdentifier
             val exception = assertThrows(LexerException.InvalidIdentifier::class.java) {
-                lexer.nextToken()
+                lexer.next()
             }
 
             val errorMessage = exception.print(lexer).toString()
@@ -358,7 +385,7 @@ class LexerExceptionTest {
 
                 val lexer = Lexer("invalid")
                 assertThrows(LexerException.InvalidIdentifier::class.java) {
-                    lexer.nextToken()
+                    lexer.next()
                 }
 
                 val output = outputStream.toString()

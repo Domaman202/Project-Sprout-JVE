@@ -14,7 +14,7 @@ class LexerTest {
         @Test
         fun `should tokenize instruction start`() {
             val lexer = Lexer("(")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.INSTR_START, token.type)
             assertEquals("(", token.value)
         }
@@ -22,7 +22,7 @@ class LexerTest {
         @Test
         fun `should tokenize instruction end`() {
             val lexer = Lexer(")")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.INSTR_END, token.type)
             assertEquals(")", token.value)
         }
@@ -30,7 +30,7 @@ class LexerTest {
         @Test
         fun `should tokenize list start`() {
             val lexer = Lexer("[")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.LIST_START, token.type)
             assertEquals("[", token.value)
         }
@@ -38,7 +38,7 @@ class LexerTest {
         @Test
         fun `should tokenize list end`() {
             val lexer = Lexer("]")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.LIST_END, token.type)
             assertEquals("]", token.value)
         }
@@ -50,7 +50,7 @@ class LexerTest {
         @Test
         fun `should tokenize any token`() {
             val lexer = Lexer("[*]")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ANY, token.type)
             assertEquals("*", token.value)
         }
@@ -58,7 +58,7 @@ class LexerTest {
         @Test
         fun `should tokenize attr start`() {
             val lexer = Lexer("{[")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ATTR_START, token.type)
             assertEquals("{[", token.value)
         }
@@ -66,7 +66,7 @@ class LexerTest {
         @Test
         fun `should tokenize attr end`() {
             val lexer = Lexer("]}")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ATTR_END, token.type)
             assertEquals("]}", token.value)
         }
@@ -74,8 +74,8 @@ class LexerTest {
         @Test
         fun `should handle list end separately from attr end`() {
             val lexer = Lexer("] ]}")
-            val token1 = lexer.nextToken()
-            val token2 = lexer.nextToken()
+            val token1 = lexer.next()
+            val token2 = lexer.next()
 
             assertEquals(Token.Type.LIST_END, token1.type)
             assertEquals(Token.Type.ATTR_END, token2.type)
@@ -88,7 +88,7 @@ class LexerTest {
         @Test
         fun `should tokenize simple string`() {
             val lexer = Lexer("\"hello\"")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.STRING, token.type)
             assertEquals("hello", token.value)
         }
@@ -96,7 +96,7 @@ class LexerTest {
         @Test
         fun `should tokenize empty string`() {
             val lexer = Lexer("\"\"")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.STRING, token.type)
             assertEquals("", token.value)
         }
@@ -104,7 +104,7 @@ class LexerTest {
         @Test
         fun `should tokenize string with escape sequences`() {
             val lexer = Lexer("\"line1\\nline2\\ttab\\\"quote\\\\backslash\"")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.STRING, token.type)
             assertEquals("line1\nline2\ttab\"quote\\backslash", token.value)
         }
@@ -112,7 +112,7 @@ class LexerTest {
         @Test
         fun `should tokenize string with slashes`() {
             val lexer = Lexer("\"pht/module\"")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.STRING, token.type)
             assertEquals("pht/module", token.value)
         }
@@ -120,8 +120,8 @@ class LexerTest {
         @Test
         fun `should throw on unclosed string`() {
             val lexer = Lexer("\"unclosed string")
-            assertThrows<LexerException.EOF> {
-                lexer.nextToken()
+            assertThrows<LexerException.UncompletedString> {
+                lexer.next()
             }
         }
 
@@ -129,7 +129,7 @@ class LexerTest {
         fun `should throw on invalid escape sequence`() {
             val lexer = Lexer("\"invalid\\escape\"")
             assertThrows<LexerException.UnexpectedSymbol> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
     }
@@ -140,7 +140,7 @@ class LexerTest {
         @Test
         fun `should skip single line comment`() {
             val lexer = Lexer("; comment\n(")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.INSTR_START, token.type)
         }
 
@@ -148,28 +148,28 @@ class LexerTest {
         fun `should skip comment at end of file`() {
             val lexer = Lexer("; comment")
             assertThrows<LexerException.EOF> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
 
         @Test
         fun `should skip multiple comments`() {
             val lexer = Lexer("; first comment\n; second comment\nmodule")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ID_MODULE, token.type)
         }
 
         @Test
         fun `should handle comment with special characters`() {
             val lexer = Lexer("; Comment with [*] {[ ]} \"quotes\"\nname")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ID_NAME, token.type)
         }
 
         @Test
         fun `should skip comment until newline`() {
             val lexer = Lexer("; comment ( should be skipped\n)")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.INSTR_END, token.type)
         }
 
@@ -177,7 +177,7 @@ class LexerTest {
         fun `should handle comment followed by EOF`() {
             val lexer = Lexer("; comment")
             assertThrows<LexerException.EOF> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
     }
@@ -188,7 +188,7 @@ class LexerTest {
         @Test
         fun `should tokenize module identifier`() {
             val lexer = Lexer("module")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ID_MODULE, token.type)
             assertEquals("module", token.value)
         }
@@ -196,7 +196,7 @@ class LexerTest {
         @Test
         fun `should tokenize name identifier`() {
             val lexer = Lexer("name")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ID_NAME, token.type)
             assertEquals("name", token.value)
         }
@@ -204,7 +204,7 @@ class LexerTest {
         @Test
         fun `should tokenize version identifier`() {
             val lexer = Lexer("vers")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ID_VERSION, token.type)
             assertEquals("vers", token.value)
         }
@@ -212,7 +212,7 @@ class LexerTest {
         @Test
         fun `should tokenize description identifier`() {
             val lexer = Lexer("desc")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ID_DESCRIPTION, token.type)
             assertEquals("desc", token.value)
         }
@@ -220,7 +220,7 @@ class LexerTest {
         @Test
         fun `should tokenize authors identifier`() {
             val lexer = Lexer("auth")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ID_AUTHORS, token.type)
             assertEquals("auth", token.value)
         }
@@ -237,6 +237,7 @@ class LexerTest {
                 "uses" to Token.Type.ID_USES,
                 "inject-from" to Token.Type.ID_INJECT_FROM,
                 "inject-into" to Token.Type.ID_INJECT_INTO,
+                "inject-into-deps" to Token.Type.ID_INJECT_INTO_DEPENDENCIES,
                 "features" to Token.Type.ID_FEATURES,
                 "no-features" to Token.Type.ID_NO_FEATURES,
                 "imports" to Token.Type.ID_IMPORTS,
@@ -257,7 +258,7 @@ class LexerTest {
 
             identifiers.forEach { (identifier, expectedType) ->
                 val lexer = Lexer(identifier)
-                val token = lexer.nextToken()
+                val token = lexer.next()
                 assertEquals(expectedType, token.type, "Failed for identifier: $identifier")
                 assertEquals(identifier, token.value)
             }
@@ -267,31 +268,34 @@ class LexerTest {
         fun `should throw on invalid identifier`() {
             val lexer = Lexer("invalid")
             assertThrows<LexerException.InvalidIdentifier> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
 
         @Test
         fun `should handle identifiers without trailing whitespace`() {
             val lexer = Lexer("module")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ID_MODULE, token.type)
             assertEquals("module", token.value)
         }
 
         @Test
         fun `should handle identifiers with hyphens`() {
-            val lexer = Lexer("inject-from inject-into no-features")
-            val token1 = lexer.nextToken()
-            val token2 = lexer.nextToken()
-            val token3 = lexer.nextToken()
+            val lexer = Lexer("inject-from inject-into inject-into-deps no-features")
+            val token1 = lexer.next()
+            val token2 = lexer.next()
+            val token3 = lexer.next()
+            val token4 = lexer.next()
 
             assertEquals(Token.Type.ID_INJECT_FROM, token1.type)
             assertEquals("inject-from", token1.value)
             assertEquals(Token.Type.ID_INJECT_INTO, token2.type)
             assertEquals("inject-into", token2.value)
-            assertEquals(Token.Type.ID_NO_FEATURES, token3.type)
-            assertEquals("no-features", token3.value)
+            assertEquals(Token.Type.ID_INJECT_INTO_DEPENDENCIES, token3.type)
+            assertEquals("inject-into-deps", token3.value)
+            assertEquals(Token.Type.ID_NO_FEATURES, token4.type)
+            assertEquals("no-features", token4.value)
         }
     }
 
@@ -301,15 +305,15 @@ class LexerTest {
         @Test
         fun `should skip leading whitespace`() {
             val lexer = Lexer("   \t\n  (")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.INSTR_START, token.type)
         }
 
         @Test
         fun `should skip whitespace between tokens`() {
             val lexer = Lexer("(   )")
-            val token1 = lexer.nextToken()
-            val token2 = lexer.nextToken()
+            val token1 = lexer.next()
+            val token2 = lexer.next()
 
             assertEquals(Token.Type.INSTR_START, token1.type)
             assertEquals(Token.Type.INSTR_END, token2.type)
@@ -320,7 +324,7 @@ class LexerTest {
             val lexer = Lexer("( ) [ ]")
             val tokens = mutableListOf<Token>()
             repeat(4) {
-                tokens.add(lexer.nextToken())
+                tokens.add(lexer.next())
             }
 
             val expectedTypes = listOf(
@@ -360,7 +364,7 @@ class LexerTest {
             val tokens = mutableListOf<Token>()
             while (true) {
                 try {
-                    tokens.add(lexer.nextToken())
+                    tokens.add(lexer.next())
                 } catch (_: LexerException.EOF) {
                     break
                 }
@@ -416,7 +420,7 @@ class LexerTest {
             val tokens = mutableListOf<Token>()
             while (true) {
                 try {
-                    tokens.add(lexer.nextToken())
+                    tokens.add(lexer.next())
                 } catch (_: LexerException.EOF) {
                     break
                 }
@@ -444,17 +448,17 @@ class LexerTest {
         fun `should handle empty input`() {
             val lexer = Lexer("")
             assertThrows<LexerException.EOF> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
 
         @Test
         fun `should track positions correctly`() {
             val lexer = Lexer("(\n \"test\"\n module )")
-            val token1 = lexer.nextToken() // (
-            val token2 = lexer.nextToken() // "test"
-            val token3 = lexer.nextToken() // module
-            val token4 = lexer.nextToken() // )
+            val token1 = lexer.next() // (
+            val token2 = lexer.next() // "test"
+            val token3 = lexer.next() // module
+            val token4 = lexer.next() // )
 
             // Instruction start
             assertEquals(0, token1.position.start)
@@ -484,7 +488,7 @@ class LexerTest {
         @Test
         fun `should handle identifiers at end of input`() {
             val lexer = Lexer("module")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ID_MODULE, token.type)
             assertEquals("module", token.value)
         }
@@ -497,7 +501,7 @@ class LexerTest {
         fun `should throw on unexpected symbol in multi-char token`() {
             val lexer = Lexer("{]")
             assertThrows<LexerException.UnexpectedSymbol> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
 
@@ -505,7 +509,7 @@ class LexerTest {
         fun `should throw on incomplete any token`() {
             val lexer = Lexer("[*")
             assertThrows<LexerException.EOF> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
 
@@ -513,7 +517,7 @@ class LexerTest {
         fun `should throw on wrong any token end`() {
             val lexer = Lexer("[*x")
             assertThrows<LexerException.UnexpectedSymbol> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
 
@@ -521,15 +525,15 @@ class LexerTest {
         fun `should throw on EOF during identifier`() {
             val lexer = Lexer("modul")
             assertThrows<LexerException.InvalidIdentifier> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
 
         @Test
         fun `should throw on EOF during string`() {
             val lexer = Lexer("\"unclosed")
-            assertThrows<LexerException.EOF> {
-                lexer.nextToken()
+            assertThrows<LexerException.UncompletedString> {
+                lexer.next()
             }
         }
 
@@ -537,17 +541,17 @@ class LexerTest {
         fun `should throw on unexpected character`() {
             val lexer = Lexer("@")
             assertThrows<LexerException.InvalidIdentifier> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
 
         @Test
         fun `should throw on invalid character after identifier`() {
             val lexer = Lexer("module@")
-            val token1 = lexer.nextToken()
+            val token1 = lexer.next()
             assertEquals(Token.Type.ID_MODULE, token1.type)
             assertThrows<LexerException.InvalidIdentifier> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
     }
@@ -559,7 +563,7 @@ class LexerTest {
         fun `should handle only whitespace input`() {
             val lexer = Lexer("   \t\n  ")
             assertThrows<LexerException.EOF> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
 
@@ -568,7 +572,7 @@ class LexerTest {
             val lexer = Lexer("module(name\"test\")")
             val tokens = mutableListOf<Token>()
             repeat(5) {
-                tokens.add(lexer.nextToken())
+                tokens.add(lexer.next())
             }
 
             assertEquals(Token.Type.ID_MODULE, tokens[0].type)
@@ -583,7 +587,7 @@ class LexerTest {
             val lexer = Lexer("{[ ]} [*]")
             val tokens = mutableListOf<Token>()
             repeat(3) {
-                tokens.add(lexer.nextToken())
+                tokens.add(lexer.next())
             }
 
             assertEquals(Token.Type.ATTR_START, tokens[0].type)
@@ -594,14 +598,14 @@ class LexerTest {
         @Test
         fun `should handle identifiers followed by EOF`() {
             val lexer = Lexer("module name")
-            val token1 = lexer.nextToken()
-            val token2 = lexer.nextToken()
+            val token1 = lexer.next()
+            val token2 = lexer.next()
 
             assertEquals(Token.Type.ID_MODULE, token1.type)
             assertEquals(Token.Type.ID_NAME, token2.type)
 
             assertThrows<LexerException.EOF> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
     }
@@ -612,19 +616,19 @@ class LexerTest {
         @Test
         fun `should handle identifier ending at EOF`() {
             val lexer = Lexer("module")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ID_MODULE, token.type)
 
             assertThrows<LexerException.EOF> {
-                lexer.nextToken()
+                lexer.next()
             }
         }
 
         @Test
         fun `should handle identifier followed by symbol without space`() {
             val lexer = Lexer("module(")
-            val token1 = lexer.nextToken()
-            val token2 = lexer.nextToken()
+            val token1 = lexer.next()
+            val token2 = lexer.next()
 
             assertEquals(Token.Type.ID_MODULE, token1.type)
             assertEquals(Token.Type.INSTR_START, token2.type)
@@ -633,8 +637,8 @@ class LexerTest {
         @Test
         fun `should break identifier at whitespace`() {
             val lexer = Lexer("module name")
-            val token1 = lexer.nextToken()
-            val token2 = lexer.nextToken()
+            val token1 = lexer.next()
+            val token2 = lexer.next()
 
             assertEquals(Token.Type.ID_MODULE, token1.type)
             assertEquals("module", token1.value)
@@ -645,7 +649,7 @@ class LexerTest {
         @Test
         fun `should handle identifier with numbers`() {
             val lexer = Lexer("module123")
-            val token = lexer.nextToken()
+            val token = lexer.next()
             assertEquals(Token.Type.ID_MODULE, token.type)
             assertEquals("module", token.value)
         }
@@ -673,7 +677,7 @@ class LexerTest {
             val tokens = mutableListOf<Token>()
             while (true) {
                 try {
-                    tokens.add(lexer.nextToken())
+                    tokens.add(lexer.next())
                 } catch (_: LexerException.EOF) {
                     break
                 }
@@ -703,7 +707,7 @@ class LexerTest {
             val tokens = mutableListOf<Token>()
             while (true) {
                 try {
-                    tokens.add(lexer.nextToken())
+                    tokens.add(lexer.next())
                 } catch (_: LexerException.EOF) {
                     break
                 }
