@@ -1,8 +1,8 @@
 package ru.pht.sprout.module.parser
 
 import ru.pht.sprout.module.lexer.LexerException
-import ru.pht.sprout.module.lexer.LexerException.Companion.computeLineInfo
 import ru.pht.sprout.module.lexer.Token
+import ru.pht.sprout.utils.ErrorFormatter
 
 abstract class ParserException : Exception {
     abstract fun print(parser: Parser, builder: StringBuilder = StringBuilder()): StringBuilder
@@ -17,40 +17,52 @@ abstract class ParserException : Exception {
 
     abstract class Wrapped(val context: ExceptionWrapContext, open val exception: Throwable) : ParserException(exception) {
         protected fun StringBuilder.printHead(): StringBuilder {
-            context.lastToken?.let { append('[').append(it.position.line + 1).append(", ").append(it.position.column + 1).append(']') }
-            append('[').append(context.stage).append(']')
-            append('\n')
+            context.lastToken?.let { append("[${it.position.line + 1}, ${it.position.column + 1}]") }
+            append("[${context.stage}]\n")
             return this
         }
 
         class FromLexer(context: ExceptionWrapContext, override val exception: LexerException) : Wrapped(context, exception) {
             override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
-                this.exception.print(parser.lexer, builder.printHead())
+                exception.print(parser.lexer, builder.printHead())
         }
 
         class FromParser(context: ExceptionWrapContext, override val exception: ParserException) : Wrapped(context, exception) {
             override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
-                this.exception.print(parser, builder.printHead())
+                exception.print(parser, builder.printHead())
         }
     }
 
     class Unsupported(val token: Token?, message: String) : ParserException(message) {
         override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
-            if (this.token == null)
-                builder.append(this.message)
-            else builder.print(parser, this.token, this.message)
+            token?.let {
+                builder.append(ErrorFormatter.formatErrorWithToken(
+                    parser.lexer.source,
+                    it.position.start,
+                    it.position.end - it.position.start,
+                    it.position.line,
+                    it.position.column,
+                    message!!
+                ))
+            } ?: builder.append(message)
     }
 
     class ValidationException(val token: Token?, val string: String) : ParserException("Невалидное значение '$string'") {
         override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
-            if (this.token == null)
-                builder.append(this.message)
-            else builder.print(parser, this.token, this.message)
+            token?.let {
+                builder.append(ErrorFormatter.formatErrorWithToken(
+                    parser.lexer.source,
+                    it.position.start,
+                    it.position.end - it.position.start,
+                    it.position.line,
+                    it.position.column,
+                    message!!
+                ))
+            } ?: builder.append(message)
     }
 
     class NotInitializedException(val field: String) : ParserException("Неинициализированное обязательное поле '$field'") {
-        override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
-            builder.append(this.message)
+        override fun print(parser: Parser, builder: StringBuilder): StringBuilder = builder.append(message)
     }
 
     class UnexpectedToken : ParserException {
@@ -68,41 +80,13 @@ abstract class ParserException : Exception {
         }
 
         override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
-            builder.print(parser, this.accepted, "Неожиданный токен ${accepted.type}\nОжидались токены типа: ${excepted.map { "'$it'" }}")
-    }
-
-    companion object {
-        fun StringBuilder.print(parser: Parser, token: Token, message: String?): StringBuilder {
-            val (info, indent) = computeLineInfo(parser.lexer, token.position.start)
-            return this
-                .append(info)
-                .append('\n')
-                .message(indent, token.position.end - token.position.start - 1, message)
-        }
-
-        fun StringBuilder.message(indent: String, length: Int, message: String?): StringBuilder {
-            append(indent)
-            append('^')
-            repeat(length) { append('~') }
-            message ?: return this
-            append(' ')
-            var flag = true
-            var message: String = message
-            while (true) {
-                if (flag)
-                    flag = false
-                else {
-                    append('\n')
-                    append(indent)
-                }
-                val end = message.indexOf('\n')
-                if (end == -1) {
-                    append(message)
-                    return this
-                }
-                append(message.take(end))
-                message = message.substring(end + 1)
-            }
-        }
+            builder.append(ErrorFormatter.formatErrorWithToken(
+                parser.lexer.source,
+                accepted.position.start,
+                accepted.position.end - accepted.position.start,
+                accepted.position.line,
+                accepted.position.column,
+                "Неожиданный токен ${accepted.type}\nОжидались токены типа: ${excepted.joinToString { "'$it'" }}"
+            ))
     }
 }
