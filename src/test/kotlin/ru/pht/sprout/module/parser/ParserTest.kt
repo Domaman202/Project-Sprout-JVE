@@ -8,7 +8,6 @@ import ru.pht.sprout.module.lexer.LexerException
 import ru.pht.sprout.module.lexer.Token
 
 class ParserTest {
-
     @Test
     fun testMinimalModule() {
         val source = """
@@ -260,13 +259,13 @@ class ParserTest {
         val lexer5 = Lexer(source5)
         lexer5.next() // (
         lexer5.next() // module
-        lexer5.next() // "pht/module"
-        val token = lexer5.next() // This will be a STRING token
-        val unexpectedTokenDirect = ParserException.UnexpectedToken(token, listOf(Token.Type.ATTR_START))
+        val token0 = lexer5.next() // "pht/module"
+        val token1 = lexer5.next() // This will be a STRING token
+        val unexpectedTokenDirect = ParserException.UnexpectedToken(token1, listOf(Token.Type.ATTR_START))
         assertTrue(unexpectedTokenDirect.print(Parser(Lexer(source5))).toString().isNotBlank())
 
         // Test FromParser and FromLexer print methods
-        val fromParser = ParserException.Wrapped.FromParser(ParserException.ExceptionWrapContext("Test stage", null), ParserException.NotInitializedException("testField"))
+        val fromParser = ParserException.Wrapped.FromParser(ParserException.ExceptionWrapContext("Test stage", null), ParserException.NotInitializedException(token0, "testField"))
         assertTrue(fromParser.print(parser).toString().isNotBlank())
 
         val fromLexer = ParserException.Wrapped.FromLexer(ParserException.ExceptionWrapContext("Test stage", null), LexerException.EOF())

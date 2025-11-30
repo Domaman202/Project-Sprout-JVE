@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 import ru.pht.sprout.module.lexer.Token.Type.*
 
 class LexerTest {
-
     @Test
     fun testInstructions() {
         val lexer = Lexer("()")

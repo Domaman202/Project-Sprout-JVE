@@ -1,30 +1,6 @@
 package ru.pht.sprout.utils
 
 object ErrorFormatter {
-    fun formatError(source: String, position: Int, length: Int, message: String): String {
-        val safePosition = position.coerceIn(0, source.length)
-        val safeLength = length.coerceAtLeast(0)
-
-        val (lineInfo, lineContent, visualErrorStart) = getVisualLineInfo(source, safePosition)
-        val visualLength = calculateVisualLength(lineContent, safePosition - findLineStart(source, safePosition), safeLength)
-
-        val builder = StringBuilder()
-        builder.append(lineInfo).append(" ").append(lineContent).append("\n")
-
-        val prefixSpaces = lineInfo.length + 1 + visualErrorStart
-        repeat(prefixSpaces) { builder.append(' ') }
-
-        builder.append('^')
-        if (visualLength > 1) {
-            repeat(visualLength - 1) { builder.append('~') }
-        }
-
-        val totalPrefixLength = prefixSpaces + visualLength + 1
-        appendMultilineMessage(builder, message, totalPrefixLength)
-
-        return builder.toString()
-    }
-
     fun formatErrorWithToken(source: String, tokenStart: Int, tokenLength: Int, line: Int, column: Int, message: String): String {
         val safeTokenStart = tokenStart.coerceIn(0, source.length)
         val safeTokenLength = tokenLength.coerceAtLeast(0)

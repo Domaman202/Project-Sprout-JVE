@@ -6,6 +6,7 @@ import ru.pht.sprout.module.lexer.LexerException
 import ru.pht.sprout.module.lexer.Token
 import ru.pht.sprout.module.lexer.Token.Type.*
 import ru.pht.sprout.module.parser.ParserException.ExceptionWrapContext
+import ru.pht.sprout.utils.NotInitializedException
 
 /**
  * Парсер заголовков модулей.
@@ -44,7 +45,11 @@ class Parser(val lexer: Lexer) {
                     else -> throw ParserException.UnexpectedToken(token, listOf(ATTR_START, INSTR_END))
                 }
             }
-            return module.build()
+            try {
+                return module.build()
+            } catch (e: NotInitializedException) {
+                throw ParserException.NotInitializedException(lastToken, e)
+            }
         }
 
     // INSTR_START - на момент вызова должен быть получен и проверен.
@@ -60,7 +65,11 @@ class Parser(val lexer: Lexer) {
                     else -> throw ParserException.UnexpectedToken(token, listOf(ATTR_START, INSTR_END))
                 }
             }
-            return dependency.build()
+            try {
+                return dependency.build()
+            } catch (e: NotInitializedException) {
+                throw ParserException.NotInitializedException(lastToken, e)
+            }
         }
 
     // ===== PARSE ATTRIBUTE ===== //

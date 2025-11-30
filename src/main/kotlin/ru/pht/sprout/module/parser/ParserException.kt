@@ -61,8 +61,20 @@ abstract class ParserException : Exception {
             } ?: builder.append(message)
     }
 
-    class NotInitializedException(val field: String) : ParserException("Неинициализированное обязательное поле '$field'") {
-        override fun print(parser: Parser, builder: StringBuilder): StringBuilder = builder.append(message)
+    class NotInitializedException(val token: Token?, val field: String) : ParserException("Неинициализированное обязательное поле '$field'") {
+        constructor(token: Token?, original: ru.pht.sprout.utils.NotInitializedException) : this(token, original.field)
+
+        override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
+            token?.let {
+                builder.append(ErrorFormatter.formatErrorWithToken(
+                    parser.lexer.source,
+                    it.position.start,
+                    it.position.end - it.position.start,
+                    it.position.line,
+                    it.position.column,
+                    message!!
+                ))
+            } ?: builder.append(message)
     }
 
     class UnexpectedToken : ParserException {

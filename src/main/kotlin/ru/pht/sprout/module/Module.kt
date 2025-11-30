@@ -1,7 +1,7 @@
 @file:Suppress("UNUSED")
 package ru.pht.sprout.module
 
-import ru.pht.sprout.module.parser.ParserException
+import ru.pht.sprout.utils.NotInitializedException
 
 data class Module(
     val name: String,
@@ -125,7 +125,7 @@ data class Module(
 
             fun build(): Dependency {
                 return Dependency(
-                    this.name ?: throw ParserException.NotInitializedException("name"),
+                    this.name ?: throw NotInitializedException("name"),
                     this.version ?: StringOrAny.ANY,
                     this.uses ?: false,
                     this.adapters ?: ListOrAny.empty(),
@@ -370,8 +370,8 @@ data class Module(
 
         fun build(): Module {
             return Module(
-                this.name ?: throw ParserException.NotInitializedException("name"),
-                this.version ?: throw ParserException.NotInitializedException("vers"),
+                this.name ?: throw NotInitializedException("name"),
+                this.version ?: throw NotInitializedException("vers"),
                 this.description ?: "",
                 this.authors ?: emptyList(),
                 this.dependencies ?: emptyList(),
