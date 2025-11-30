@@ -6,4 +6,5 @@
 # Build
 
 .gradle
+.kotlin
 build

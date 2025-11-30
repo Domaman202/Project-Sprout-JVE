@@ -7,10 +7,13 @@ import ru.pht.sprout.module.lexer.Token
 import ru.pht.sprout.module.lexer.Token.Type.*
 import ru.pht.sprout.module.parser.ParserException.ExceptionWrapContext
 
+/**
+ * Парсер заголовков модулей.
+ */
 class Parser(val lexer: Lexer) {
     // ===== API ===== //
 
-    @Throws(LexerException::class, ParserException::class)
+    @Throws(ParserException::class)
     fun parse(): Module {
         return parseModuleInstruction()
     }

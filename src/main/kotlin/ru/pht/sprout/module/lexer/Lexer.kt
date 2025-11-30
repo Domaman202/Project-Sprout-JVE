@@ -2,6 +2,9 @@ package ru.pht.sprout.module.lexer
 
 import ru.pht.sprout.module.lexer.Token.Type.*
 
+/**
+ * Лексический анализатор заголовков модуля.
+ */
 class Lexer(val source: String) : Iterator<Token> {
     var ptr: Int = 0
     var line: Int = 0
