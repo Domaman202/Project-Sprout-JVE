@@ -12,13 +12,13 @@ repositories {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-client-core:2.3.10")
-    implementation("io.ktor:ktor-client-cio:2.3.10")
-    implementation("io.ktor:ktor-client-content-negotiation:2.3.10")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.10")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+    implementation("io.github.z4kn4fein:semver:${project.properties["semver-version"]}")
+    implementation("io.ktor:ktor-client-core:${project.properties["ktor-version"]}")
+    implementation("io.ktor:ktor-client-cio:${project.properties["ktor-version"]}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${project.properties["coroutines-version"]}")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${project.properties["serialization-version"]}")
     testImplementation(kotlin("test"))
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${project.properties["coroutines-version"]}")
 }
 
 tasks.test {

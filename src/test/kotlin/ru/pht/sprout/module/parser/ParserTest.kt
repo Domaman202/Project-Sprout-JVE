@@ -1,5 +1,8 @@
 package ru.pht.sprout.module.parser
 
+import io.github.z4kn4fein.semver.Version
+import io.github.z4kn4fein.semver.constraints.toConstraint
+import io.github.z4kn4fein.semver.toVersion
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import ru.pht.sprout.module.Module
@@ -19,7 +22,7 @@ class ParserTest {
         val parser = Parser(Lexer(source))
         val module = parser.parse()
         assertEquals("pht/minimal", module.name)
-        assertEquals("0.0.1", module.version)
+        assertEquals("0.0.1".toVersion(), module.version)
     }
 
     @Test
@@ -59,31 +62,31 @@ class ParserTest {
         val module = parser.parse()
 
         assertEquals("pht/full-example", module.name)
-        assertEquals("1.2.3", module.version)
+        assertEquals("1.2.3".toVersion(), module.version)
         assertEquals("This is a full example", module.description)
         assertEquals(listOf("author1", "author2"), module.authors)
         assertEquals(2, module.dependencies.size)
         assertEquals("pht/core", module.dependencies[0].name)
         val dep = module.dependencies[1]
         assertEquals("pht/lib", dep.name)
-        assertTrue(dep.version.isString)
-        assertEquals("1.0.0", dep.version.string())
+        assertTrue(dep.version.isValue)
+        assertEquals("1.0.0".toConstraint(), dep.version.value())
         assertTrue(dep.uses)
         assertTrue(dep.adapters.isAny)
         assertTrue(dep.injectInto)
         assertTrue(dep.injectIntoDependencies)
         assertTrue(dep.injectFrom)
-        assertTrue(dep.features.isList)
-        assertEquals(listOf("f1"), dep.features.list())
-        assertTrue(dep.disableFeatures.isList)
-        assertEquals(listOf("f2"), dep.disableFeatures.list())
+        assertTrue(dep.features.isValue)
+        assertEquals(listOf("f1"), dep.features.value())
+        assertTrue(dep.disableFeatures.isValue)
+        assertEquals(listOf("f2"), dep.disableFeatures.value())
 
         assertTrue(module.injectInto)
         assertFalse(module.injectIntoDependencies)
         assertTrue(module.injectFrom)
 
-        assertTrue(module.imports.isList)
-        assertEquals(listOf(Module.IntermoduleData.ADAPTERS, Module.IntermoduleData.TYPES), module.imports.list())
+        assertTrue(module.imports.isValue)
+        assertEquals(listOf(Module.IntermoduleData.ADAPTERS, Module.IntermoduleData.TYPES), module.imports.value())
         assertTrue(module.exports.isAny)
         assertEquals(listOf("feat1" to true, "feat2" to false), module.features)
 

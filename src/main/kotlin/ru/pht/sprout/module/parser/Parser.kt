@@ -1,5 +1,9 @@
 package ru.pht.sprout.module.parser
 
+import io.github.z4kn4fein.semver.Version
+import io.github.z4kn4fein.semver.VersionFormatException
+import io.github.z4kn4fein.semver.constraints.Constraint
+import io.github.z4kn4fein.semver.constraints.ConstraintFormatException
 import ru.pht.sprout.module.Module
 import ru.pht.sprout.module.lexer.Lexer
 import ru.pht.sprout.module.lexer.LexerException
@@ -7,7 +11,6 @@ import ru.pht.sprout.module.lexer.Token
 import ru.pht.sprout.module.lexer.Token.Type.*
 import ru.pht.sprout.module.parser.ParserException.ExceptionWrapContext
 import ru.pht.sprout.utils.NotInitializedException
-import ru.pht.sprout.utils.VersionUtils
 
 /**
  * Парсер заголовков модулей.
@@ -151,10 +154,10 @@ class Parser(val lexer: Lexer) {
     }
 
     // Никаких токенов на момент вызова не должен быть получено и проверено.
-    private fun parseIntermoduleDataListOrAll(): Module.ListOrAny<Module.IntermoduleData> {
+    private fun parseIntermoduleDataListOrAll(): Module.ValueOrAny<List<Module.IntermoduleData>> {
         val token = popTk()
         when (token.type) {
-            ANY -> return Module.ListOrAny.any() // [*]
+            ANY -> return Module.ValueOrAny.any() // [*]
             LIST_START -> { // [
                 val list = ArrayList<Module.IntermoduleData>()
                 while (true) {
@@ -165,7 +168,7 @@ class Parser(val lexer: Lexer) {
                         ID_MACROS -> Module.IntermoduleData.MACROS // macros
                         ID_TYPES -> Module.IntermoduleData.TYPES // types
                         ID_FUNCTIONS -> Module.IntermoduleData.FUNCTIONS // functions
-                        LIST_END -> return Module.ListOrAny.ofList(list) // ]
+                        LIST_END -> return Module.ValueOrAny.of(list) // ]
                         else -> throw ParserException.UnexpectedToken(token, listOf(ID_ADAPTERS, ID_PLUGINS, ID_MACROS, ID_TYPES, ID_FUNCTIONS, LIST_END))
                     }
                 }
@@ -189,17 +192,17 @@ class Parser(val lexer: Lexer) {
         }
     }
 
-    private fun parseNamesListOrAny(): Module.ListOrAny<String> {
+    private fun parseNamesListOrAny(): Module.ValueOrAny<List<String>> {
         val token = popTk()
         when (token.type) {
-            ANY -> return Module.ListOrAny.any() // [*]
+            ANY -> return Module.ValueOrAny.any() // [*]
             LIST_START -> { // [
                 val list = ArrayList<String>()
                 while (true) {
                     val token = popTk()
                     when (token.type) {
                         STRING -> list += checkNameString(token) // "name"
-                        LIST_END -> return Module.ListOrAny.ofList(list) // ]
+                        LIST_END -> return Module.ValueOrAny.of(list) // ]
                         else -> throw ParserException.UnexpectedToken(token, listOf(STRING, LIST_END))
                     }
                 }
@@ -249,18 +252,20 @@ class Parser(val lexer: Lexer) {
         return checkNameString(token, string)
     }
 
-    private fun parseDefinitionVersionString(): String {
+    private fun parseDefinitionVersionString(): Version {
         val (token, string) = parseString()
-        if (VersionUtils.isValidModuleVersion(string))
-            return string
-        throw ParserException.ValidationException(token, string)
+        try {
+            return Version.parse(string, strict = true)
+        } catch (_: VersionFormatException) {
+            throw ParserException.ValidationException(token, string)
+        }
     }
 
-    private fun parseVersionStringOrAny(): Module.StringOrAny {
+    private fun parseVersionStringOrAny(): Module.ValueOrAny<Constraint> {
         val token = popTk()
         return when (token.type) {
-            ANY -> Module.StringOrAny.ANY // [*]
-            STRING -> Module.StringOrAny.ofString(checkDependencyVersionString(token)) // "1.0.0"
+            ANY -> Module.ValueOrAny.any() // [*]
+            STRING -> Module.ValueOrAny.of(checkDependencyVersionString(token)) // "1.0.0"
             else -> throw ParserException.UnexpectedToken(token, listOf(ANY, STRING))
         }
     }
@@ -281,13 +286,15 @@ class Parser(val lexer: Lexer) {
         throw ParserException.ValidationException(token, string)
     }
 
-    private fun checkDependencyVersionString(token: Token): String =
+    private fun checkDependencyVersionString(token: Token): Constraint =
         checkDependencyVersionString(token, token.value)
 
-    private fun checkDependencyVersionString(token: Token?, string: String): String {
-        if (VersionUtils.isValidDependencyVersion(string))
-            return string
-        throw ParserException.ValidationException(token, string)
+    private fun checkDependencyVersionString(token: Token?, string: String): Constraint {
+        try {
+            return Constraint.parse(string)
+        } catch (_: ConstraintFormatException) {
+            throw ParserException.ValidationException(token, string)
+        }
     }
 
     private fun checkPathString(token: Token): String =

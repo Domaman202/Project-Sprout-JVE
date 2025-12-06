@@ -1,11 +1,13 @@
 @file:Suppress("UNUSED")
 package ru.pht.sprout.module
 
+import io.github.z4kn4fein.semver.Version
+import io.github.z4kn4fein.semver.constraints.Constraint
 import ru.pht.sprout.utils.NotInitializedException
 
 data class Module(
     val name: String,
-    val version: String,
+    val version: Version,
     val description: String,
     val authors: List<String>,
     val dependencies: List<Dependency>,
@@ -13,8 +15,8 @@ data class Module(
     val injectInto: Boolean,
     val injectIntoDependencies: Boolean,
     val injectFrom: Boolean,
-    val imports: ListOrAny<IntermoduleData>,
-    val exports: ListOrAny<IntermoduleData>,
+    val imports: ValueOrAny<List<IntermoduleData>>,
+    val exports: ValueOrAny<List<IntermoduleData>>,
     val features: List<Pair<String, Boolean>>,
     val sources: List<PathOrDependency>,
     val resources: List<PathOrDependency>,
@@ -22,25 +24,25 @@ data class Module(
 ) {
     data class Dependency(
         val name: String,
-        val version: StringOrAny,
+        val version: ValueOrAny<Constraint>,
         val uses: Boolean,
-        val adapters: ListOrAny<String>,
+        val adapters: ValueOrAny<List<String>>,
         val injectInto: Boolean,
         val injectIntoDependencies: Boolean,
         val injectFrom: Boolean,
-        val features: ListOrAny<String>,
-        val disableFeatures: ListOrAny<String>
+        val features: ValueOrAny<List<String>>,
+        val disableFeatures: ValueOrAny<List<String>>
     ) {
         class Builder {
             var name: String? = null
-            var version: StringOrAny? = null
+            var version: ValueOrAny<Constraint>? = null
             var uses: Boolean? = null
-            var adapters: ListOrAny<String>? = null
+            var adapters: ValueOrAny<List<String>>? = null
             var injectInto: Boolean? = null
             var injectIntoDependencies: Boolean? = null
             var injectFrom: Boolean? = null
-            var features: ListOrAny<String>? = null
-            var disableFeatures: ListOrAny<String>? = null
+            var features: ValueOrAny<List<String>>? = null
+            var disableFeatures: ValueOrAny<List<String>>? = null
 
             fun name(value: String): Builder {
                 this.name = value
@@ -51,12 +53,12 @@ data class Module(
                 return this.name
             }
 
-            fun version(value: StringOrAny): Builder {
+            fun version(value: ValueOrAny<Constraint>): Builder {
                 this.version = value
                 return this
             }
 
-            fun version(): StringOrAny? {
+            fun version(): ValueOrAny<Constraint>? {
                 return this.version
             }
 
@@ -69,12 +71,12 @@ data class Module(
                 return this.uses
             }
 
-            fun adapters(value: ListOrAny<String>): Builder {
+            fun adapters(value: ValueOrAny<List<String>>): Builder {
                 this.adapters = this.adapters with value
                 return this
             }
 
-            fun adapters(): ListOrAny<String>? {
+            fun adapters(): ValueOrAny<List<String>>? {
                 return this.adapters
             }
 
@@ -105,35 +107,35 @@ data class Module(
                 return this.injectFrom
             }
 
-            fun features(value: ListOrAny<String>): Builder {
+            fun features(value: ValueOrAny<List<String>>): Builder {
                 this.features = this.features with value
                 return this
             }
 
-            fun features(): ListOrAny<String>? {
+            fun features(): ValueOrAny<List<String>>? {
                 return this.features
             }
 
-            fun disableFeatures(value: ListOrAny<String>): Builder {
+            fun disableFeatures(value: ValueOrAny<List<String>>): Builder {
                 this.disableFeatures = this.disableFeatures with value
                 return this
             }
 
-            fun disableFeatures(): ListOrAny<String>? {
+            fun disableFeatures(): ValueOrAny<List<String>>? {
                 return this.disableFeatures
             }
 
             fun build(): Dependency {
                 return Dependency(
                     this.name ?: throw NotInitializedException("name"),
-                    this.version ?: StringOrAny.ANY,
+                    this.version ?: ValueOrAny.any(),
                     this.uses ?: false,
-                    this.adapters ?: ListOrAny.empty(),
+                    this.adapters ?: ValueOrAny.of(emptyList()),
                     this.injectInto ?: false,
                     this.injectIntoDependencies ?: false,
                     this.injectFrom ?: false,
-                    this.features ?: ListOrAny.empty(),
-                    this.disableFeatures ?: ListOrAny.empty(),
+                    this.features ?: ValueOrAny.of(emptyList()),
+                    this.disableFeatures ?: ValueOrAny.of(emptyList()),
                 )
             }
         }
@@ -172,53 +174,31 @@ data class Module(
         }
     }
 
-    class StringOrAny private constructor(private val string: String?, private val any: Boolean) {
-        val isString: Boolean
+    class ValueOrAny <T> private constructor(private val value: T?, private val any: Boolean) {
+        val isValue: Boolean
             get() = !this.any
         val isAny: Boolean
             get() = this.any
 
-        fun string(): String {
-            return this.string!!
+        fun value(): T {
+            return this.value!!
         }
 
         companion object {
-            val ANY = StringOrAny(null, true)
+            val ANY = ValueOrAny(null, true)
 
-            fun ofString(string: String): StringOrAny {
-                return StringOrAny(string, false)
-            }
-        }
-    }
+            fun <T> of(value: T): ValueOrAny<T> =
+                ValueOrAny(value, false)
 
-    class ListOrAny<T> private constructor(private val list: List<T>?, private val any: Boolean) {
-        val isList: Boolean
-            get() = !this.any
-        val isAny: Boolean
-            get() = this.any
-
-        fun list(): List<T> {
-            return this.list!!
-        }
-
-        companion object {
-            fun <T> any(): ListOrAny<T> {
-                return ListOrAny(null, true)
-            }
-
-            fun <T> empty(): ListOrAny<T> {
-                return ListOrAny(emptyList(), false)
-            }
-
-            fun <T> ofList(list: List<T>): ListOrAny<T> {
-                return ListOrAny(list, false)
-            }
+            @Suppress("UNCHECKED_CAST")
+            fun <T> any(): ValueOrAny<T> =
+                ANY as ValueOrAny<T>
         }
     }
 
     class Builder {
         var name: String? = null
-        var version: String? = null
+        var version: Version? = null
         var description: String? = null
         var authors: List<String>? = null
         var dependencies: List<Dependency>? = null
@@ -226,8 +206,8 @@ data class Module(
         var injectInto: Boolean? = null
         var injectIntoDependencies: Boolean? = null
         var injectFrom: Boolean? = null
-        var imports: ListOrAny<IntermoduleData>? = null
-        var exports: ListOrAny<IntermoduleData>? = null
+        var imports: ValueOrAny<List<IntermoduleData>>? = null
+        var exports: ValueOrAny<List<IntermoduleData>>? = null
         var features: List<Pair<String, Boolean>>? = null
         var sources: List<PathOrDependency>? = null
         var resources: List<PathOrDependency>? = null
@@ -242,12 +222,12 @@ data class Module(
             return this.name
         }
 
-        fun version(value: String): Builder {
+        fun version(value: Version): Builder {
             this.version = value
             return this
         }
 
-        fun version(): String? {
+        fun version(): Version? {
             return this.version
         }
 
@@ -314,21 +294,21 @@ data class Module(
             return this.injectFrom
         }
 
-        fun imports(value: ListOrAny<IntermoduleData>): Builder {
+        fun imports(value: ValueOrAny<List<IntermoduleData>>): Builder {
             this.imports = this.imports with value
             return this
         }
 
-        fun imports(): ListOrAny<IntermoduleData>? {
+        fun imports(): ValueOrAny<List<IntermoduleData>>? {
             return this.imports
         }
 
-        fun exports(value: ListOrAny<IntermoduleData>): Builder {
+        fun exports(value: ValueOrAny<List<IntermoduleData>>): Builder {
             this.exports = this.exports with value
             return this
         }
 
-        fun exports(): ListOrAny<IntermoduleData>? {
+        fun exports(): ValueOrAny<List<IntermoduleData>>? {
             return this.exports
         }
 
@@ -379,8 +359,8 @@ data class Module(
                 this.injectInto ?: false,
                 this.injectIntoDependencies ?: false,
                 this.injectFrom ?: false,
-                this.imports ?: ListOrAny.empty(),
-                this.exports ?: ListOrAny.empty(),
+                this.imports ?: ValueOrAny.of(emptyList()),
+                this.exports ?: ValueOrAny.of(emptyList()),
                 this.features ?: emptyList(),
                 this.sources ?: emptyList(),
                 this.resources ?: emptyList(),
@@ -398,16 +378,16 @@ data class Module(
             return new
         }
 
-        infix fun <E> ListOrAny<E>?.with(second: ListOrAny<E>): ListOrAny<E> {
+        infix fun <E> ValueOrAny<List<E>>?.with(second: ValueOrAny<List<E>>): ValueOrAny<List<E>> {
             this ?: return second
             if (this.isAny)
                 return this
             if (second.isAny)
                 return second
             val new = ArrayList<E>()
-            new.addAll(this.list())
-            new.addAll(second.list())
-            return ListOrAny.ofList(new)
+            new.addAll(this.value())
+            new.addAll(second.value())
+            return ValueOrAny.of(new)
         }
     }
 }

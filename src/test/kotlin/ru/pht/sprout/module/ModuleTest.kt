@@ -25,35 +25,35 @@ class ModuleTest {
 
     @Test
     fun testListOrAnyWith() {
-        val list1 = Module.ListOrAny.ofList(listOf("a"))
-        val list2 = Module.ListOrAny.ofList(listOf("b"))
+        val list1 = Module.ValueOrAny.of(listOf("a"))
+        val list2 = Module.ValueOrAny.of(listOf("b"))
         val result = list1 with list2
-        assertTrue(result.isList)
-        assertEquals(listOf("a", "b"), result.list())
+        assertTrue(result.isValue)
+        assertEquals(listOf("a", "b"), result.value())
     }
 
     @Test
     fun testListOrAnyWithAny() {
-        val list1 = Module.ListOrAny.ofList(listOf("a"))
-        val any = Module.ListOrAny.any<String>()
+        val list1 = Module.ValueOrAny.of(listOf("a"))
+        val any = Module.ValueOrAny.any<List<String>>()
         val result = list1 with any
         assertTrue(result.isAny)
     }
 
     @Test
     fun testAnyWithListOrAny() {
-        val any = Module.ListOrAny.any<String>()
-        val list2 = Module.ListOrAny.ofList(listOf("b"))
+        val any = Module.ValueOrAny.any<List<String>>()
+        val list2 = Module.ValueOrAny.of(listOf("b"))
         val result = any with list2
         assertTrue(result.isAny)
     }
 
     @Test
     fun testNullListOrAnyWith() {
-        val list: Module.ListOrAny<String>? = null
-        val list2 = Module.ListOrAny.ofList(listOf("b"))
+        val list: Module.ValueOrAny<List<String>>? = null
+        val list2 = Module.ValueOrAny.of(listOf("b"))
         val result = list with list2
-        assertTrue(result.isList)
-        assertEquals(listOf("b"), result.list())
+        assertTrue(result.isValue)
+        assertEquals(listOf("b"), result.value())
     }
 }
