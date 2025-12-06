@@ -1,5 +1,6 @@
 package ru.pht.sprout.module.repo.impl
 
+import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.constraints.Constraint
 import io.github.z4kn4fein.semver.toVersion
 import io.ktor.client.*
@@ -47,8 +48,12 @@ open class GitRepository(
     override suspend fun findAsync(name: String, version: Constraint): List<IDownloadable> {
         return this
             .getAs<List<Repository>>(this.repository)
-            .filter { it.name == name && version.isSatisfiedBy(it.version.toVersion()) }
-            .map { GitDownloadable(it.name, it.hash, it.file) }
+            .asSequence()
+            .map { Pair(it, it.version.toVersion()) }
+            .filter { (m, v) -> m.name == name && version.isSatisfiedBy(v) }
+            .map { (m, v) -> GitDownloadable(m.name, v, m.hash, m.file) }
+            .toMutableList()
+            .sortedBy { it.version }
     }
 
     private suspend inline fun <reified T> getAs(url: String): T {
@@ -74,7 +79,12 @@ open class GitRepository(
         val file: String
     )
 
-    private inner class GitDownloadable(private val name: String, private val hash: String, private val file: String) : IDownloadable {
+    private inner class GitDownloadable(
+        val name: String,
+        val version: Version,
+        val hash: String,
+        val file: String
+    ) : IDownloadable {
         override fun header(): ModuleHeader = runBlocking {
             withContext(Dispatchers.IO) {
                 headerAsync()
