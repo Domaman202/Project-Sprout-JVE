@@ -1,10 +1,10 @@
-package ru.pht.sprout.module.lexer
+package ru.pht.sprout.module.header.lexer
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import ru.pht.sprout.module.lexer.Token.Type.*
+import ru.pht.sprout.module.header.lexer.Token.Type.*
 
 class LexerTest {
     @Test

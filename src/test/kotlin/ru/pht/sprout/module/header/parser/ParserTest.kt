@@ -1,14 +1,13 @@
-package ru.pht.sprout.module.parser
+package ru.pht.sprout.module.header.parser
 
-import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.constraints.toConstraint
 import io.github.z4kn4fein.semver.toVersion
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import ru.pht.sprout.module.Module
-import ru.pht.sprout.module.lexer.Lexer
-import ru.pht.sprout.module.lexer.LexerException
-import ru.pht.sprout.module.lexer.Token
+import ru.pht.sprout.module.header.ModuleHeader
+import ru.pht.sprout.module.header.lexer.Lexer
+import ru.pht.sprout.module.header.lexer.LexerException
+import ru.pht.sprout.module.header.lexer.Token
 
 class ParserTest {
     @Test
@@ -86,7 +85,7 @@ class ParserTest {
         assertTrue(module.injectFrom)
 
         assertTrue(module.imports.isValue)
-        assertEquals(listOf(Module.IntermoduleData.ADAPTERS, Module.IntermoduleData.TYPES), module.imports.value())
+        assertEquals(listOf(ModuleHeader.IntermoduleData.ADAPTERS, ModuleHeader.IntermoduleData.TYPES), module.imports.value())
         assertTrue(module.exports.isAny)
         assertEquals(listOf("feat1" to true, "feat2" to false), module.features)
 
@@ -188,7 +187,7 @@ class ParserTest {
         val exception = assertThrows(ParserException.Wrapped.FromParser::class.java) {
             parser.parse()
         }
-        assertTrue(exception.exception is ParserException.Unsupported)
+        assertTrue(exception.exception is ParserException.UnsupportedHeader)
     }
 
     @Test

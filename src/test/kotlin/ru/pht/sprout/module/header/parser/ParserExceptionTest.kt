@@ -1,8 +1,8 @@
-package ru.pht.sprout.module.parser
+package ru.pht.sprout.module.header.parser
 
 import org.junit.jupiter.api.assertThrows
-import ru.pht.sprout.module.lexer.Lexer
-import ru.pht.sprout.module.lexer.Token
+import ru.pht.sprout.module.header.lexer.Lexer
+import ru.pht.sprout.module.header.lexer.Token
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -16,7 +16,7 @@ class ParserExceptionTest {
         }
         assertEquals(exception0.context.stage, "Парсинг заголовка")
         val exception1 = exception0.exception
-        assertIs<ParserException.Unsupported>(exception1)
+        assertIs<ParserException.UnsupportedHeader>(exception1)
         val expected = """
             [1, 9] (module "my/custom/module")
                            ^~~~~~~~~~~~~~~~~~ Неподдерживаемый формат модуля

@@ -46,7 +46,7 @@ class GithubRepositoryTest {
 
     @BeforeEach
     fun setUp() {
-        mockEngine = MockEngine { request ->
+        mockEngine = MockEngine.Companion { request ->
             when (request.url.toString()) {
                 "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
                     val json = """
@@ -214,7 +214,7 @@ class GithubRepositoryTest {
     @Test
     fun `download should throw exception when hash mismatch`() = runTest {
         // Создаем отдельный репозиторий для теста с неверным хэшем
-        val mockEngineWithInvalidHash = MockEngine { request ->
+        val mockEngineWithInvalidHash = MockEngine.Companion { request ->
             when (request.url.toString()) {
                 "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
                     val json = """
@@ -267,7 +267,7 @@ class GithubRepositoryTest {
     @Test
     fun `header should throw exception when module dot pht not found`() = runTest {
         // Создаем отдельный репозиторий для теста без module.pht
-        val mockEngineWithoutModulePht = MockEngine { request ->
+        val mockEngineWithoutModulePht = MockEngine.Companion { request ->
             when (request.url.toString()) {
                 "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
                     val json = """
@@ -335,7 +335,7 @@ class GithubRepositoryTest {
 
     @Test
     fun `should handle network errors gracefully`() = runTest {
-        val failingEngine = MockEngine { _ ->
+        val failingEngine = MockEngine.Companion { _ ->
             respond(
                 content = "Internal Server Error",
                 status = HttpStatusCode.InternalServerError
@@ -351,7 +351,7 @@ class GithubRepositoryTest {
 
     @Test
     fun `should handle empty JSON response`() = runTest {
-        val emptyJsonEngine = MockEngine { request ->
+        val emptyJsonEngine = MockEngine.Companion { request ->
             when (request.url.toString()) {
                 "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
                     respond(
@@ -360,6 +360,7 @@ class GithubRepositoryTest {
                         headers = headersOf(HttpHeaders.ContentType, "application/json")
                     )
                 }
+
                 else -> {
                     respond(
                         content = "Not Found",
@@ -378,7 +379,7 @@ class GithubRepositoryTest {
 
     @Test
     fun `should handle malformed JSON response`() = runTest {
-        val malformedJsonEngine = MockEngine { request ->
+        val malformedJsonEngine = MockEngine.Companion { request ->
             when (request.url.toString()) {
                 "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
                     respond(
@@ -387,6 +388,7 @@ class GithubRepositoryTest {
                         headers = headersOf(HttpHeaders.ContentType, "application/json")
                     )
                 }
+
                 else -> {
                     respond(
                         content = "Not Found",
@@ -406,7 +408,7 @@ class GithubRepositoryTest {
 
     @Test
     fun `should handle 404 when downloading module`() = runTest {
-        val notFoundEngine = MockEngine { request ->
+        val notFoundEngine = MockEngine.Companion { request ->
             when (request.url.toString()) {
                 "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
                     val json = """

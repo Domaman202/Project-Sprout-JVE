@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
+import ru.pht.sprout.module.repo.impl.GiteaRepository
 import java.io.ByteArrayOutputStream
 import java.nio.file.Files
 import java.nio.file.Path

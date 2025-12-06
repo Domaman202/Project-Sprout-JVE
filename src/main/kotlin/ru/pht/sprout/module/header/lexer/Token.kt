@@ -1,6 +1,21 @@
-package ru.pht.sprout.module.lexer
+package ru.pht.sprout.module.header.lexer
 
-class Token(val position: Position, val type: Type, val value: String) {
+/**
+ * Токен.
+ *
+ * @param position Позиция токена в исходном коде.
+ * @param type Тип исходного токена.
+ * @param value Строковое значение токена.
+ */
+data class Token(val position: Position, val type: Type, val value: String) {
+    /**
+     * Позиция токена в исходном коде.
+     *
+     * @param start Начало.
+     * @param end Конец.
+     * @param line Строка.
+     * @param column Столбец.
+     */
     data class Position(
         val start: Int,
         val end: Int,
@@ -8,6 +23,9 @@ class Token(val position: Position, val type: Type, val value: String) {
         val column: Int
     )
 
+    /**
+     * Тип токена.
+     */
     enum class Type {
         // ()
         INSTR_START,

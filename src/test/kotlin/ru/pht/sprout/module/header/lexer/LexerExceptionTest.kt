@@ -1,4 +1,4 @@
-package ru.pht.sprout.module.lexer
+package ru.pht.sprout.module.header.lexer
 
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test

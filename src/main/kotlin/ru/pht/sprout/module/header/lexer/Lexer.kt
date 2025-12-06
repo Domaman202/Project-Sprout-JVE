@@ -1,19 +1,34 @@
-package ru.pht.sprout.module.lexer
+package ru.pht.sprout.module.header.lexer
 
-import ru.pht.sprout.module.lexer.Token.Type.*
+import ru.pht.sprout.module.header.lexer.Token.Type.*
 
 /**
  * Лексический анализатор заголовков модуля.
  */
-class Lexer(val source: String) : Iterator<Token> {
+class Lexer(val source: String) : Iterator<ru.pht.sprout.module.header.lexer.Token> {
     var ptr: Int = 0
     var line: Int = 0
     var column: Int = 0
 
+    /**
+     * Проверка возможности токенизации нового токена.
+     *
+     * @return `true` - если токен есть, `false` - если токена нет.
+     */
     override fun hasNext(): Boolean {
+        skipWS()
         return ptr < source.length
     }
 
+    /**
+     * Токенизация следующего токена.
+     *
+     * @return Токен.
+     * @throws LexerException.InvalidIdentifier Идентификатор не существует.
+     * @throws LexerException.UnexpectedSymbol Неизвестный / неожиданный символ.
+     * @throws LexerException.UncompletedString Строка не была завершена.
+     * @throws LexerException.EOF Достигнут конец файла.
+     */
     @Throws(LexerException::class)
     override fun next(): Token {
         skipWS()
@@ -21,7 +36,7 @@ class Lexer(val source: String) : Iterator<Token> {
             return when (val char = pop()) {
                 '(' -> token(INSTR_START, "(")
                 ')' -> token(INSTR_END, ")")
-                '[' -> if (peek() == '*') { pop(); pop(']') { token(ANY, "*", ) } } else token(LIST_START, "[")
+                '[' -> if (peek() == '*') { pop(); pop(']') { token(ANY, "*" ) } } else token(LIST_START, "[")
                 ']' -> if (peek() == '}') { pop(); token(ATTR_END, "]}") } else token(LIST_END, "]")
                 '{' -> { pop('[') { token(ATTR_START, "{[") } }
                 '"' -> {

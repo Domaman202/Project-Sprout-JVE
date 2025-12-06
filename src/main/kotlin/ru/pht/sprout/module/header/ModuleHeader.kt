@@ -1,11 +1,33 @@
 @file:Suppress("UNUSED")
-package ru.pht.sprout.module
+
+package ru.pht.sprout.module.header
 
 import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.constraints.Constraint
 import ru.pht.sprout.utils.NotInitializedException
+import ru.pht.sprout.utils.NotValueException
+import ru.pht.sprout.utils.ValueOrAny
 
-data class Module(
+/**
+ * Заголовок модуля.
+ *
+ * @param name Имя.
+ * @param version Версия.
+ * @param description Описание.
+ * @param authors Авторы.
+ * @param dependencies Зависимости.
+ * @param uses Использование модулей по умолчанию.
+ * @param injectInto Инъекции в зависимые модули.
+ * @param injectIntoDependencies Инъекции в зависимости зависимых модулей.
+ * @param injectFrom Инъекции из зависимостей.
+ * @param imports Импорты.
+ * @param exports Экспорты.
+ * @param features Определение фич.
+ * @param sources Файлы исходного кода.
+ * @param resources Файлы ресурсы.
+ * @param plugins Файлы кода плагинов.
+ */
+data class ModuleHeader(
     val name: String,
     val version: Version,
     val description: String,
@@ -22,6 +44,19 @@ data class Module(
     val resources: List<PathOrDependency>,
     val plugins: List<PathOrDependency>,
 ) {
+    /**
+     * Зависимость модуля.
+     *
+     * @param name Имя.
+     * @param version Версия / диапазон версий.
+     * @param uses Использование по умолчанию.
+     * @param adapters Использование адаптеров.
+     * @param injectInto Инъекция в зависимость.
+     * @param injectIntoDependencies Инъекции в зависимости зависимостей.
+     * @param injectFrom Инъекции из зависимости.
+     * @param features Включение фич.
+     * @param disableFeatures Выключение фич.
+     */
     data class Dependency(
         val name: String,
         val version: ValueOrAny<Constraint>,
@@ -141,6 +176,9 @@ data class Module(
         }
     }
 
+    /**
+     * Тип межмодульной информации.
+     */
     enum class IntermoduleData {
         PLUGINS,
         ADAPTERS,
@@ -149,50 +187,57 @@ data class Module(
         FUNCTIONS
     }
 
+    /**
+     * Путь к файлу / каталог с файлами или зависимость.
+     */
     class PathOrDependency private constructor(private val path: String?, private val dependency: Dependency?) {
+        /// Это путь / каталог?
         val isPath: Boolean
             get() = this.path != null
+        /// Это зависимость?
         val isDependency: Boolean
             get() = this.path == null
 
+        /**
+         * Возвращает путь, иначе кидает исключение.
+         *
+         * @return Путь.
+         * @throws NotValueException Если это зависимость.
+         */
         fun path(): String {
+            if (this.isDependency)
+                throw NotValueException()
             return this.path!!
         }
 
+        /**
+         * Возвращает зависимость, иначе кидает исключение.
+         *
+         * @return Зависимость.
+         * @throws NotValueException Если это путь.
+         */
         fun dependency(): Dependency {
+            if (this.isPath)
+                throw NotValueException()
             return this.dependency!!
         }
 
         companion object {
+            /**
+             * @param path Путь.
+             * @return Путь.
+             */
             fun ofPath(path: String): PathOrDependency {
                 return PathOrDependency(path, null)
             }
 
+            /**
+             * @param dependency Зависимость.
+             * @return Зависимость.
+             */
             fun ofDependency(dependency: Dependency): PathOrDependency {
                 return PathOrDependency(null, dependency)
             }
-        }
-    }
-
-    class ValueOrAny <T> private constructor(private val value: T?, private val any: Boolean) {
-        val isValue: Boolean
-            get() = !this.any
-        val isAny: Boolean
-            get() = this.any
-
-        fun value(): T {
-            return this.value!!
-        }
-
-        companion object {
-            val ANY = ValueOrAny(null, true)
-
-            fun <T> of(value: T): ValueOrAny<T> =
-                ValueOrAny(value, false)
-
-            @Suppress("UNCHECKED_CAST")
-            fun <T> any(): ValueOrAny<T> =
-                ANY as ValueOrAny<T>
         }
     }
 
@@ -348,8 +393,8 @@ data class Module(
             return this.plugins
         }
 
-        fun build(): Module {
-            return Module(
+        fun build(): ModuleHeader {
+            return ModuleHeader(
                 this.name ?: throw NotInitializedException("name"),
                 this.version ?: throw NotInitializedException("vers"),
                 this.description ?: "",

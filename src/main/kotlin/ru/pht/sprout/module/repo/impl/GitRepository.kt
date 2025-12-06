@@ -13,8 +13,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import ru.pht.sprout.module.Module
-import ru.pht.sprout.module.parser.ParserUtils
+import ru.pht.sprout.module.header.ModuleHeader
+import ru.pht.sprout.module.header.lexer.Lexer
+import ru.pht.sprout.module.header.parser.Parser
 import ru.pht.sprout.module.repo.IDownloadable
 import ru.pht.sprout.module.repo.IRepository
 import java.io.ByteArrayInputStream
@@ -27,7 +28,13 @@ import java.util.zip.ZipInputStream
 import kotlin.io.path.createDirectories
 import kotlin.io.path.notExists
 
-abstract class GitRepository(
+/**
+ * Git совместимый репозиторий.
+ *
+ * @param client HttpClient.
+ * @param repository Ссылка на json файл репозиториев.
+ */
+open class GitRepository(
     private val client: HttpClient = HttpClient(CIO),
     private val repository: String
 ) : IRepository {
@@ -68,18 +75,18 @@ abstract class GitRepository(
     )
 
     private inner class GitDownloadable(private val name: String, private val hash: String, private val file: String) : IDownloadable {
-        override fun header(): Module = runBlocking {
+        override fun header(): ModuleHeader = runBlocking {
             withContext(Dispatchers.IO) {
                 headerAsync()
             }
         }
 
-        override suspend fun headerAsync(): Module {
+        override suspend fun headerAsync(): ModuleHeader {
             ZipInputStream(this@GitRepository.getAsStream(this.file)).use {
                 while (true) {
                     val entry = it.nextEntry ?: throw IOException("File 'module.pht' not founded")
                     if (!entry.isDirectory && entry.name == "module.pht")
-                        return ParserUtils.parseString(it.readBytes().toString(Charsets.UTF_8))
+                        return Parser(Lexer((it.readBytes().toString(Charsets.UTF_8)))).parse()
                     it.closeEntry()
                 }
             }

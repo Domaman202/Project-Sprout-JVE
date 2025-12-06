@@ -1,31 +1,46 @@
-package ru.pht.sprout.module.parser
+package ru.pht.sprout.module.header.parser
 
 import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.constraints.Constraint
 import io.github.z4kn4fein.semver.constraints.ConstraintFormatException
-import ru.pht.sprout.module.Module
-import ru.pht.sprout.module.lexer.Lexer
-import ru.pht.sprout.module.lexer.LexerException
-import ru.pht.sprout.module.lexer.Token
-import ru.pht.sprout.module.lexer.Token.Type.*
-import ru.pht.sprout.module.parser.ParserException.ExceptionWrapContext
+import ru.pht.sprout.module.header.ModuleHeader
+import ru.pht.sprout.module.header.lexer.Lexer
+import ru.pht.sprout.module.header.lexer.LexerException
+import ru.pht.sprout.module.header.lexer.Token
+import ru.pht.sprout.module.header.lexer.Token.Type
+import ru.pht.sprout.module.header.lexer.Token.Type.*
+import ru.pht.sprout.module.header.parser.ParserException.ExceptionWrapContext
 import ru.pht.sprout.utils.NotInitializedException
+import ru.pht.sprout.utils.ValueOrAny
 
 /**
  * Парсер заголовков модулей.
+ *
+ * @param lexer Лексический анализатор.
  */
 class Parser(val lexer: Lexer) {
     // ===== API ===== //
 
+    /**
+     * Парсинг заголовка модуля.
+     *
+     * @return Заголовок модуля.
+     * @throws ParserException.Wrapped.FromLexer Обёртка исключения полученного от лексического анализатора.
+     * @throws ParserException.Wrapped.FromParser Обёртка с указанием на каком этапе было получено следующее исключение. Может быть вложенным
+     * @throws ParserException.UnsupportedHeader Неподдерживаемый тип заголовка.
+     * @throws ParserException.ValidationException Ошибка проверки аттрибута на соответствие стандарту.
+     * @throws ParserException.NotInitializedException Ошибка отсутствия указания обязательного аттрибута.
+     * @throws ParserException.UnexpectedToken Получен неверный токен (ожидался другой тип токена).
+     */
     @Throws(ParserException::class)
-    fun parse(): Module {
+    fun parse(): ModuleHeader {
         return parseModuleInstruction()
     }
 
     // ===== PARSE INSTRUCTION ===== //
 
-    private fun parseModuleInstruction(): Module =
+    private fun parseModuleInstruction(): ModuleHeader =
         wrapException(null, "Парсинг заголовка") {
             popHeadTk(INSTR_START) // (
             popTk(ID_MODULE) // module
@@ -33,14 +48,14 @@ class Parser(val lexer: Lexer) {
             return when (token.value) {
                 "pht/module" -> parsePhtModuleInstruction()
                 // todo: Поддержка кастомных модулей
-                else -> throw ParserException.Unsupported(token, "Неподдерживаемый формат модуля")
+                else -> throw ParserException.UnsupportedHeader(token, "Неподдерживаемый формат модуля")
             }
         }
 
     // INSTR_START, ID_MODULE, STRING - на момент вызова должны быть получены и проверены.
-    private fun ExceptionWrapContext.parsePhtModuleInstruction(): Module =
+    private fun ExceptionWrapContext.parsePhtModuleInstruction(): ModuleHeader =
         wrapExceptionSaveCtx("Парсинг заголовка 'pht/module'") {
-            val module = Module.Builder()
+            val module = ModuleHeader.Builder()
             while (true) {
                 val token = popTk()
                 when (token.type) {
@@ -57,9 +72,9 @@ class Parser(val lexer: Lexer) {
         }
 
     // INSTR_START - на момент вызова должен быть получен и проверен.
-    private fun parseDependency(token: Token): Module.Dependency =
+    private fun parseDependency(token: Token): ModuleHeader.Dependency =
         wrapException(token, "Парсинг зависимости") {
-            val dependency = Module.Dependency.Builder()
+            val dependency = ModuleHeader.Dependency.Builder()
             popTk(ID_MODULE) // module
             while (true) {
                 val token = popTk()
@@ -79,7 +94,7 @@ class Parser(val lexer: Lexer) {
     // ===== PARSE ATTRIBUTE ===== //
 
     // ATTR_START - на момент вызова должен быть получен и проверен.
-    private fun parseModuleAttribute(token: Token, module: Module.Builder) =
+    private fun parseModuleAttribute(token: Token, module: ModuleHeader.Builder) =
         wrapException(token, "Парсинг аттрибутов модуля") {
             val token = popTk() // ID_X
             when (token.type) {
@@ -104,7 +119,7 @@ class Parser(val lexer: Lexer) {
         }
 
     // ATTR_START - на момент вызова должен быть получен и проверен.
-    private fun parseDependencyAttribute(token: Token, dependency: Module.Dependency.Builder) =
+    private fun parseDependencyAttribute(token: Token, dependency: ModuleHeader.Dependency.Builder) =
         wrapException(token, "Парсинг аттрибутов зависимости") {
             val token = popTk() // ID_X
             when (token.type) {
@@ -139,13 +154,13 @@ class Parser(val lexer: Lexer) {
     }
 
     // Никаких токенов на момент вызова не должен быть получено и проверено.
-    private fun parseDependenciesList(): List<Module.Dependency> {
-        val list = ArrayList<Module.Dependency>()
+    private fun parseDependenciesList(): List<ModuleHeader.Dependency> {
+        val list = ArrayList<ModuleHeader.Dependency>()
         popTk(LIST_START) // [
         while (true) {
             val token = popTk()
             list += when (token.type) {
-                STRING -> Module.Dependency.Builder().name(checkNameString(token)).build() // "module"
+                STRING -> ModuleHeader.Dependency.Builder().name(checkNameString(token)).build() // "module"
                 INSTR_START -> parseDependency(token) // (module ...)
                 LIST_END -> return list // ]
                 else -> throw ParserException.UnexpectedToken(token, listOf(STRING, INSTR_START, LIST_END))
@@ -154,21 +169,21 @@ class Parser(val lexer: Lexer) {
     }
 
     // Никаких токенов на момент вызова не должен быть получено и проверено.
-    private fun parseIntermoduleDataListOrAll(): Module.ValueOrAny<List<Module.IntermoduleData>> {
+    private fun parseIntermoduleDataListOrAll(): ValueOrAny<List<ModuleHeader.IntermoduleData>> {
         val token = popTk()
         when (token.type) {
-            ANY -> return Module.ValueOrAny.any() // [*]
+            ANY -> return ValueOrAny.any() // [*]
             LIST_START -> { // [
-                val list = ArrayList<Module.IntermoduleData>()
+                val list = ArrayList<ModuleHeader.IntermoduleData>()
                 while (true) {
                     val token = popTk()
                     list += when (token.type) {
-                        ID_ADAPTERS ->  Module.IntermoduleData.ADAPTERS // adapters
-                        ID_PLUGINS ->  Module.IntermoduleData.PLUGINS // plugins
-                        ID_MACROS -> Module.IntermoduleData.MACROS // macros
-                        ID_TYPES -> Module.IntermoduleData.TYPES // types
-                        ID_FUNCTIONS -> Module.IntermoduleData.FUNCTIONS // functions
-                        LIST_END -> return Module.ValueOrAny.of(list) // ]
+                        ID_ADAPTERS ->  ModuleHeader.IntermoduleData.ADAPTERS // adapters
+                        ID_PLUGINS ->  ModuleHeader.IntermoduleData.PLUGINS // plugins
+                        ID_MACROS -> ModuleHeader.IntermoduleData.MACROS // macros
+                        ID_TYPES -> ModuleHeader.IntermoduleData.TYPES // types
+                        ID_FUNCTIONS -> ModuleHeader.IntermoduleData.FUNCTIONS // functions
+                        LIST_END -> return ValueOrAny.of(list) // ]
                         else -> throw ParserException.UnexpectedToken(token, listOf(ID_ADAPTERS, ID_PLUGINS, ID_MACROS, ID_TYPES, ID_FUNCTIONS, LIST_END))
                     }
                 }
@@ -178,31 +193,31 @@ class Parser(val lexer: Lexer) {
     }
 
     // Никаких токенов на момент вызова не должен быть получено и проверено.
-    private fun parsePathOrDependenciesList(): List<Module.PathOrDependency> {
-        val list = ArrayList<Module.PathOrDependency>()
+    private fun parsePathOrDependenciesList(): List<ModuleHeader.PathOrDependency> {
+        val list = ArrayList<ModuleHeader.PathOrDependency>()
         popTk(LIST_START) // [
         while (true) {
             val token = popTk()
             list += when (token.type) {
-                STRING -> Module.PathOrDependency.ofPath(checkPathString(token)) // "src/*"
-                INSTR_START -> Module.PathOrDependency.ofDependency(parseDependency(token)) // (module ...)
+                STRING -> ModuleHeader.PathOrDependency.ofPath(checkPathString(token)) // "src/*"
+                INSTR_START -> ModuleHeader.PathOrDependency.ofDependency(parseDependency(token)) // (module ...)
                 LIST_END -> return list // ]
                 else -> throw ParserException.UnexpectedToken(token, listOf(STRING, INSTR_START, LIST_END))
             }
         }
     }
 
-    private fun parseNamesListOrAny(): Module.ValueOrAny<List<String>> {
+    private fun parseNamesListOrAny(): ValueOrAny<List<String>> {
         val token = popTk()
         when (token.type) {
-            ANY -> return Module.ValueOrAny.any() // [*]
+            ANY -> return ValueOrAny.any() // [*]
             LIST_START -> { // [
                 val list = ArrayList<String>()
                 while (true) {
                     val token = popTk()
                     when (token.type) {
                         STRING -> list += checkNameString(token) // "name"
-                        LIST_END -> return Module.ValueOrAny.of(list) // ]
+                        LIST_END -> return ValueOrAny.of(list) // ]
                         else -> throw ParserException.UnexpectedToken(token, listOf(STRING, LIST_END))
                     }
                 }
@@ -261,11 +276,11 @@ class Parser(val lexer: Lexer) {
         }
     }
 
-    private fun parseVersionStringOrAny(): Module.ValueOrAny<Constraint> {
+    private fun parseVersionStringOrAny(): ValueOrAny<Constraint> {
         val token = popTk()
         return when (token.type) {
-            ANY -> Module.ValueOrAny.any() // [*]
-            STRING -> Module.ValueOrAny.of(checkDependencyVersionString(token)) // "1.0.0"
+            ANY -> ValueOrAny.any() // [*]
+            STRING -> ValueOrAny.of(checkDependencyVersionString(token)) // "1.0.0"
             else -> throw ParserException.UnexpectedToken(token, listOf(ANY, STRING))
         }
     }
@@ -308,7 +323,7 @@ class Parser(val lexer: Lexer) {
 
     // ===== TOKEN UTILS ===== //
 
-    private fun popTk(type: Token.Type): Token {
+    private fun popTk(type: Type): Token {
         val token = this.lexer.next()
         if (token.type == type)
             return token
@@ -320,7 +335,7 @@ class Parser(val lexer: Lexer) {
 
     // ===== EXCEPTION WRAPPING ===== //
 
-    private fun ExceptionWrapContext.popHeadTk(type: Token.Type): Token {
+    private fun ExceptionWrapContext.popHeadTk(type: Type): Token {
         val token = this@Parser.lexer.next()
         if (token.type == type) {
             this@popHeadTk.lastToken = token

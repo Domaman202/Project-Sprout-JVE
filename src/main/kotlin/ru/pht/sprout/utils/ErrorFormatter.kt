@@ -1,7 +1,24 @@
 package ru.pht.sprout.utils
 
 object ErrorFormatter {
-    fun formatErrorWithToken(source: String, tokenStart: Int, tokenLength: Int, line: Int, column: Int, message: String): String {
+    /**
+     * Форматирование ошибки с указанием токена в файле исходного кода.
+     *
+     * @param source Исходный код.
+     * @param tokenStart Начало токена.
+     * @param tokenLength Длина токена.
+     * @param line Строка.
+     * @param column Столбец.
+     * @param message Сообщение ошибки.
+     */
+    fun formatErrorWithToken(
+        source: String,
+        tokenStart: Int,
+        tokenLength: Int,
+        line: Int,
+        column: Int,
+        message: String
+    ): String {
         val safeTokenStart = tokenStart.coerceIn(0, source.length)
         val safeTokenLength = tokenLength.coerceAtLeast(0)
 
@@ -43,22 +60,6 @@ object ErrorFormatter {
         }
     }
 
-    private fun getVisualLineInfo(source: String, position: Int): Triple<String, String, Int> {
-        val safePosition = position.coerceIn(0, source.length)
-        val lineStart = findLineStart(source, safePosition)
-        val lineEnd = findLineEnd(source, safePosition)
-        val lineNumber = countLines(source, safePosition)
-
-        val originalLine = if (lineStart < lineEnd) source.substring(lineStart, lineEnd) else ""
-        val columnNumber = (safePosition - lineStart).coerceIn(0, originalLine.length)
-
-        val visualLine = originalLine.replace("\t", "    ")
-        val visualStart = calculateVisualPosition(originalLine, columnNumber)
-
-        val info = "[${lineNumber + 1}, ${columnNumber + 1}]"
-        return Triple(info, visualLine, visualStart)
-    }
-
     private fun findLineStart(source: String, pos: Int): Int {
         if (source.isEmpty()) return 0
         val safePos = pos.coerceIn(0, source.length)
@@ -73,16 +74,6 @@ object ErrorFormatter {
         val safePos = pos.coerceIn(0, source.length)
         val nextNewline = source.indexOf('\n', safePos)
         return if (nextNewline == -1) source.length else nextNewline
-    }
-
-    private fun countLines(source: String, pos: Int): Int {
-        if (source.isEmpty()) return 0
-        val safePos = pos.coerceIn(0, source.length)
-        var count = 0
-        for (i in 0 until safePos) {
-            if (source[i] == '\n') count++
-        }
-        return count
     }
 
     private fun calculateVisualPosition(line: String, pos: Int): Int {

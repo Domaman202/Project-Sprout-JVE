@@ -1,7 +1,7 @@
 package ru.pht.sprout.module.repo
 
-import ru.pht.sprout.module.Module
-import ru.pht.sprout.module.parser.ParserException
+import ru.pht.sprout.module.header.ModuleHeader
+import ru.pht.sprout.module.header.parser.ParserException
 import java.io.IOException
 import java.nio.file.Path
 
@@ -17,7 +17,7 @@ interface IDownloadable {
      * @throws ParserException Ошибка парсинга заголовка.
      */
     @Throws(IOException::class, ParserException::class)
-    fun header(): Module
+    fun header(): ModuleHeader
 
     /**
      * Асинхронное получение заголовка модуля.
@@ -27,7 +27,7 @@ interface IDownloadable {
      * @throws ParserException Ошибка парсинга заголовка.
      */
     @Throws(IOException::class, ParserException::class)
-    suspend fun headerAsync(): Module
+    suspend fun headerAsync(): ModuleHeader
 
     /**
      * Загрузка модуля в директорию.

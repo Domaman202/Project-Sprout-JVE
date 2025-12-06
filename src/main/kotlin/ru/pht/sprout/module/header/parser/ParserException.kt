@@ -1,7 +1,7 @@
-package ru.pht.sprout.module.parser
+package ru.pht.sprout.module.header.parser
 
-import ru.pht.sprout.module.lexer.LexerException
-import ru.pht.sprout.module.lexer.Token
+import ru.pht.sprout.module.header.lexer.LexerException
+import ru.pht.sprout.module.header.lexer.Token
 import ru.pht.sprout.utils.ErrorFormatter
 
 abstract class ParserException : Exception {
@@ -33,7 +33,7 @@ abstract class ParserException : Exception {
         }
     }
 
-    class Unsupported(val token: Token?, message: String) : ParserException(message) {
+    class UnsupportedHeader(val token: Token?, message: String) : ParserException(message) {
         override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
             token?.let {
                 builder.append(ErrorFormatter.formatErrorWithToken(
