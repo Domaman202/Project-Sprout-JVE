@@ -7,6 +7,7 @@ import ru.pht.sprout.module.lexer.Token
 import ru.pht.sprout.module.lexer.Token.Type.*
 import ru.pht.sprout.module.parser.ParserException.ExceptionWrapContext
 import ru.pht.sprout.utils.NotInitializedException
+import ru.pht.sprout.utils.VersionUtils
 
 /**
  * Парсер заголовков модулей.
@@ -250,7 +251,7 @@ class Parser(val lexer: Lexer) {
 
     private fun parseDefinitionVersionString(): String {
         val (token, string) = parseString()
-        if (Regex("^\\d+(?:\\.\\d+)*(?:-[a-zA-Z-]+)?$").matches(string))
+        if (VersionUtils.isValidModuleVersion(string))
             return string
         throw ParserException.ValidationException(token, string)
     }
@@ -284,7 +285,7 @@ class Parser(val lexer: Lexer) {
         checkDependencyVersionString(token, token.value)
 
     private fun checkDependencyVersionString(token: Token?, string: String): String {
-        if (Regex("^\\d+(?:\\.\\d+)*(?:\\.\\+)?(?:-[a-zA-Z-]+)?$").matches(string))
+        if (VersionUtils.isValidDependencyVersion(string))
             return string
         throw ParserException.ValidationException(token, string)
     }

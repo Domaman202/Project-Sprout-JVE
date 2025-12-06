@@ -27,14 +27,14 @@ class ParserTest {
         val source = """
             (module "pht/module"
                 {[name "pht/full-example"]}
-                {[vers "1.2.3-alpha"]}
+                {[vers "1.2.3"]}
                 {[desc "This is a full example"]}
                 {[auth ["author1" "author2"]]}
                 {[deps [
                     "pht/core"
                     (module
                         {[name "pht/lib"]}
-                        {[vers "1.0.+"]}
+                        {[vers "1.0.0"]}
                         {[uses allow]}
                         {[adapters [*]]}
                         {[inject-into allow]}
@@ -59,7 +59,7 @@ class ParserTest {
         val module = parser.parse()
 
         assertEquals("pht/full-example", module.name)
-        assertEquals("1.2.3-alpha", module.version)
+        assertEquals("1.2.3", module.version)
         assertEquals("This is a full example", module.description)
         assertEquals(listOf("author1", "author2"), module.authors)
         assertEquals(2, module.dependencies.size)
@@ -67,7 +67,7 @@ class ParserTest {
         val dep = module.dependencies[1]
         assertEquals("pht/lib", dep.name)
         assertTrue(dep.version.isString)
-        assertEquals("1.0.+", dep.version.string())
+        assertEquals("1.0.0", dep.version.string())
         assertTrue(dep.uses)
         assertTrue(dep.adapters.isAny)
         assertTrue(dep.injectInto)
