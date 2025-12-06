@@ -5,7 +5,7 @@ import ru.pht.sprout.module.header.lexer.Token.Type.*
 /**
  * Лексический анализатор заголовков модуля.
  */
-class Lexer(val source: String) : Iterator<ru.pht.sprout.module.header.lexer.Token> {
+class Lexer(val source: String) : Iterator<Token> {
     var ptr: Int = 0
     var line: Int = 0
     var column: Int = 0
