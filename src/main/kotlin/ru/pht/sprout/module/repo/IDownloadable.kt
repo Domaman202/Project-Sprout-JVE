@@ -2,8 +2,8 @@ package ru.pht.sprout.module.repo
 
 import ru.pht.sprout.module.Module
 import ru.pht.sprout.module.parser.ParserException
-import java.io.File
 import java.io.IOException
+import java.nio.file.Path
 
 /**
  * Источник конкретной версии конкретного модуля.
@@ -36,7 +36,7 @@ interface IDownloadable {
      * @throws IOException Ошибка сети.
      */
     @Throws(IOException::class)
-    fun download(dir: File)
+    fun download(dir: Path)
 
     /**
      * Асинхронная загрузка модуля в директорию.
@@ -45,5 +45,5 @@ interface IDownloadable {
      * @throws IOException Ошибка сети.
      */
     @Throws(IOException::class)
-    suspend fun downloadAsync(dir: File)
+    suspend fun downloadAsync(dir: Path)
 }

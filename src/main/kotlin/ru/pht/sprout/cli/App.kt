@@ -1,37 +1,14 @@
 package ru.pht.sprout.cli
 
-import ru.pht.sprout.module.lexer.Lexer
-import ru.pht.sprout.module.parser.Parser
-import ru.pht.sprout.module.parser.ParserException
+import io.github.z4kn4fein.semver.constraints.toConstraint
+import kotlinx.coroutines.runBlocking
+import ru.pht.sprout.module.repo.impl.GithubRepository
+import java.io.File
 
 object App {
-//    @JvmStatic
-//    fun main(args: Array<String>) {
-//        val lexer = Lexer("""
-//            "(module)"xxx
-//        """.trimIndent())
-//        try {
-//            while (lexer.hasNext()) {
-//                lexer.next()
-//            }
-//        } catch (e: LexerException) {
-//            System.err.println(e.print(lexer))
-//        }
-//    }
-
     @JvmStatic
-    fun main(args: Array<String>) {
-        val parser = Parser(Lexer("""
-(module "pht/module"
-    {[name "123"]}  ; Отсутствует значение
-    {[vers "1.0.0" "extra"]}  ; Лишние токены
-    {[deps [pht/core]]}  ; Идентификатор вместо строки
-)
-        """.trimIndent()))
-        try {
-            parser.parse()
-        } catch (e: ParserException) {
-            System.err.println(e.print(parser))
-        }
+    fun main(args: Array<String>) = runBlocking {
+        // Самая лучшая подруга на свете - Катенька <3
+        println(GithubRepository().findAsync("pht/example/example-github-module", "1.0.0".toConstraint()).first().downloadAsync(File("run").toPath()))
     }
 }

@@ -15,10 +15,17 @@ dependencies {
     implementation("io.github.z4kn4fein:semver:${project.properties["semver-version"]}")
     implementation("io.ktor:ktor-client-core:${project.properties["ktor-version"]}")
     implementation("io.ktor:ktor-client-cio:${project.properties["ktor-version"]}")
+    implementation("io.ktor:ktor-client-content-negotiation:${project.properties["ktor-version"]}")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:${project.properties["ktor-version"]}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${project.properties["coroutines-version"]}")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${project.properties["serialization-version"]}")
     testImplementation(kotlin("test"))
+    testImplementation("io.ktor:ktor-client-mock:${project.properties["ktor-version"]}")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${project.properties["coroutines-version"]}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${project.properties["junit-version"]}")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:${project.properties["junit-version"]}")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:${project.properties["junit-version"]}")
+    testImplementation("io.mockk:mockk:${project.properties["mockk-version"]}")
 }
 
 tasks.test {
