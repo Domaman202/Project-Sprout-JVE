@@ -85,5 +85,3 @@ object VersionUtils {
         }
     }
 }
-
-class NotInitializedException(val field: String) : RuntimeException("Неинициализированное обязательное поле '$field'")
