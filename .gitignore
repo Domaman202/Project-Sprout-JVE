@@ -1,14 +1,14 @@
 # IDE
 
-.idea
-*.iml
+/.idea
+/*.iml
 
 # Build
 
-.gradle
-.kotlin
-build
+/.gradle
+/.kotlin
+/build
 
 # Work
 
-run
+/run

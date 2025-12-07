@@ -46,7 +46,7 @@ class GithubRepositoryTest {
 
     @BeforeEach
     fun setUp() {
-        mockEngine = MockEngine.Companion { request ->
+        mockEngine = MockEngine { request ->
             when (request.url.toString()) {
                 "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
                     val json = """
@@ -149,6 +149,182 @@ class GithubRepositoryTest {
     }
 
     @Test
+    fun `downloadZipAsync should save zip file correctly`() = runTest {
+        val constraint = Constraint.parse("1.0.0")
+        val modules = repository.findAsync("pht/example/example-github-module", constraint)
+        assertEquals(1, modules.size)
+
+        val zipFile = tempDir.resolve("test-download-zip/module-v1.0.0.zip")
+
+        modules[0].downloadZipAsync(zipFile)
+
+        assertTrue(Files.exists(zipFile))
+
+        // Проверяем, что файл не пустой
+        assertTrue(Files.size(zipFile) > 0)
+
+        // Проверяем, что это действительно ZIP-архив
+        val bytes = Files.readAllBytes(zipFile)
+        // ZIP файл начинается с "PK" (сигнатура ZIP)
+        assertEquals(0x50, bytes[0].toInt() and 0xFF)
+        assertEquals(0x4B, bytes[1].toInt() and 0xFF)
+
+        // Проверяем хэш файла
+        val expectedHash = createTestZipHash("pht/example/example-github-module", "1.0.0")
+        val digest = MessageDigest.getInstance("SHA-512")
+        val actualHash = digest.digest(bytes).joinToString("") { "%02x".format(it) }
+        assertEquals(expectedHash, actualHash)
+    }
+
+    @Test
+    fun `downloadZipAsync should create parent directories if not exist`() = runTest {
+        val constraint = Constraint.parse("1.0.0")
+        val modules = repository.findAsync("pht/example/example-github-module", constraint)
+        assertEquals(1, modules.size)
+
+        val nonExistentDir = tempDir.resolve("non/existent/path")
+        val zipFile = nonExistentDir.resolve("module-v1.0.0.zip")
+
+        modules[0].downloadZipAsync(zipFile)
+
+        assertTrue(Files.exists(zipFile))
+        assertTrue(Files.exists(nonExistentDir))
+    }
+
+    @Test
+    fun `downloadZipAsync should throw exception when hash mismatch`() = runTest {
+        // Создаем отдельный репозиторий для теста с неверным хэшем
+        val mockEngineWithInvalidHash = MockEngine { request ->
+            when (request.url.toString()) {
+                "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
+                    val json = """
+                        [{
+                            "name": "invalid/module",
+                            "version": "1.0.0",
+                            "git": "https://github.com/invalid/module.git",
+                            "hash": "incorrecthash",
+                            "file": "https://github.com/releases/invalid-hash/module.zip"
+                        }]
+                    """.trimIndent()
+                    respond(
+                        content = json,
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, "application/json")
+                    )
+                }
+
+                "https://github.com/releases/invalid-hash/module.zip" -> {
+                    val zipBytes = createTestZip("invalid/module", "1.0.0")
+                    respond(
+                        content = ByteReadChannel(zipBytes),
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, "application/zip")
+                    )
+                }
+
+                else -> {
+                    respond(
+                        content = "Not Found",
+                        status = HttpStatusCode.NotFound
+                    )
+                }
+            }
+        }
+
+        val invalidRepo = GithubRepository(HttpClient(mockEngineWithInvalidHash))
+        val constraint = Constraint.parse("1.0.0")
+        val modules = invalidRepo.findAsync("invalid/module", constraint)
+        assertEquals(1, modules.size)
+
+        val zipFile = tempDir.resolve("invalid-zip-download/test.zip")
+        assertThrows<Exception> {
+            runTest {
+                modules[0].downloadZipAsync(zipFile)
+            }
+        }
+    }
+
+    @Test
+    fun `downloadZipAsync should handle 404 when downloading module`() = runTest {
+        val notFoundEngine = MockEngine { request ->
+            when (request.url.toString()) {
+                "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
+                    val json = """
+                        [{
+                            "name": "not-found/module",
+                            "version": "1.0.0",
+                            "git": "https://github.com/not-found/module.git",
+                            "hash": "${createTestZipHash("not-found/module", "1.0.0")}",
+                            "file": "https://github.com/releases/404/module.zip"
+                        }]
+                    """.trimIndent()
+                    respond(
+                        content = json,
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, "application/json")
+                    )
+                }
+
+                "https://github.com/releases/404/module.zip" -> {
+                    respond(
+                        content = "Not Found",
+                        status = HttpStatusCode.NotFound
+                    )
+                }
+
+                else -> {
+                    respond(
+                        content = "Not Found",
+                        status = HttpStatusCode.NotFound
+                    )
+                }
+            }
+        }
+
+        val notFoundRepo = GithubRepository(HttpClient(notFoundEngine))
+        val constraint = Constraint.parse("1.0.0")
+        val modules = notFoundRepo.findAsync("not-found/module", constraint)
+        assertEquals(1, modules.size)
+
+        val zipFile = tempDir.resolve("not-found-zip-download/test.zip")
+        assertThrows<Exception> {
+            runTest {
+                modules[0].downloadZipAsync(zipFile)
+            }
+        }
+    }
+
+    @Test
+    fun `downloadZipAsync should save multiple zips with different names`() = runTest {
+        val constraint = Constraint.parse(">=1.0.0")
+        val modules = repository.findAsync("pht/example/example-github-module", constraint)
+        assertEquals(2, modules.size)
+
+        val downloadDir = tempDir.resolve("multiple-zips")
+
+        // Скачиваем первую версию
+        val zipFile1 = downloadDir.resolve("module-v1.0.0.zip")
+        modules[0].downloadZipAsync(zipFile1)
+        assertTrue(Files.exists(zipFile1))
+
+        // Скачиваем вторую версию
+        val zipFile2 = downloadDir.resolve("module-v1.1.0.zip")
+        modules[1].downloadZipAsync(zipFile2)
+        assertTrue(Files.exists(zipFile2))
+
+        // Проверяем, что файлы разные (разные версии)
+        val bytes1 = Files.readAllBytes(zipFile1)
+        val bytes2 = Files.readAllBytes(zipFile2)
+
+        // Хэши должны быть разными для разных версий
+        val digest = MessageDigest.getInstance("SHA-512")
+        val hash1 = digest.digest(bytes1).joinToString("") { "%02x".format(it) }
+        val hash2 = digest.digest(bytes2).joinToString("") { "%02x".format(it) }
+
+        assertTrue(hash1 != hash2)
+    }
+
+    @Test
     fun `find should return correct modules for name and version constraint`() = runTest {
         val constraint = Constraint.parse("1.0.0")
         val modules = repository.findAsync("pht/example/example-github-module", constraint)
@@ -214,7 +390,7 @@ class GithubRepositoryTest {
     @Test
     fun `download should throw exception when hash mismatch`() = runTest {
         // Создаем отдельный репозиторий для теста с неверным хэшем
-        val mockEngineWithInvalidHash = MockEngine.Companion { request ->
+        val mockEngineWithInvalidHash = MockEngine { request ->
             when (request.url.toString()) {
                 "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
                     val json = """
@@ -267,7 +443,7 @@ class GithubRepositoryTest {
     @Test
     fun `header should throw exception when module dot pht not found`() = runTest {
         // Создаем отдельный репозиторий для теста без module.pht
-        val mockEngineWithoutModulePht = MockEngine.Companion { request ->
+        val mockEngineWithoutModulePht = MockEngine { request ->
             when (request.url.toString()) {
                 "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
                     val json = """
@@ -335,7 +511,7 @@ class GithubRepositoryTest {
 
     @Test
     fun `should handle network errors gracefully`() = runTest {
-        val failingEngine = MockEngine.Companion { _ ->
+        val failingEngine = MockEngine { _ ->
             respond(
                 content = "Internal Server Error",
                 status = HttpStatusCode.InternalServerError
@@ -351,7 +527,7 @@ class GithubRepositoryTest {
 
     @Test
     fun `should handle empty JSON response`() = runTest {
-        val emptyJsonEngine = MockEngine.Companion { request ->
+        val emptyJsonEngine = MockEngine { request ->
             when (request.url.toString()) {
                 "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
                     respond(
@@ -379,7 +555,7 @@ class GithubRepositoryTest {
 
     @Test
     fun `should handle malformed JSON response`() = runTest {
-        val malformedJsonEngine = MockEngine.Companion { request ->
+        val malformedJsonEngine = MockEngine { request ->
             when (request.url.toString()) {
                 "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
                     respond(
@@ -408,7 +584,7 @@ class GithubRepositoryTest {
 
     @Test
     fun `should handle 404 when downloading module`() = runTest {
-        val notFoundEngine = MockEngine.Companion { request ->
+        val notFoundEngine = MockEngine { request ->
             when (request.url.toString()) {
                 "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json" -> {
                     val json = """

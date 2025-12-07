@@ -1,5 +1,9 @@
 package ru.pht.sprout.module.repo
 
+import io.github.z4kn4fein.semver.Version
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import ru.pht.sprout.module.header.ModuleHeader
 import ru.pht.sprout.module.header.parser.ParserException
 import java.io.IOException
@@ -10,6 +14,16 @@ import java.nio.file.Path
  */
 interface IDownloadable {
     /**
+     * Имя модуля.
+     */
+    val name: String
+
+    /**
+     * Версия модуля.
+     */
+    val version: Version
+
+    /**
      * Получение заголовка модуля.
      *
      * @return Заголовок модуля.
@@ -17,7 +31,11 @@ interface IDownloadable {
      * @throws ParserException Ошибка парсинга заголовка.
      */
     @Throws(IOException::class, ParserException::class)
-    fun header(): ModuleHeader
+    fun header(): ModuleHeader = runBlocking {
+        withContext(Dispatchers.IO) {
+            headerAsync()
+        }
+    }
 
     /**
      * Асинхронное получение заголовка модуля.
@@ -32,18 +50,44 @@ interface IDownloadable {
     /**
      * Загрузка модуля в директорию.
      *
-     * @param dir Директория для загрузки модуля.
+     * @param dir Директория.
      * @throws IOException Ошибка сети.
      */
     @Throws(IOException::class)
-    fun download(dir: Path)
+    fun download(dir: Path) = runBlocking {
+        withContext(Dispatchers.IO) {
+            downloadAsync(dir)
+        }
+    }
 
     /**
      * Асинхронная загрузка модуля в директорию.
      *
-     * @param dir Директория для загрузки модуля.
+     * @param dir Директория.
      * @throws IOException Ошибка сети.
      */
     @Throws(IOException::class)
     suspend fun downloadAsync(dir: Path)
+
+    /**
+     * Загрузка архива модуля в директорию.
+     *
+     * @param file Файл архива.
+     * @throws IOException Ошибка сети.
+     */
+    @Throws(IOException::class)
+    fun downloadZip(file: Path) = runBlocking {
+        withContext(Dispatchers.IO) {
+            downloadZipAsync(file)
+        }
+    }
+
+    /**
+     * Асинхронная загрузка архива модуля в директорию.
+     *
+     * @param file Файл архива.
+     * @throws IOException Ошибка сети.
+     */
+    @Throws(IOException::class)
+    suspend fun downloadZipAsync(file: Path)
 }
