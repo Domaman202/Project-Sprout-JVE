@@ -61,7 +61,7 @@ class LocalCacheRepository(
         this.repositories.asSequence().filter { it !is ICachingRepository }.forEach { repo ->
             repo.findAllAsync().forEach { other ->
                 if (list.none { it.name == other.name && it.version == other.version }) {
-                    list += MaybeCachedDownloadable(this, other, this.cacheDirectory.resolve(other.name).normalize().absolutePathString())
+                    list += MaybeCachedDownloadable(this, other, this.cacheDirectory.resolve(other.name + ".zip").normalize().absolutePathString())
                 }
             }
         }

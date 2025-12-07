@@ -10,7 +10,7 @@ import kotlin.io.path.absolutePathString
 
 open class BuildSystem {
     // ===== ДИРЕКТОРИИ ===== //
-    var sproutDirectory = Path("~/.sprout/").absolutePathString()
+    var sproutDirectory = Path("${System.getProperty("user.home")}/.sprout/").absolutePathString()
     var moduleDirectory = Path(".").absolutePathString()
     // ===== РЕПОЗИТОРИИ ===== //
     val repositories: MutableList<IRepository> = mutableListOf(GithubRepository(), GiteaRepository())

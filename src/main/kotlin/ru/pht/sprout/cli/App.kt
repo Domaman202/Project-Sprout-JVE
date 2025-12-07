@@ -14,8 +14,6 @@ object App {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        println(BUILD_SYSTEM.sproutDirectory)
-        println(BUILD_SYSTEM.cachingRepository.find("pht/example/example-github-module", "1.0.0".toConstraint()).first().header())
         printInfo()
     }
 
