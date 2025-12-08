@@ -1,4 +1,4 @@
-package ru.pht.sprout.cli.utils
+package ru.pht.sprout.cli.fmt
 
 enum class FmtStyle(val text: String) {
     RESET("${Char(27)}[00m"),

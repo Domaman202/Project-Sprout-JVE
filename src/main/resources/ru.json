@@ -1,0 +1,17 @@
+{
+  "name": "Русский",
+  "code": "ru",
+  "translate": {
+    "app.printInfo.os":               "§sb§f7Система:   §f3{name} {version}",
+    "app.printInfo.java":             "§sb§f7Запуск:    §f3Java {version} {vendor}",
+    "app.printInfo.lang":             "§sb§f7Язык:      §f3{name}",
+    "app.printInfo.project.name":     "§sb§f7Проект:    §f4Росток",
+    "app.printInfo.project.version":  "§sb§f7Версия:    §f4{version}",
+    "app.printInfo.project.author":   "§sb§f7Автор:     §f4{author}",
+    "app.printInfo.build.module":     "§sb§f7Модуль:    §sr{status}",
+    "app.printInfo.build.download":   "§sb§f7Загружено: §f6{download}",
+    "app.printInfo.build.repository": "§sb§f7Источники: §f6{repository}",
+    "cmd.help.arg0": "Команда",
+    "cmd.help.desc": "Выводит этот текст / Помощь о команде"
+  }
+}

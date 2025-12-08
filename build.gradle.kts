@@ -14,6 +14,8 @@ repositories {
 dependencies {
     // ===== РАБОЧИЕ ===== //
 
+    // Форматирование строк
+    implementation("com.github.pwittchen.kirai:library:1.4.1")
     // Версии
     implementation("io.github.z4kn4fein:semver:${project.properties["semver_version"]}")
     // Https

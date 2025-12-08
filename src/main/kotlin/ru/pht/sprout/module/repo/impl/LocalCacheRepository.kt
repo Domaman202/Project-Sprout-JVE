@@ -5,7 +5,7 @@ import io.github.z4kn4fein.semver.constraints.Constraint
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
-import ru.pht.sprout.build.BuildSystem
+import ru.pht.sprout.cli.build.BuildSystem
 import ru.pht.sprout.module.header.ModuleHeader
 import ru.pht.sprout.module.repo.ICachingRepository
 import ru.pht.sprout.module.repo.IDownloadable

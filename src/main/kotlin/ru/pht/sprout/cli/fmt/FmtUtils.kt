@@ -1,4 +1,4 @@
-package ru.pht.sprout.cli.utils
+package ru.pht.sprout.cli.fmt
 
 val String.fmt: String get() {
     val out = StringBuilder()

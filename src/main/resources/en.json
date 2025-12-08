@@ -1,0 +1,17 @@
+{
+  "name": "English",
+  "code": "en",
+  "translate": {
+    "app.printInfo.os":               "§sb§f7System:      §f3{name} {version}",
+    "app.printInfo.java":             "§sb§f7Runtime:     §f3Java {version} {vendor)}",
+    "app.printInfo.lang":             "§sb§f7Lang:        §f3{name}",
+    "app.printInfo.project.name":     "§sb§f7Project:     §f4Sprout",
+    "app.printInfo.project.version":  "§sb§f7Version:     §f4{version}",
+    "app.printInfo.project.author":   "§sb§f7Author:      §f4{author}",
+    "app.printInfo.build.module":     "§sb§f7Module:      §sr{status}",
+    "app.printInfo.build.download":   "§sb§f7Download:    §f6{download}",
+    "app.printInfo.build.repository": "§sb§f7Repository:  §f6{repository}",
+    "cmd.help.arg0": "Command",
+    "cmd.help.desc": "Print it text / Help about command"
+  }
+}
