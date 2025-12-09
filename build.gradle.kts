@@ -2,7 +2,6 @@ plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.serialization") version "2.2.20"
     id("jacoco")
-    id("application")
 }
 
 group = "ru.pht.sprout"
@@ -28,6 +27,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${project.properties["serialization_version"]}")
     // Корутины
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${project.properties["coroutines_version"]}")
+    // Логирование
+    implementation("io.ktor:ktor-client-logging:3.3.3")
+    implementation("org.slf4j:slf4j-api:2.1.0-alpha1")
+    implementation("org.slf4j:slf4j-simple:2.1.0-alpha1")
 
     // ===== ТЕСТОВЫЕ ===== //
 
@@ -38,20 +41,30 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:${project.properties["junit_version"]}")
     testImplementation("org.junit.jupiter:junit-jupiter-params:${project.properties["junit_version"]}")
     testImplementation("io.mockk:mockk:${project.properties["mockk_version"]}")
-    testImplementation("org.slf4j:slf4j-api:2.1.0-alpha1")
-    testImplementation("org.slf4j:slf4j-simple:2.1.0-alpha1")
 }
 
 kotlin {
     jvmToolchain(8)
 }
 
-application {
-    mainClass = "ru.pht.sprout.cli.App"
-}
-
 jacoco {
     toolVersion = "0.8.8"
+}
+
+tasks.jar {
+    manifest {
+        attributes(
+            "Main-Class" to "ru.pht.sprout.cli.App"
+        )
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(sourceSets.main.get().output)
+    from({
+        configurations.runtimeClasspath.get()
+            .filter { it.name.endsWith("jar") }
+            .map { zipTree(it) }
+    })
 }
 
 tasks.test {

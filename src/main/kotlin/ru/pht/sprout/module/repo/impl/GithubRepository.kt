@@ -1,13 +1,13 @@
 package ru.pht.sprout.module.repo.impl
 
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
+import ru.pht.sprout.utils.HttpUtils
 
 /**
  * Репозиторий для работы с репозиториями из `github.com`.
  */
 class GithubRepository(
-    client: HttpClient = HttpClient(CIO)
+    client: HttpClient = HttpUtils.clientWithoutLogging()
 ) : GitRepository(
     client,
     "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json"

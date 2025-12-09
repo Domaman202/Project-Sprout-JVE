@@ -5,7 +5,6 @@ import io.github.z4kn4fein.semver.constraints.Constraint
 import io.github.z4kn4fein.semver.toVersion
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.utils.io.jvm.javaio.*
@@ -14,6 +13,7 @@ import kotlinx.serialization.json.Json
 import ru.pht.sprout.module.header.ModuleHeader
 import ru.pht.sprout.module.repo.IDownloadable
 import ru.pht.sprout.module.repo.IRepository
+import ru.pht.sprout.utils.HttpUtils
 import ru.pht.sprout.utils.ZipUtils
 import java.io.IOException
 import java.io.InputStream
@@ -30,7 +30,7 @@ import kotlin.io.path.notExists
  * @param repository Ссылка на json файл репозиториев.
  */
 open class GitRepository(
-    private val client: HttpClient = HttpClient(CIO),
+    private val client: HttpClient = HttpUtils.clientWithoutLogging(),
     private val repository: String
 ) : IRepository {
     override suspend fun findAsync(name: String, version: Constraint): List<IDownloadable> =
