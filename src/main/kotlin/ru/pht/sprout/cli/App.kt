@@ -3,7 +3,7 @@ package ru.pht.sprout.cli
 import ru.pht.sprout.cli.args.ArgumentsParser
 import ru.pht.sprout.cli.args.Command
 import ru.pht.sprout.cli.args.CommandArgument
-import ru.pht.sprout.cli.build.BuildSystem
+import ru.pht.sprout.cli.build.BuildInfo
 import ru.pht.sprout.utils.fmt.fmt
 import ru.pht.sprout.utils.lang.Language
 import ru.pht.sprout.utils.lang.Translation
@@ -17,7 +17,7 @@ object App {
     val COMMANDS: Array<Command.Definition>
     // ===== RUNTIME ===== //
     val LANG = Language.addResolver(App::class.java) { App::class.java.getResource("/sprout/lang/$it.json")?.readText(Charsets.UTF_8) }.of(Locale.getDefault())
-    val BUILD_SYSTEM = BuildSystem()
+    val BUILD_INFO = BuildInfo()
 
     // ===== MAIN ===== //
 
@@ -71,9 +71,9 @@ object App {
         println()
         printVersionInfo()
         println()
-        println(translate("printInfo.build.module",     Pair("status", if (BUILD_SYSTEM.tryParseModule()) "§f6${BUILD_SYSTEM.moduleHeader!!.name}" else if (BUILD_SYSTEM.moduleHeaderError == null) "§f1Не найден" else "§f1Ошибка чтения")))
-        println(translate("printInfo.build.download",   Pair("download", BUILD_SYSTEM.cachingRepository.findAllCached().size)))
-        println(translate("printInfo.build.repository", Pair("repository", BUILD_SYSTEM.repositories.size)))
+        println(translate("printInfo.build.module",     Pair("status", if (BUILD_INFO.tryParseModule()) "§f6${BUILD_INFO.moduleHeader!!.name}" else if (BUILD_INFO.moduleHeaderError == null) "§f1Не найден" else "§f1Ошибка чтения")))
+        println(translate("printInfo.build.download",   Pair("download", BUILD_INFO.cachingRepository.findAllCached().size)))
+        println(translate("printInfo.build.repository", Pair("repository", BUILD_INFO.repositories.size)))
     }
 
     private fun printVersionInfo() {

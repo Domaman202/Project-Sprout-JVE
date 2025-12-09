@@ -14,20 +14,31 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.notExists
 import kotlin.io.path.readText
 
-open class BuildSystem {
+class BuildInfo {
     // ===== ДИРЕКТОРИИ ===== //
-    var sproutDirectory = Path("${System.getProperty("user.home")}/.sprout/").absolutePathString()
-    var moduleDirectory = Path(".").absolutePathString()
+    val sproutDirectory = Path("${System.getProperty("user.home")}/.sprout/").absolutePathString()
+    val moduleDirectory = Path(".").absolutePathString()
     // ===== РЕПОЗИТОРИИ ===== //
-    val repositories: MutableList<IRepository> = mutableListOf(GithubRepository(), GiteaRepository())
+    val repositories: List<IRepository> = mutableListOf(GithubRepository(), GiteaRepository())
     val cachingRepository: ICachingRepository = LocalCacheRepository(this)
     // ===== МОДУЛЬ ===== //
     var moduleHeader: ModuleHeader? = null
+        private set
     var moduleHeaderError: ParserException? = null
+        private set
 
     // ===== API ===== //
 
+    /**
+     * Парсинг модуля.
+     *
+     * Записывает ошибки в [moduleHeaderError] вместо того чтобы их кидать.
+     *
+     * @return `true` - успешно, `false` - ошибка.
+     */
     fun tryParseModule(): Boolean {
+        if (this.moduleHeader != null)
+            return true
         val headerFile = Path(this.moduleDirectory).resolve("module.pht")
         if (headerFile.notExists())
             return false
