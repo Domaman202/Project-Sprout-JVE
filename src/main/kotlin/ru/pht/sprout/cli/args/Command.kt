@@ -1,6 +1,6 @@
 package ru.pht.sprout.cli.args
 
-import ru.pht.sprout.cli.lang.Translation
+import ru.pht.sprout.utils.lang.Translation
 
 class Command(
     val definition: Definition,

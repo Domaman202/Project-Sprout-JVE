@@ -1,8 +1,7 @@
-package ru.pht.sprout.utils
+package ru.pht.sprout.utils.fmt
 
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import java.io.File
 
 class ErrorFormatterTest {
     @Test
@@ -17,6 +16,6 @@ class ErrorFormatterTest {
                    ^~~~~ Some error message
         """.trimIndent()
         val actual = ErrorFormatter.formatErrorWithToken(source, 6, 5, 1, 0, "Some error message")
-        assertEquals(expected, actual)
+        Assertions.assertEquals(expected, actual)
     }
 }

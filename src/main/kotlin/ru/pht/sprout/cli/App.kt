@@ -4,9 +4,9 @@ import ru.pht.sprout.cli.args.ArgumentsParser
 import ru.pht.sprout.cli.args.Command
 import ru.pht.sprout.cli.args.CommandArgument
 import ru.pht.sprout.cli.build.BuildSystem
-import ru.pht.sprout.cli.fmt.fmt
-import ru.pht.sprout.cli.lang.Language
-import ru.pht.sprout.cli.lang.Translation
+import ru.pht.sprout.utils.fmt.fmt
+import ru.pht.sprout.utils.lang.Language
+import ru.pht.sprout.utils.lang.Translation
 import java.util.*
 
 object App {
@@ -16,7 +16,7 @@ object App {
     // ===== INITIAL ===== //
     val COMMANDS: Array<Command.Definition>
     // ===== RUNTIME ===== //
-    val LANG = Language.of(Locale.getDefault())
+    val LANG = Language.addResolver(App::class.java) { App::class.java.getResource("/sprout/lang/$it.json")?.readText(Charsets.UTF_8) }.of(Locale.getDefault())
     val BUILD_SYSTEM = BuildSystem()
 
     // ===== MAIN ===== //

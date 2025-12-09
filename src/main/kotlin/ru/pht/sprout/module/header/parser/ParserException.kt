@@ -2,7 +2,7 @@ package ru.pht.sprout.module.header.parser
 
 import ru.pht.sprout.module.header.lexer.LexerException
 import ru.pht.sprout.module.header.lexer.Token
-import ru.pht.sprout.utils.ErrorFormatter
+import ru.pht.sprout.utils.fmt.ErrorFormatter
 
 abstract class ParserException : Exception {
     abstract fun print(parser: Parser, builder: StringBuilder = StringBuilder()): StringBuilder

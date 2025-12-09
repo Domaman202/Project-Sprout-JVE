@@ -1,4 +1,4 @@
-package ru.pht.sprout.cli.lang
+package ru.pht.sprout.utils.lang
 
 import kotlinx.serialization.Serializable
 import ru.pht.sprout.cli.App

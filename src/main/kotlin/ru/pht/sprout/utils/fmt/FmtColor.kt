@@ -1,4 +1,4 @@
-package ru.pht.sprout.cli.fmt
+package ru.pht.sprout.utils.fmt
 
 enum class FmtColor(val fg: String, val bg: String) {
     BLACK("${Char(27)}[30m", "${Char(27)}[40m"),

@@ -2,7 +2,7 @@ package ru.pht.sprout.cli.args
 
 import ru.pht.sprout.cli.App
 import ru.pht.sprout.cli.args.CommandArgument.Type.*
-import ru.pht.sprout.cli.lang.Language
+import ru.pht.sprout.utils.lang.Language
 
 class ArgumentsParser(
     val args: Array<String>,

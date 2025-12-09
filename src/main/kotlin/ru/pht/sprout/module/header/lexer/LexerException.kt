@@ -1,6 +1,6 @@
 package ru.pht.sprout.module.header.lexer
 
-import ru.pht.sprout.utils.ErrorFormatter
+import ru.pht.sprout.utils.fmt.ErrorFormatter
 
 /**
  * Исключение лексического анализатора.
