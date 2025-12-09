@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.serialization") version "2.2.20"
     id("jacoco")
+    id("application")
 }
 
 group = "ru.pht.sprout"
@@ -41,9 +42,12 @@ dependencies {
     testImplementation("org.slf4j:slf4j-simple:2.1.0-alpha1")
 }
 
-
 kotlin {
     jvmToolchain(8)
+}
+
+application {
+    mainClass = "ru.pht.sprout.cli.App"
 }
 
 jacoco {
