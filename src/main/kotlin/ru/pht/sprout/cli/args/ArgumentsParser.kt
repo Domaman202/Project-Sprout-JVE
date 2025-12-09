@@ -13,13 +13,17 @@ class ArgumentsParser(
         // Первичная проверка команды
         if (this.args.isEmpty())
             throw ArgumentsParserException("Команда отсутвует")
-        val command = this.args.first()
-        if (!command.startsWith('-'))
-            throw ArgumentsParserException("'${command}' не является командой")
         // Нахождение команды
-        val commandName = command.drop(1)
-        val definition = this.commands.find { it.short == commandName || it.long == commandName }
-            ?: throw ArgumentsParserException("Команда '${command} не найдена")
+        val command = this.args.first()
+        val definition =
+            if (command.startsWith("--")) {
+                val commandName = command.drop(2)
+                this.commands.find { it.long == commandName }
+            } else if (command.startsWith("-")) {
+                val commandName = command.drop(1)
+                this.commands.find { it.short == commandName }
+            } else throw ArgumentsParserException("'${command}' не является командой")
+        definition ?: throw ArgumentsParserException("Команда '${command} не найдена")
         // Парсинг аргументов
         val arguments = ArrayList<CommandArgument>()
         var argI = 1
