@@ -15,8 +15,8 @@ import kotlinx.serialization.json.Json
 import ru.pht.sprout.module.header.ModuleHeader
 import ru.pht.sprout.module.repo.IDownloadable
 import ru.pht.sprout.module.repo.IRepository
-import ru.pht.sprout.utils.HttpUtils
-import ru.pht.sprout.utils.ZipUtils
+import ru.pht.sprout.module.utils.HttpUtils
+import ru.pht.sprout.module.utils.ZipUtils
 import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Files

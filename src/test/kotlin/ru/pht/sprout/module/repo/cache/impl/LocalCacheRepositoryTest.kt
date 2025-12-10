@@ -16,7 +16,7 @@ import ru.pht.sprout.module.repo.IDownloadable
 import ru.pht.sprout.module.repo.IRepository
 import ru.pht.sprout.module.repo.impl.GiteaRepository
 import ru.pht.sprout.module.repo.impl.GithubRepository
-import ru.pht.sprout.utils.ZipUtils
+import ru.pht.sprout.module.utils.ZipUtils
 import java.io.ByteArrayOutputStream
 import java.nio.file.Files
 import java.nio.file.Path

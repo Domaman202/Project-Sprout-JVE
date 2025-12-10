@@ -1,4 +1,4 @@
-package ru.pht.sprout.utils
+package ru.pht.sprout.module.utils
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*

@@ -1,4 +1,4 @@
-package ru.pht.sprout.utils
+package ru.pht.sprout.module.utils
 
 import ru.pht.sprout.module.header.ModuleHeader
 import ru.pht.sprout.module.header.lexer.Lexer

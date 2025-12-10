@@ -1,7 +1,7 @@
 package ru.pht.sprout.module.repo.impl
 
 import io.ktor.client.*
-import ru.pht.sprout.utils.HttpUtils
+import ru.pht.sprout.module.utils.HttpUtils
 
 /**
  * Репозиторий для работы с репозиториями из `github.com`.
