@@ -24,6 +24,11 @@ interface IDownloadable {
     val version: Version
 
     /**
+     * Хеш модуля.
+     */
+    val hash: String
+
+    /**
      * Получение заголовка модуля.
      *
      * @return Заголовок модуля.

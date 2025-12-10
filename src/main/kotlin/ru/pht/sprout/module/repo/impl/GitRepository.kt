@@ -74,7 +74,7 @@ open class GitRepository(
     private inner class GitDownloadable(
         override val name: String,
         override val version: Version,
-        val hash: String,
+        override val hash: String,
         val file: String
     ) : IDownloadable {
         override suspend fun headerAsync(): ModuleHeader =

@@ -15,6 +15,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.*
 import kotlin.io.path.*
 
 class LocalCacheRepository(
@@ -23,7 +24,7 @@ class LocalCacheRepository(
     private val repositories: List<IRepository>
 ) : ICachingRepository {
     private val localized: MutableList<MaybeCachedDownloadable>
-    private val cached: MutableList<IDownloadable>
+    private val cached: MutableSet<IDownloadable>
 
     constructor(buildSystem: BuildInfo) : this(
         File("${buildSystem.sproutDirectory}/cache/modules").toPath(),
@@ -36,36 +37,110 @@ class LocalCacheRepository(
             this.cacheDirectory.createDirectories()
             this.cacheListFile.deleteIfExists()
             this.localized = ArrayList()
-            this.cached = ArrayList()
+            this.cached = HashSet()
         } else {
             if (this.cacheListFile.exists()) {
                 this.localized = Json.decodeFromString(this.cacheListFile.readText(Charsets.UTF_8))
-                this.cached = this.localized.toMutableList()
+                this.cached = this.localized.toMutableSet()
             } else {
                 this.localized = ArrayList()
-                this.cached = ArrayList()
+                this.cached = HashSet()
             }
         }
     }
 
-    override suspend fun findAsync(name: String, version: Constraint): List<IDownloadable> =
-        this
-            .findAllAsync()
-            .asSequence()
-            .filter { it.name == name && version.isSatisfiedBy(it.version) }
-            .toMutableList()
-            .sortedBy { it.version }
+    override suspend fun findAsync(name: String, version: Constraint): List<IDownloadable> {
+        // Ищем ссылки на скачивание
+        val find: SortedMap<Version, MutableList<IDownloadable>> = TreeMap()
+        for (repository in this.repositories) {
+            if (repository is ICachingRepository)
+                continue
+            repository.findAllAsync()
+                .stream()
+                .filter { it.name == name && version.isSatisfiedBy(it.version) }
+                .forEach {
+                    val list = find[it.version]
+                    if (list == null)
+                        find[it.version] = arrayListOf(it)
+                    else list += it
+                }
+        }
+        // Верифицируем и сортируем
+        val verified = ArrayList<IDownloadable>()
+        for (links in find.values) {
+            // Собираем хеши
+            val hashes: MutableMap<String, MutableList<IDownloadable>> = HashMap()
+            links.forEach {
+                val list = hashes[it.hash]
+                if (list == null)
+                    hashes[it.hash] = arrayListOf(it)
+                else list += it
+            }
+            // Выбираем ссылки где больше хешей совпадают
+            val values = hashes.values.iterator()
+            var many: List<IDownloadable> = values.next()
+            for (other in values) {
+                if (many.size < other.size) {
+                    many = other
+                }
+            }
+            // Преобразуем, добавляем к списку верифицированных и кешу
+            many.stream()
+                .map { MaybeCachedDownloadable(this, it, this.cacheDirectory.resolve(it.name + ".zip").normalize().absolutePathString()) }
+                .forEach {
+                    verified += it
+                    this.cached += it
+                }
+        }
+        // Возвращаем
+        return verified
+    }
 
     override suspend fun findAllAsync(): List<IDownloadable> {
-        val list = this.cached
-        this.repositories.asSequence().filter { it !is ICachingRepository }.forEach { repo ->
-            repo.findAllAsync().forEach { other ->
-                if (list.none { it.name == other.name && it.version == other.version }) {
-                    list += MaybeCachedDownloadable(this, other, this.cacheDirectory.resolve(other.name + ".zip").normalize().absolutePathString())
+        // Ищем ссылки на скачивание и распределяем
+        val find: MutableMap<String, MutableMap<Version, MutableMap<String, MutableList<IDownloadable>>>> = HashMap()
+        for (repository in this.repositories) {
+            if (repository is ICachingRepository)
+                continue
+            for (download in repository.findAllAsync()) {
+                var versions = find[download.name]
+                if (versions == null) {
+                    versions = HashMap()
+                    find[download.name] = versions
+                }
+                var hashes = versions[download.version]
+                if (hashes == null) {
+                    hashes = HashMap()
+                    versions[download.version] = hashes
+                }
+                var downloads = hashes[download.hash]
+                if (downloads == null) {
+                    downloads = ArrayList()
+                    hashes[download.hash] = downloads
+                }
+                downloads += download
+            }
+        }
+        // Верифицируем и добавляем в хеш
+        val verified = this.cached
+        for (modules in find.values) {
+            for (versions in modules.values) {
+                // Выбираем ссылки где больше хешей совпадают
+                val values = versions.values.iterator()
+                var many: List<IDownloadable> = values.next()
+                for (other in values) {
+                    if (many.size < other.size) {
+                        many = other
+                    }
+                }
+                // Преобразуем, добавляем к списку верифицированных и кешу
+                for (it in many) {
+                   verified += MaybeCachedDownloadable(this, it, this.cacheDirectory.resolve(it.name + ".zip").normalize().absolutePathString())
                 }
             }
         }
-        return list
+        // Возвращаем
+        return verified.toList()
     }
 
     override fun findAllCached(): List<IDownloadable> =
@@ -84,6 +159,7 @@ class LocalCacheRepository(
     private class MaybeCachedDownloadable : IDownloadable {
         override val name: String
         override val version: Version
+        override val hash: String
         val file: String
         @Transient
         var repository: LocalCacheRepository? = null
@@ -95,6 +171,7 @@ class LocalCacheRepository(
             this.original = original
             this.name = original.name
             this.version = original.version
+            this.hash = original.hash
             this.file = file
         }
 

@@ -496,17 +496,18 @@ class LocalCacheRepositoryTest {
                     object : IDownloadable {
                         override val name: String = "cached/module"
                         override val version: Version = Version(1, 0, 0)
+                        override val hash: String = "lolkekhashburek"
 
                         override suspend fun headerAsync(): ModuleHeader {
-                            TODO("Not yet implemented")
+                            throw Error("Not yet implemented")
                         }
 
                         override suspend fun downloadAsync(dir: Path) {
-                            TODO("Not yet implemented")
+                            throw Error("Not yet implemented")
                         }
 
                         override suspend fun downloadZipAsync(file: Path) {
-                            TODO("Not yet implemented")
+                            throw Error("Not yet implemented")
                         }
                     }
                 )
