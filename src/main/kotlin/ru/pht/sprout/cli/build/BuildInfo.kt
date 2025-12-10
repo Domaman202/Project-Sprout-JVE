@@ -4,11 +4,11 @@ import ru.pht.sprout.module.header.ModuleHeader
 import ru.pht.sprout.module.header.lexer.Lexer
 import ru.pht.sprout.module.header.parser.Parser
 import ru.pht.sprout.module.header.parser.ParserException
-import ru.pht.sprout.module.repo.ICachingRepository
+import ru.pht.sprout.module.repo.cache.ICachingRepository
 import ru.pht.sprout.module.repo.IRepository
 import ru.pht.sprout.module.repo.impl.GiteaRepository
 import ru.pht.sprout.module.repo.impl.GithubRepository
-import ru.pht.sprout.module.repo.impl.LocalCacheRepository
+import ru.pht.sprout.module.repo.cache.impl.LocalCacheRepository
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.notExists

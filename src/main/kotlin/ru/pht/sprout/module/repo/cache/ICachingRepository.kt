@@ -1,8 +1,10 @@
-package ru.pht.sprout.module.repo
+package ru.pht.sprout.module.repo.cache
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import ru.pht.sprout.module.repo.IDownloadable
+import ru.pht.sprout.module.repo.IRepository
 import java.io.IOException
 
 /**
