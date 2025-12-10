@@ -68,7 +68,7 @@ class LocalCacheRepository(
                 }
         }
         // Верифицируем и сортируем
-        val verified: SortedSet<IDownloadable> = TreeSet()
+        val verified: SortedSet<IDownloadable> = TreeSet(Comparator.comparing(IDownloadable::version))
         find.values.forEach { links ->
             // Собираем хеши
             val hashes: MutableMap<String, MutableList<IDownloadable>> = HashMap()
@@ -158,7 +158,7 @@ class LocalCacheRepository(
     }
 
     @Serializable
-    private class MaybeCachedDownloadable : IDownloadable, Comparable<MaybeCachedDownloadable> {
+    private class MaybeCachedDownloadable : IDownloadable {
         override val name: String
         override val version: Version
         override val hash: String
@@ -223,8 +223,5 @@ class LocalCacheRepository(
 
         override fun hashCode(): Int =
             this.file.hashCode()
-
-        override fun compareTo(other: MaybeCachedDownloadable): Int =
-            this.version.compareTo(other.version)
     }
 }

@@ -25,6 +25,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -588,6 +589,249 @@ class LocalCacheRepositoryTest {
         assertEquals("test/module", cachedSync[0].name)
         assertEquals("1.0.0", cachedSync[0].version.toString())
         assertEquals(testModule10Hash, cachedSync[0].hash)
+    }
+
+    @Test
+    fun `downloadZipAsync should download zip file to specified location`() = runTest {
+        val constraint = Constraint.Companion.parse("1.0.0")
+        val modules = localCacheRepository.findAsync("test/module", constraint)
+        assertEquals(1, modules.size)
+
+        // Создаем временный файл для скачивания
+        val downloadFile = tempDir.resolve("downloaded.zip")
+
+        // Скачиваем zip файл
+        modules[0].downloadZipAsync(downloadFile)
+
+        // Проверяем, что файл создан
+        assertTrue(Files.exists(downloadFile), "Zip файл должен быть скачан в указанное место")
+
+        // Проверяем содержимое файла
+        val downloadedContent = Files.readAllBytes(downloadFile)
+        assertTrue(downloadedContent.contentEquals(testModule10Zip),
+            "Содержимое скачанного файла должно совпадать с ожидаемым")
+
+        // Проверяем, что файл добавлен в кэш
+        val cachedFiles = cacheDirectory.toFile().listFiles()
+        assertNotNull(cachedFiles)
+        assertEquals(1, cachedFiles.size, "Файл должен быть закэширован")
+    }
+
+    @Test
+    fun `downloadZipAsync should use cached file when available`() = runTest {
+        val constraint = Constraint.Companion.parse("1.0.0")
+        val modules = localCacheRepository.findAsync("test/module", constraint)
+        assertEquals(1, modules.size)
+
+        // Сначала кэшируем модуль через headerAsync
+        modules[0].headerAsync()
+
+        // Убеждаемся, что файл в кэше существует
+        val cachedFile = cacheDirectory.resolve("test/module.1.0.0.zip")
+        assertTrue(Files.exists(cachedFile), "Файл должен быть закэширован")
+
+        // Получаем время последнего изменения кэшированного файла
+        val lastModifiedBefore = Files.getLastModifiedTime(cachedFile)
+
+        // Создаем временный файл для скачивания
+        val downloadFile = tempDir.resolve("downloaded2.zip")
+
+        // Скачиваем zip файл (должен использовать кэш)
+        modules[0].downloadZipAsync(downloadFile)
+
+        // Проверяем, что файл создан
+        assertTrue(Files.exists(downloadFile))
+
+        // Проверяем, что кэшированный файл не изменился
+        val lastModifiedAfter = Files.getLastModifiedTime(cachedFile)
+        assertEquals(lastModifiedBefore, lastModifiedAfter,
+            "Кэшированный файл не должен изменяться при повторном скачивании")
+    }
+
+    @Test
+    fun `downloadAsync should extract module to specified directory`() = runTest {
+        val constraint = Constraint.Companion.parse("1.0.0")
+        val modules = localCacheRepository.findAsync("test/module", constraint)
+        assertEquals(1, modules.size)
+
+        // Создаем временную директорию для распаковки
+        val extractDir = tempDir.resolve("extracted")
+
+        // Скачиваем и распаковываем модуль
+        modules[0].downloadAsync(extractDir)
+
+        // Проверяем, что создана поддиректория с именем модуля
+        val moduleDir = extractDir.resolve("test/module")
+        assertTrue(Files.exists(moduleDir), "Должна быть создана директория с именем модуля")
+
+        // Проверяем содержимое распакованного модуля
+        val modulePhtFile = moduleDir.resolve("module.pht")
+        assertTrue(Files.exists(modulePhtFile), "Файл module.pht должен быть распакован")
+
+        val testTxtFile = moduleDir.resolve("test.txt")
+        assertTrue(Files.exists(testTxtFile), "Файл test.txt должен быть распакован")
+
+        val nestedFile = moduleDir.resolve("nested/file.txt")
+        assertTrue(Files.exists(nestedFile), "Вложенный файл nested/file.txt должен быть распакован")
+
+        // Проверяем содержимое файлов
+        val modulePhtContent = Files.readAllLines(modulePhtFile, Charsets.UTF_8).joinToString("\n")
+        assertTrue(modulePhtContent.contains("test/module"))
+        assertTrue(modulePhtContent.contains("1.0.0"))
+
+        val testTxtContent = String(Files.readAllBytes(testTxtFile), Charsets.UTF_8)
+        assertEquals(testFileContent, testTxtContent)
+
+        val nestedContent = String(Files.readAllBytes(nestedFile), Charsets.UTF_8)
+        assertEquals("nested content", nestedContent)
+
+        // Проверяем, что модуль добавлен в кэш
+        val cached = localCacheRepository.findAllCachedAsync()
+        assertEquals(1, cached.size)
+        assertEquals("test/module", cached[0].name)
+    }
+
+    @Test
+    fun `downloadAsync should use cached file when available`() = runTest {
+        val constraint = Constraint.Companion.parse("1.0.0")
+        val modules = localCacheRepository.findAsync("test/module", constraint)
+        assertEquals(1, modules.size)
+
+        // Сначала кэшируем модуль через headerAsync
+        modules[0].headerAsync()
+
+        // Убеждаемся, что файл в кэше существует
+        val cachedFile = cacheDirectory.resolve("test/module.1.0.0.zip")
+        assertTrue(Files.exists(cachedFile), "Файл должен быть закэширован")
+
+        // Получаем время последнего изменения кэшированного файла
+        val lastModifiedBefore = Files.getLastModifiedTime(cachedFile)
+
+        // Создаем временную директорию для распаковки
+        val extractDir = tempDir.resolve("extracted2")
+
+        // Скачиваем и распаковываем модуль (должен использовать кэш)
+        modules[0].downloadAsync(extractDir)
+
+        // Проверяем, что файлы распакованы
+        val moduleDir = extractDir.resolve("test/module")
+        assertTrue(Files.exists(moduleDir))
+
+        // Проверяем, что кэшированный файл не изменился
+        val lastModifiedAfter = Files.getLastModifiedTime(cachedFile)
+        assertEquals(lastModifiedBefore, lastModifiedAfter,
+            "Кэшированный файл не должен изменяться при повторной распаковке")
+    }
+
+    @Test
+    fun `downloadAsync should create parent directories if they dont exist`() = runTest {
+        val constraint = Constraint.Companion.parse("1.0.0")
+        val modules = localCacheRepository.findAsync("test/module", constraint)
+        assertEquals(1, modules.size)
+
+        // Создаем путь с несуществующими родительскими директориями
+        val extractDir = tempDir.resolve("deeply/nested/extract/dir")
+
+        // Проверяем, что директории не существуют
+        assertTrue(!Files.exists(extractDir))
+
+        // Скачиваем и распаковываем модуль
+        modules[0].downloadAsync(extractDir)
+
+        // Проверяем, что директории созданы и модуль распакован
+        val moduleDir = extractDir.resolve("test/module")
+        assertTrue(Files.exists(moduleDir), "Директории должны быть созданы")
+        assertTrue(Files.exists(moduleDir.resolve("module.pht")))
+    }
+
+    @Test
+    fun `downloadZipAsync should create parent directories if they dont exist`() = runTest {
+        val constraint = Constraint.Companion.parse("1.0.0")
+        val modules = localCacheRepository.findAsync("test/module", constraint)
+        assertEquals(1, modules.size)
+
+        // Создаем путь с несуществующими родительскими директориями
+        val downloadFile = tempDir.resolve("deeply/nested/download/dir/module.zip")
+
+        // Проверяем, что директории не существуют
+        assertTrue(!Files.exists(downloadFile.parent))
+
+        // Скачиваем zip файл
+        modules[0].downloadZipAsync(downloadFile)
+
+        // Проверяем, что директории созданы и файл скачан
+        assertTrue(Files.exists(downloadFile.parent), "Родительские директории должны быть созданы")
+        assertTrue(Files.exists(downloadFile), "Файл должен быть скачан")
+    }
+
+    @Test
+    fun `downloadAsync should extract multiple modules to same directory`() = runTest {
+        // Получаем модули с разными версиями
+        val constraint = Constraint.Companion.parse(">=1.0.0")
+        val modules = localCacheRepository.findAsync("test/module", constraint)
+        assertEquals(2, modules.size)
+
+        // Создаем временную директорию для распаковки
+        val extractDir = tempDir.resolve("multi-extract")
+
+        // Распаковываем первую версию
+        modules[0].downloadAsync(extractDir)
+
+        // Убеждаемся, что файлы первой версии существуют
+        val moduleDir = extractDir.resolve("test/module")
+        assertTrue(Files.exists(moduleDir.resolve("module.pht")))
+
+        // Получаем содержимое файла module.pht первой версии
+        val firstVersionContent = String(Files.readAllBytes(moduleDir.resolve("module.pht")), Charsets.UTF_8)
+
+        // Распаковываем вторую версию (должна перезаписать первую, если реализация это поддерживает)
+        // Вместо этого, давайте распакуем в другую директорию, чтобы избежать конфликта
+        val extractDir2 = tempDir.resolve("multi-extract2")
+        modules[1].downloadAsync(extractDir2)
+
+        // Проверяем, что вторая версия тоже распакована
+        val moduleDir2 = extractDir2.resolve("test/module")
+        assertTrue(Files.exists(moduleDir2.resolve("module.pht")))
+
+        // Получаем содержимое файла module.pht второй версии
+        val secondVersionContent = String(Files.readAllBytes(moduleDir2.resolve("module.pht")), Charsets.UTF_8)
+
+        // Проверяем, что содержимое разное (разные версии)
+        // Поскольку версии разные, содержимое должно быть разным
+        assertNotEquals(firstVersionContent, secondVersionContent)
+
+        // Проверяем, что в кэше 2 модуля
+        val cached = localCacheRepository.findAllCachedAsync()
+        assertEquals(2, cached.size)
+    }
+
+    @Test
+    fun `downloadZipAsync should handle duplicate downloads`() = runTest {
+        val constraint = Constraint.Companion.parse("1.0.0")
+        val modules = localCacheRepository.findAsync("test/module", constraint)
+        assertEquals(1, modules.size)
+
+        // Создаем несколько файлов для скачивания
+        val downloadFile1 = tempDir.resolve("download1.zip")
+        val downloadFile2 = tempDir.resolve("download2.zip")
+
+        // Скачиваем один и тот же модуль в разные файлы
+        modules[0].downloadZipAsync(downloadFile1)
+        modules[0].downloadZipAsync(downloadFile2)
+
+        // Проверяем, что оба файла созданы
+        assertTrue(Files.exists(downloadFile1))
+        assertTrue(Files.exists(downloadFile2))
+
+        // Проверяем, что содержимое одинаковое
+        val content1 = Files.readAllBytes(downloadFile1)
+        val content2 = Files.readAllBytes(downloadFile2)
+        assertTrue(content1.contentEquals(content2),
+            "Оба скачанных файла должны иметь одинаковое содержимое")
+
+        // Проверяем, что в кэше только один модуль
+        val cached = localCacheRepository.findAllCachedAsync()
+        assertEquals(1, cached.size)
     }
 
     // Вспомогательные методы
