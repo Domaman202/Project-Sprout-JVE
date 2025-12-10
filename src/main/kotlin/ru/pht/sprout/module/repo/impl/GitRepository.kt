@@ -8,6 +8,8 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.utils.io.jvm.javaio.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import ru.pht.sprout.module.header.ModuleHeader
@@ -96,7 +98,9 @@ open class GitRepository(
                 throw IOException("Hash check failed")
             if (file.parent.notExists())
                 file.parent.createDirectories()
-            Files.write(file, bytes)
+            withContext(Dispatchers.IO) {
+                Files.write(file, bytes)
+            }
         }
     }
 }

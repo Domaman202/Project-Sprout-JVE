@@ -2,6 +2,8 @@ package ru.pht.sprout.module.repo.cache.impl
 
 import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.constraints.Constraint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
@@ -177,7 +179,9 @@ class LocalCacheRepository(
 
         override suspend fun headerAsync(): ModuleHeader {
             this.checkDownloadCache()
-            return ZipUtils.unzipHeader(FileInputStream(this.file))
+            return withContext(Dispatchers.IO) {
+                ZipUtils.unzipHeader(FileInputStream(this@MaybeCachedDownloadable.file))
+            }
         }
 
         override suspend fun downloadAsync(dir: Path) {
@@ -185,14 +189,21 @@ class LocalCacheRepository(
             val dir = dir.resolve(this.name).normalize()
             if (dir.notExists())
                 dir.createDirectories()
-            ZipUtils.unzip(dir, Files.readAllBytes(File(this.file).toPath()))
+            ZipUtils.unzip(
+                dir,
+                withContext(Dispatchers.IO) {
+                    Files.readAllBytes(File(this@MaybeCachedDownloadable.file).toPath())
+                }
+            )
         }
 
         override suspend fun downloadZipAsync(file: Path) {
             if (file.parent.notExists())
                 file.parent.createDirectories()
             this.checkDownloadCache()
-            Files.write(file, Files.readAllBytes(File(this.file).toPath()))
+            withContext(Dispatchers.IO) {
+                Files.write(file, Files.readAllBytes(File(this@MaybeCachedDownloadable.file).toPath()))
+            }
         }
 
         private suspend fun checkDownloadCache() {
