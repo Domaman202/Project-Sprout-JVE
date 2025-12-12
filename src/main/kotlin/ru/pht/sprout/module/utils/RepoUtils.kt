@@ -7,8 +7,41 @@ import ru.pht.sprout.module.repo.IRepository
 import ru.pht.sprout.module.repo.cache.ICachingRepository
 
 object RepoUtils {
+    /**
+     * Поиск модулей в репозиториях.
+     *
+     * @param repositories Репозитории.
+     * @param name Имя модуля.
+     * @param version Версия модуля.
+     * @param combineAndAdd Сборка всех найденных модулей и добавление в список.
+     * @return Отсортированный список модулей соответствующих имени и версии.
+     */
+    inline fun findAndVerifySorted(
+        repositories: List<IRepository>,
+        name: String,
+        version: Constraint,
+        combineAndAdd: (combine: List<IDownloadable>, addTo: (IDownloadable) -> Unit) -> Unit
+    ): List<IDownloadable> = findAndVerifySorted0(repositories, { findAll() }, name, version, combineAndAdd)
+
+    /**
+     * Асинхронный поиск модулей в репозиториях.
+     *
+     * @param repositories Репозитории.
+     * @param name Имя модуля.
+     * @param version Версия модуля.
+     * @param combineAndAdd Сборка всех найденных модулей и добавление в список.
+     * @return Отсортированный список модулей соответствующих имени и версии.
+     */
     suspend inline fun findAndVerifySortedAsync(
         repositories: List<IRepository>,
+        name: String,
+        version: Constraint,
+        combineAndAdd: (combine: List<IDownloadable>, addTo: (IDownloadable) -> Unit) -> Unit
+    ): List<IDownloadable> = findAndVerifySorted0(repositories, { findAllAsync() }, name, version, combineAndAdd)
+
+    inline fun findAndVerifySorted0(
+        repositories: List<IRepository>,
+        findAll: IRepository.() -> List<IDownloadable>,
         name: String,
         version: Constraint,
         combineAndAdd: (combine: List<IDownloadable>, addTo: (IDownloadable) -> Unit) -> Unit
@@ -21,7 +54,7 @@ object RepoUtils {
             if (repo is ICachingRepository)
                 return@forEach
             // Перебор всех источников
-            repo.findAllAsync().forEach { downloadable ->
+            findAll(repo).forEach { downloadable ->
                 // Проверка имени и версии
                 if (downloadable.name == name && version.isSatisfiedBy(downloadable.version)) {
                     // Добавляем в найденное
@@ -44,8 +77,34 @@ object RepoUtils {
         return verified
     }
 
+
+    /**
+     * Поиск всех доступных модулей в репозиториях.
+     *
+     * @param repositories Репозитории.
+     * @param combineAndAddToVerified Сборка найденных модулей одного имени и версии с последующим добавлением к списку верифицированных.
+     * @return Не сортированный список всех модулей.
+     */
+    inline fun findAllAndVerify(
+        repositories: List<IRepository>,
+        combineAndAddToVerified: (List<IDownloadable>) -> Unit
+    ) = findAllAndVerify0(repositories, { findAll() }, combineAndAddToVerified)
+
+    /**
+     * Асинхронный поиск всех доступных модулей в репозиториях.
+     *
+     * @param repositories Репозитории.
+     * @param combineAndAddToVerified Сборка найденных модулей одного имени и версии с последующим добавлением к списку верифицированных.
+     * @return Не сортированный список всех модулей.
+     */
     suspend inline fun findAllAndVerifyAsync(
         repositories: List<IRepository>,
+        combineAndAddToVerified: (List<IDownloadable>) -> Unit
+    ) = findAllAndVerify0(repositories, { findAllAsync() }, combineAndAddToVerified)
+
+    inline fun findAllAndVerify0(
+        repositories: List<IRepository>,
+        findAll: IRepository.() -> List<IDownloadable>,
         combineAndAddToVerified: (List<IDownloadable>) -> Unit
     ) {
         // Мап [Имя; Мап [Версия; Мап [Хеш; Список Источников]]]
@@ -56,7 +115,7 @@ object RepoUtils {
             if (repo is ICachingRepository)
                 return@forEach
             // Перебор всех источников
-            repo.findAllAsync().forEach { downloadable ->
+            findAll(repo).forEach { downloadable ->
                 // Добавляем в найденное
                 find
                     .getOrPut(downloadable.name) { HashMap() }

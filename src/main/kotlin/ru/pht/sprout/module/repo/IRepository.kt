@@ -14,7 +14,7 @@ interface IRepository {
      * Поиск модулей.
      *
      * @param name Имя искомого модуля.
-     * @return Отсортированный список модулей соответствующих имени.
+     * @return Отсортированный список модулей соответствующих имени и версии.
      */
     @Throws(IOException::class)
     fun find(name: String, version: Constraint): List<IDownloadable> = runBlocking {
@@ -27,16 +27,16 @@ interface IRepository {
      * Асинхронный поиск модулей.
      *
      * @param name Имя искомого модуля.
-     * @return Отсортированный список модулей соответствующих имени.
+     * @return Отсортированный список модулей соответствующих имени и версии.
      */
     @Throws(IOException::class)
     suspend fun findAsync(name: String, version: Constraint): List<IDownloadable>
 
 
     /**
-     * Не сортирующий поиск всех доступных модулей.
+     * Поиск всех доступных модулей.
      *
-     * @return Список всех модулей.
+     * @return Не сортированный список всех модулей.
      */
     @Throws(IOException::class)
     fun findAll(): List<IDownloadable> = runBlocking {
@@ -46,9 +46,9 @@ interface IRepository {
     }
 
     /**
-     * Асинхронный не сортирующий поиск всех доступных модулей.
+     * Асинхронный поиск всех доступных модулей.
      *
-     * @return Список всех модулей.
+     * @return Не сортированный список всех модулей.
      */
     @Throws(IOException::class)
     suspend fun findAllAsync(): List<IDownloadable>
