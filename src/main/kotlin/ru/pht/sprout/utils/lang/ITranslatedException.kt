@@ -7,7 +7,7 @@ interface ITranslatedException {
     /**
      * Ключ перевода сообщения.
      */
-    val translation: Translation
+    val translation: Translation?
 
     /**
      * Перевод сообщения.
@@ -15,6 +15,6 @@ interface ITranslatedException {
      * @param language Язык.
      * @return Переведённое сообщение.
      */
-    fun translate(language: Language): String =
-        translation.translate(language)
+    fun translate(language: Language): String? =
+        translation?.translate(language)
 }

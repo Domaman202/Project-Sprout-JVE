@@ -10,6 +10,6 @@ import ru.pht.sprout.utils.lang.TranslatedRuntimeException
  * @param field Имя поля.
  */
 class NotInitializedException(val field: String) : TranslatedRuntimeException(SproutTranslate.of<NotInitializedException>()) {
-    override fun translate(language: Language): String =
-        this.translation.translate(language, Pair("field", field))
+    override fun translate(language: Language): String? =
+        this.translation?.translate(language, Pair("field", this.field))
 }

@@ -3,12 +3,17 @@ package ru.pht.sprout.module.header.parser
 import ru.pht.sprout.module.header.lexer.LexerException
 import ru.pht.sprout.module.header.lexer.Token
 import ru.pht.sprout.utils.fmt.ErrorFormatter
+import ru.pht.sprout.utils.lang.Language
+import ru.pht.sprout.utils.lang.SproutTranslate
+import ru.pht.sprout.utils.lang.TranslatedException
+import ru.pht.sprout.utils.lang.Translation
 
-abstract class ParserException : Exception {
-    abstract fun print(parser: Parser, builder: StringBuilder = StringBuilder()): StringBuilder
+abstract class ParserException : TranslatedException {
+    abstract val token: Token?
+    abstract fun print(parser: Parser, language: Language, builder: StringBuilder = StringBuilder()): StringBuilder
 
-    constructor(message: String) : super(message)
-    constructor(cause: Throwable) : super(cause)
+    constructor(translation: Translation) : super(translation = translation)
+    constructor(cause: Throwable) : super(cause = cause, translation = null)
 
     class ExceptionWrapContext(
         var stage: String,
@@ -16,6 +21,9 @@ abstract class ParserException : Exception {
     )
 
     abstract class Wrapped(val context: ExceptionWrapContext, open val exception: Throwable) : ParserException(exception) {
+        override val token: Token?
+            get() = context.lastToken
+
         protected fun StringBuilder.printHead(): StringBuilder {
             context.lastToken?.let { append("[${it.position.line + 1}, ${it.position.column + 1}]") }
             append("[${context.stage}]\n")
@@ -23,29 +31,33 @@ abstract class ParserException : Exception {
         }
 
         class FromLexer(context: ExceptionWrapContext, override val exception: LexerException) : Wrapped(context, exception) {
-            override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
-                exception.print(parser.lexer, builder.printHead())
+            override fun print(parser: Parser, language: Language, builder: StringBuilder): StringBuilder =
+                exception.print(parser.lexer, language, builder.printHead())
         }
 
         class FromParser(context: ExceptionWrapContext, override val exception: ParserException) : Wrapped(context, exception) {
-            override fun print(parser: Parser, builder: StringBuilder): StringBuilder {
-                context.lastToken?.let {
-                    builder.append(ErrorFormatter.formatErrorWithToken(
-                        parser.lexer.source,
-                        it.position.start,
-                        it.position.end - it.position.start,
-                        it.position.line,
-                        it.position.column,
-                        ""
-                    )).append('\n')
-                } ?: builder.printHead()
-                return exception.print(parser, builder)
+            override fun print(parser: Parser, language: Language, builder: StringBuilder): StringBuilder {
+                if (context.lastToken != exception.token) {
+                    context.lastToken?.let {
+                        builder.append(
+                            ErrorFormatter.formatErrorWithToken(
+                                parser.lexer.source,
+                                it.position.start,
+                                it.position.end - it.position.start,
+                                it.position.line,
+                                it.position.column,
+                                ""
+                            )
+                        ).append('\n')
+                    } ?: builder.printHead()
+                }
+                return exception.print(parser, language, builder)
             }
         }
     }
 
-    class UnsupportedHeader(val token: Token?, message: String) : ParserException(message) {
-        override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
+    class UnsupportedHeader(override val token: Token?, val format: String) : ParserException(SproutTranslate.of<UnsupportedHeader>()) {
+        override fun print(parser: Parser, language: Language, builder: StringBuilder): StringBuilder =
             token?.let {
                 builder.append(ErrorFormatter.formatErrorWithToken(
                     parser.lexer.source,
@@ -56,10 +68,13 @@ abstract class ParserException : Exception {
                     message!!
                 ))
             } ?: builder.append(message)
+
+        override fun translate(language: Language): String? =
+            this.translation?.translate(language, Pair("format", this.format))
     }
 
-    class ValidationException(val token: Token?, val string: String) : ParserException("Невалидное значение '$string'") {
-        override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
+    class ValidationException(override val token: Token?, val value: String) : ParserException(SproutTranslate.of<ValidationException>()) {
+        override fun print(parser: Parser, language: Language, builder: StringBuilder): StringBuilder =
             token?.let {
                 builder.append(ErrorFormatter.formatErrorWithToken(
                     parser.lexer.source,
@@ -70,12 +85,13 @@ abstract class ParserException : Exception {
                     message!!
                 ))
             } ?: builder.append(message)
+
+        override fun translate(language: Language): String? =
+            this.translation?.translate(language, Pair("value", this.value))
     }
 
-    class NotInitializedException(val token: Token?, val field: String) : ParserException("Неинициализированное обязательное поле '$field'") {
-        constructor(token: Token?, original: ru.pht.sprout.utils.NotInitializedException) : this(token, original.field)
-
-        override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
+    class NotInitializedException(override val token: Token?, val field: String) : ParserException(SproutTranslate.of<NotInitializedException>()) {
+        override fun print(parser: Parser, language: Language, builder: StringBuilder): StringBuilder =
             token?.let {
                 builder.append(ErrorFormatter.formatErrorWithToken(
                     parser.lexer.source,
@@ -86,30 +102,28 @@ abstract class ParserException : Exception {
                     message!!
                 ))
             } ?: builder.append(message)
+
+        override fun translate(language: Language): String? =
+            this.translation?.translate(language, Pair("field", this.field))
     }
 
-    class UnexpectedToken : ParserException {
-        val accepted: Token
-        val excepted: List<Token.Type>
+    class UnexpectedToken(val accepted: Token, val expected: List<Token.Type>) : ParserException(SproutTranslate.of<UnexpectedToken>()) {
+        override val token: Token
+            get() = this.accepted
 
-        constructor(accepted: Token, expected: Token.Type) : super("Ожидался токен '$expected', получен токен '$accepted'") {
-            this.accepted = accepted
-            this.excepted = listOf(expected)
-        }
+        constructor(accepted: Token, expected: Token.Type) : this(accepted, listOf(expected))
 
-        constructor(accepted: Token, expected: List<Token.Type>) : super("Ожидались токены ${expected.map { "'$it'" }}, получен токен '$accepted'") {
-            this.accepted = accepted
-            this.excepted = expected
-        }
-
-        override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
+        override fun print(parser: Parser, language: Language, builder: StringBuilder): StringBuilder =
             builder.append(ErrorFormatter.formatErrorWithToken(
                 parser.lexer.source,
                 accepted.position.start,
                 accepted.position.end - accepted.position.start,
                 accepted.position.line,
                 accepted.position.column,
-                "Неожиданный токен ${accepted.type}\nОжидались токены типа: ${excepted.joinToString { "'$it'" }}"
+                SproutTranslate.of<UnexpectedToken>("print").translate(language, Pair("expected", this.expected.map { "'$it'" }), Pair("accepted", this.accepted.type))
             ))
+
+        override fun translate(language: Language): String =
+            this.translation!!.translate(language, Pair("expected", this.expected.map { "'$it'" }), Pair("accepted", this.accepted.type))
     }
 }

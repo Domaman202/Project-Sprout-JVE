@@ -48,7 +48,7 @@ class Parser(val lexer: Lexer) {
             return when (token.value) {
                 "pht/module" -> parsePhtModuleInstruction()
                 // todo: Поддержка кастомных модулей
-                else -> throw ParserException.UnsupportedHeader(token, "Неподдерживаемый формат модуля")
+                else -> throw ParserException.UnsupportedHeader(token, token.value)
             }
         }
 
@@ -67,7 +67,7 @@ class Parser(val lexer: Lexer) {
             try {
                 return module.build()
             } catch (e: NotInitializedException) {
-                throw ParserException.NotInitializedException(lastToken, e)
+                throw ParserException.NotInitializedException(lastToken, e.field)
             }
         }
 
@@ -87,7 +87,7 @@ class Parser(val lexer: Lexer) {
             try {
                 return dependency.build()
             } catch (e: NotInitializedException) {
-                throw ParserException.NotInitializedException(lastToken, e)
+                throw ParserException.NotInitializedException(lastToken, e.field)
             }
         }
 
@@ -332,7 +332,7 @@ class Parser(val lexer: Lexer) {
         checkPathString(token, token.value)
 
     private fun checkPathString(token: Token?, string: String): String {
-        if (Regex("^(?!\\.$)(?!.*/\\.$)([\\w.-]+/)*(\\*\\.\\w+|\\*|[\\w.-]+)$").matches(string))
+        if (Regex("^(?!\\.\\.(?:[/\\\\]|$))(?!\\w:[/\\\\])(?![/\\\\]{2})(?:[^/\\\\\\n]+[/\\\\])*[^/\\\\\\n]+[/\\\\]?$").matches(string))
             return string
         throw ParserException.ValidationException(token, string)
     }

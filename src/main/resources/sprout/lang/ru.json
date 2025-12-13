@@ -35,6 +35,12 @@
     "ru.pht.sprout.module.header.lexer.LexerException$InvalidIdentifier": "Неопознанный идентификатор",
     "ru.pht.sprout.module.header.lexer.LexerException$UnexpectedSymbol": "Неожиданный символ",
     "ru.pht.sprout.module.header.lexer.LexerException$UncompletedString": "Незавершённая строка",
-    "ru.pht.sprout.module.header.lexer.LexerException$EOF": "Лексический анализатор достиг конца обрабатываемого источника"
+    "ru.pht.sprout.module.header.lexer.LexerException$EOF": "Лексический анализатор достиг конца обрабатываемого источника",
+
+    "ru.pht.sprout.module.header.parser.ParserException$UnsupportedHeader": "Неподдерживаемый формат модуля '§sb{format}§sr'",
+    "ru.pht.sprout.module.header.parser.ParserException$ValidationException": "Невалидное значение '§sb{value}§sr'",
+    "ru.pht.sprout.module.header.parser.ParserException$NotInitializedException": "Неинициализированное обязательное поле '§sb{field}§sr'",
+    "ru.pht.sprout.module.header.parser.ParserException$UnexpectedToken": "Неожиданный токен '§sb{accepted}§sr', ожидались токены типа: §sb{expected}",
+    "ru.pht.sprout.module.header.parser.ParserException$UnexpectedToken.print": "Неожиданный токен '§sb{accepted}§sr'\nОжидались токены типа: §sb{expected}"
   }
 }

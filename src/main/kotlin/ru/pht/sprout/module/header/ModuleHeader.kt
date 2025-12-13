@@ -17,15 +17,16 @@ import ru.pht.sprout.utils.ValueOrAny
  * @param authors Авторы.
  * @param dependencies Зависимости.
  * @param uses Использование модулей по умолчанию.
- * @param injectInto Инъекции в зависимые модули.
- * @param injectIntoDependencies Инъекции в зависимости зависимых модулей.
- * @param injectFrom Инъекции из зависимостей.
+ * @param injectIntoChain Применение инъекций из модуля.
+ * @param injectIntoModule Применение инъекций в конкретные модули.
+ * @param noInjectFromChain Запрет инъекций в модуль.
+ * @param noInjectFromModule Запрет инъекций из конкретных модулей.
  * @param imports Импорты.
  * @param exports Экспорты.
  * @param features Определение фич.
- * @param sources Файлы исходного кода.
- * @param resources Файлы ресурсы.
- * @param plugins Файлы кода плагинов.
+ * @param source Файлы исходного кода.
+ * @param resource Файлы ресурсы.
+ * @param plugin Файлы кода плагинов.
  */
 data class ModuleHeader(
     val name: String,
@@ -41,9 +42,9 @@ data class ModuleHeader(
     val imports: ValueOrAny<List<IntermoduleData>>,
     val exports: ValueOrAny<List<IntermoduleData>>,
     val features: List<Pair<String, Boolean>>,
-    val sources: List<PathOrDependency>,
-    val resources: List<PathOrDependency>,
-    val plugins: List<PathOrDependency>,
+    val source: List<PathOrDependency>,
+    val resource: List<PathOrDependency>,
+    val plugin: List<PathOrDependency>,
 ) {
     /**
      * Зависимость модуля.
@@ -222,6 +223,19 @@ data class ModuleHeader(
                 throw NotValueException()
             return this.dependency!!
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            other as PathOrDependency
+            return other.path == this.path && other.dependency == this.dependency
+        }
+
+        override fun hashCode(): Int =
+            this.path?.hashCode() ?: (this.dependency.hashCode() * 31)
+
+        override fun toString(): String =
+            (this.path ?: this.dependency).toString()
 
         companion object {
             /**
@@ -408,7 +422,7 @@ data class ModuleHeader(
         fun build(): ModuleHeader {
             return ModuleHeader(
                 this.name ?: throw NotInitializedException("name"),
-                this.version ?: throw NotInitializedException("vers"),
+                this.version ?: throw NotInitializedException("version"),
                 this.description ?: "",
                 this.authors ?: emptyList(),
                 this.dependencies ?: emptyList(),

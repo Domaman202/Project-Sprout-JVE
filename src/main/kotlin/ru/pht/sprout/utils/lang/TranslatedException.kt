@@ -2,21 +2,23 @@ package ru.pht.sprout.utils.lang
 
 open class TranslatedException : Exception, ITranslatedException {
     private val args: Array<out Pair<String, Any?>>
-    private val translation0: Translation
-    override val translation: Translation
+    private val translation0: Translation?
+    override val translation: Translation?
         get() = this.translation0
+    override val message: String?
+        get() = super.message ?: this.translate(Language.ENGLISH)
 
     constructor(
-        translation: Translation,
+        translation: Translation?,
         vararg args: Pair<String, Any?>
-    ) : super(translation.translate(Language.ENGLISH, *args)) {
+    ) : super() {
         this.translation0 = translation
         this.args = args
     }
 
     constructor(
-        message: String,
-        translation: Translation,
+        message: String?,
+        translation: Translation?,
         vararg args: Pair<String, Any?>
     ) : super(message) {
         this.translation0 = translation
@@ -24,9 +26,9 @@ open class TranslatedException : Exception, ITranslatedException {
     }
 
     constructor(
-        message: String,
-        cause: Throwable,
-        translation: Translation,
+        message: String?,
+        cause: Throwable?,
+        translation: Translation?,
         vararg args: Pair<String, Any?>
     ) : super(message, cause) {
         this.translation0 = translation
@@ -34,8 +36,8 @@ open class TranslatedException : Exception, ITranslatedException {
     }
 
     constructor(
-        cause: Throwable,
-        translation: Translation,
+        cause: Throwable?,
+        translation: Translation?,
         vararg args: Pair<String, Any?>
     ) : super(cause) {
         this.translation0 = translation
@@ -47,13 +49,13 @@ open class TranslatedException : Exception, ITranslatedException {
         cause: Throwable?,
         enableSuppression: Boolean,
         writableStackTrace: Boolean,
-        translation: Translation,
+        translation: Translation?,
         vararg args: Pair<String, Any?>
     ) : super(message, cause, enableSuppression, writableStackTrace) {
         this.translation0 = translation
         this.args = args
     }
 
-    override fun translate(language: Language): String =
-        this.translation.translate(language, *this.args)
+    override fun translate(language: Language): String? =
+        this.translation?.translate(language, *this.args)
 }

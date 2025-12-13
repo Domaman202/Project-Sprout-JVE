@@ -24,6 +24,16 @@ class ValueOrAny<T> private constructor(private val value: T?, private val any: 
         return this.value as T
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as ValueOrAny<*>
+        return other.value == value && other.any == any
+    }
+
+    override fun hashCode(): Int =
+        this.any.hashCode() + (this.value?.let { it.hashCode() * 31 } ?: 0)
+
     companion object {
         private val ANY = ValueOrAny(null, true)
 
