@@ -1,0 +1,7 @@
+{
+  "name": "English",
+  "code": "en",
+  "translate": {
+    "ru.pht.sprout.utils.lang.LanguageTest.extend": "Extended translate"
+  }
+}

@@ -3,6 +3,12 @@
   "code": "en",
   "translate": {
     "ru.pht.sprout.cli.App.printHelp.header" :          "§sb[> ----------- HELP ----------- <]",
+    "ru.pht.sprout.cli.App.printHelp.command":          "§sb[§f4{long}§sr§sb]",
+    "ru.pht.sprout.cli.App.printHelp.short":            "§sb[> Short:       §sr§si§f3-{short}",
+    "ru.pht.sprout.cli.App.printHelp.noShort":          "§sb[> Short:       §sr§f1Nothing",
+    "ru.pht.sprout.cli.App.printHelp.long":             "§sb[> Long:        §sr§si§f3--{long}",
+    "ru.pht.sprout.cli.App.printHelp.noDescription":    "§sb[> Description: §sr§f1Empty",
+    "ru.pht.sprout.cli.App.printHelp.description":      "§sb[> Description: §sr§f7{description}",
     "ru.pht.sprout.cli.App.printInfo.header":           "§sb[> ----------- INFO ----------- <]",
     "ru.pht.sprout.cli.App.printInfo.os":               "§sb§f7System:      §f3{name} {version}",
     "ru.pht.sprout.cli.App.printInfo.java":             "§sb§f7Runtime:     §f3Java {version} {vendor)}",
@@ -13,10 +19,17 @@
     "ru.pht.sprout.cli.App.printInfo.build.module":     "§sb§f7Module:      §sr{status}",
     "ru.pht.sprout.cli.App.printInfo.build.download":   "§sb§f7Download:    §f6{download}",
     "ru.pht.sprout.cli.App.printInfo.build.repository": "§sb§f7Repository:  §f6{repository}",
+    "ru.pht.sprout.cli.App.cmd.help.arg0":    "Command",
+    "ru.pht.sprout.cli.App.cmd.help.desc":    "Print it text / Help about command",
+    "ru.pht.sprout.cli.App.cmd.version.desc": "Print program version",
+    "ru.pht.sprout.cli.App.cmd.shell.desc":   "Interactive shell",
 
-    "cmd.help.arg0": "Command",
-    "cmd.help.desc": "Print it text / Help about command",
-    "cmd.version.desc": "Print program version",
-    "cmd.shell.desc": "Interactive shell"
+    "ru.pht.sprout.utils.fmt.FmtUtils.0": "Unexpected color code of foreground '{char}'",
+    "ru.pht.sprout.utils.fmt.FmtUtils.1": "Unexpected color code of background '{char}'",
+    "ru.pht.sprout.utils.fmt.FmtUtils.2": "Unexpected style code '{char}'",
+    "ru.pht.sprout.utils.fmt.FmtUtils.3": "Unexpected formatting code '{char}'",
+
+    "ru.pht.sprout.utils.NotInitializedException": "Uninitialized required field '{field}'",
+    "ru.pht.sprout.utils.NotValueException": "Value has not been set"
   }
 }

@@ -19,10 +19,17 @@
     "ru.pht.sprout.cli.App.printInfo.build.module":     "§sb§f7Модуль:    §sr{status}",
     "ru.pht.sprout.cli.App.printInfo.build.download":   "§sb§f7Загружено: §f6{download}",
     "ru.pht.sprout.cli.App.printInfo.build.repository": "§sb§f7Источники: §f6{repository}",
-
-    "ru.pht.sprout.cli.App.cmd.help.arg0": "Команда",
-    "ru.pht.sprout.cli.App.cmd.help.desc": "Выводит этот текст / Помощь о команде",
+    "ru.pht.sprout.cli.App.cmd.help.arg0":    "Команда",
+    "ru.pht.sprout.cli.App.cmd.help.desc":    "Выводит этот текст / Помощь о команде",
     "ru.pht.sprout.cli.App.cmd.version.desc": "Выводит версию программы",
-    "ru.pht.sprout.cli.App.cmd.shell.desc": "Интерактивная консоль"
+    "ru.pht.sprout.cli.App.cmd.shell.desc":   "Интерактивная консоль",
+
+    "ru.pht.sprout.utils.fmt.FmtUtils.0": "Неожиданный цветовой код текста '{char}'",
+    "ru.pht.sprout.utils.fmt.FmtUtils.1": "Неожиданный цветовой код фона '{char}'",
+    "ru.pht.sprout.utils.fmt.FmtUtils.2": "Неожиданный код стиля '{char}'",
+    "ru.pht.sprout.utils.fmt.FmtUtils.3": "Неожиданный код форматирования '{char}'",
+
+    "ru.pht.sprout.utils.NotInitializedException": "Неинициализированное обязательное поле '{field}'",
+    "ru.pht.sprout.utils.NotValueException": "Значение не было установлено"
   }
 }

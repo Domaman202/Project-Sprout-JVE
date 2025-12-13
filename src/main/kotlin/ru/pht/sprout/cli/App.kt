@@ -4,8 +4,8 @@ import ru.pht.sprout.cli.args.ArgumentsParser
 import ru.pht.sprout.cli.args.Command
 import ru.pht.sprout.cli.args.CommandArgument
 import ru.pht.sprout.cli.build.BuildInfo
-import ru.pht.sprout.utils.fmt.fmt
-import ru.pht.sprout.utils.lang.Language
+import ru.pht.sprout.utils.fmt.FmtUtils.fmt
+import ru.pht.sprout.utils.lang.SproutTranslate
 import ru.pht.sprout.utils.lang.Translation
 import java.util.*
 
@@ -16,7 +16,7 @@ object App {
     // ===== INITIAL ===== //
     val COMMANDS: Array<Command.Definition>
     // ===== RUNTIME ===== //
-    val LANG = Language.addResolver(App::class.java) { App::class.java.getResource("/sprout/lang/$it.json")?.readText(Charsets.UTF_8) }.of(Locale.getDefault())
+    val LANG = SproutTranslate.language(Locale.getDefault())
     val BUILD_INFO = BuildInfo()
 
     // ===== MAIN ===== //
@@ -83,10 +83,10 @@ object App {
     }
 
     private fun translate(key: String, vararg args: Pair<String, Any?>): String =
-        Translation.translate<App>(LANG, key, *args)
+        SproutTranslate.translate<App>(LANG, key, *args)
 
     private fun translation(key: String): Translation =
-        Translation.of<App>(key)
+        SproutTranslate.of<App>(key)
 
     init {
         COMMANDS = arrayOf(

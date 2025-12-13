@@ -79,9 +79,8 @@ object ErrorFormatter {
     private fun calculateVisualPosition(line: String, pos: Int): Int {
         var visualPos = 0
         val safePos = pos.coerceIn(0, line.length)
-        for (i in 0 until safePos) {
-            visualPos += if (line[i] == '\t') 4 - (visualPos % 4) else 1
-        }
+        for (i in 0 until safePos)
+            visualPos += if (line[i] == '\t') 4 else 1
         return visualPos
     }
 
@@ -95,9 +94,8 @@ object ErrorFormatter {
         if (safeStart == safeEnd) return 1
 
         var visualLength = 0
-        for (i in safeStart until safeEnd) {
+        for (i in safeStart until safeEnd)
             visualLength += if (line[i] == '\t') 4 - ((visualLength + safeStart) % 4) else 1
-        }
         return visualLength.coerceAtLeast(1)
     }
 }
