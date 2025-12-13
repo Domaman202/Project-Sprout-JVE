@@ -4,7 +4,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertThrows
 import ru.pht.sprout.utils.fmt.FmtUtils.fmt
 import ru.pht.sprout.utils.lang.Language
-import java.util.*
 import kotlin.test.*
 
 class ValueOrAnyTest {
@@ -35,7 +34,7 @@ class ValueOrAnyTest {
         assertEquals(
             assertThrows<NotValueException> {
                 valueOrAny.value()
-            }.translate(Language.of(Locale.ENGLISH)),
+            }.translate(Language.ENGLISH),
             "Value has not been set".fmt
         )
     }

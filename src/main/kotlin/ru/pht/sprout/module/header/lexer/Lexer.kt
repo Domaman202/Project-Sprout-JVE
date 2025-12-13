@@ -17,6 +17,10 @@ class Lexer(val source: String) : Iterator<Token> {
      */
     override fun hasNext(): Boolean {
         skipWS()
+        if (ptr >= source.length)
+            return false
+        if (source[ptr] == ';')
+            skipComment()
         return ptr < source.length
     }
 
@@ -62,8 +66,7 @@ class Lexer(val source: String) : Iterator<Token> {
                     throw LexerException.UncompletedString(this)
                 }
                 ';' -> {
-                    while (ptr < source.length && peek() != '\n')
-                        pop()
+                    skipComment()
                     next()
                 }
                 else -> {
@@ -80,22 +83,22 @@ class Lexer(val source: String) : Iterator<Token> {
                         when (string) {
                             "module" -> ID_MODULE
                             "name" -> ID_NAME
-                            "vers" -> ID_VERSION
-                            "desc" -> ID_DESCRIPTION
-                            "auth" -> ID_AUTHORS
-                            "deps" -> ID_DEPENDENCIES
+                            "vers", "version" -> ID_VERSION
+                            "desc", "description" -> ID_DESCRIPTION
+                            "auth", "authors" -> ID_AUTHORS
+                            "deps", "dependencies" -> ID_DEPENDENCIES
                             "uses" -> ID_USES
-                            "inject-into-chain" -> INJECT_INTO_CHAIN
-                            "inject-into-module" -> INJECT_INTO_MODULE
-                            "no-inject-from-chain" -> NO_INJECT_FROM_CHAIN
-                            "no-inject-from-module" -> NO_INJECT_FROM_MODULE
+                            "inject-into-chain" -> ID_INJECT_INTO_CHAIN
+                            "inject-into-module" -> ID_INJECT_INTO_MODULE
+                            "no-inject-from-chain" -> ID_NO_INJECT_FROM_CHAIN
+                            "no-inject-from-module" -> ID_NO_INJECT_FROM_MODULE
                             "features" -> ID_FEATURES
                             "no-features" -> ID_NO_FEATURES
                             "imports" -> ID_IMPORTS
                             "exports" -> ID_EXPORTS
-                            "src" -> ID_SOURCE
-                            "res" -> ID_RESOURCE
-                            "plg" -> ID_PLUGIN
+                            "src", "source" -> ID_SOURCE
+                            "res", "resource" -> ID_RESOURCE
+                            "plg", "plugin" -> ID_PLUGIN
                             "default" -> ID_DEFAULT
                             "optional" -> ID_OPTIONAL
                             "allow" -> ID_ALLOW
@@ -149,6 +152,12 @@ class Lexer(val source: String) : Iterator<Token> {
         if (symbol != check)
             throw LexerException.UnexpectedSymbol(symbol)
         return block()
+    }
+
+    private fun skipComment() {
+        while (ptr < source.length && peek() != '\n') {
+            inc()
+        }
     }
 
     private fun skipWS() {

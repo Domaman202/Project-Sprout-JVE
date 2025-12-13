@@ -30,6 +30,11 @@
     "ru.pht.sprout.utils.fmt.FmtUtils.3": "Неожиданный код форматирования '{char}'",
 
     "ru.pht.sprout.utils.NotInitializedException": "Неинициализированное обязательное поле '{field}'",
-    "ru.pht.sprout.utils.NotValueException": "Значение не было установлено"
+    "ru.pht.sprout.utils.NotValueException": "Значение не было установлено",
+
+    "ru.pht.sprout.module.header.lexer.LexerException$InvalidIdentifier": "Неопознанный идентификатор",
+    "ru.pht.sprout.module.header.lexer.LexerException$UnexpectedSymbol": "Неожиданный символ",
+    "ru.pht.sprout.module.header.lexer.LexerException$UncompletedString": "Незавершённая строка",
+    "ru.pht.sprout.module.header.lexer.LexerException$EOF": "Лексический анализатор достиг конца обрабатываемого источника"
   }
 }

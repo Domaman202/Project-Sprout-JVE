@@ -50,26 +50,30 @@ data class Token(val position: Position, val type: Type, val value: String) {
         // name
         ID_NAME,
         // vers
+        // version
         ID_VERSION,
 
         // desc
+        // description
         ID_DESCRIPTION,
         // auth
+        // authors
         ID_AUTHORS,
 
         // deps
+        // dependencies
         ID_DEPENDENCIES,
         // uses
         ID_USES,
 
         // inject-into-chain
-        INJECT_INTO_CHAIN,
+        ID_INJECT_INTO_CHAIN,
         // inject-into-module
-        INJECT_INTO_MODULE,
+        ID_INJECT_INTO_MODULE,
         // no-inject-from-chain
-        NO_INJECT_FROM_CHAIN,
+        ID_NO_INJECT_FROM_CHAIN,
         // no-inject-from-module
-        NO_INJECT_FROM_MODULE,
+        ID_NO_INJECT_FROM_MODULE,
 
         // features
         ID_FEATURES,
@@ -82,10 +86,13 @@ data class Token(val position: Position, val type: Type, val value: String) {
         ID_EXPORTS,
 
         // src
+        // source
         ID_SOURCE,
         // res
+        // resource
         ID_RESOURCE,
         // plg
+        // plugin
         ID_PLUGIN,
 
         // default

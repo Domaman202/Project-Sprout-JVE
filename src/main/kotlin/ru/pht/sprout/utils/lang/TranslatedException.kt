@@ -9,7 +9,7 @@ open class TranslatedException : Exception, ITranslatedException {
     constructor(
         translation: Translation,
         vararg args: Pair<String, Any?>
-    ) : super() {
+    ) : super(translation.translate(Language.ENGLISH, *args)) {
         this.translation0 = translation
         this.args = args
     }

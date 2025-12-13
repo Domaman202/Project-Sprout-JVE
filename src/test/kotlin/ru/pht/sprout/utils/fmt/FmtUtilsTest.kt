@@ -5,7 +5,6 @@ import org.junit.jupiter.api.assertThrows
 import ru.pht.sprout.utils.fmt.FmtUtils.fmt
 import ru.pht.sprout.utils.lang.Language
 import ru.pht.sprout.utils.lang.TranslatedRuntimeException
-import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -100,29 +99,28 @@ class FmtUtilsTest {
     @Test
     @DisplayName("Тесты ошибок и их перевода")
     fun testException() {
-        val language = Language.of(Locale.ENGLISH)
         assertEquals(
             assertThrows<TranslatedRuntimeException> {
                 "§fx".fmt
-            }.translate(language),
+            }.translate(Language.ENGLISH),
             "Unexpected color code of foreground 'x'".fmt
         )
         assertEquals(
             assertThrows<TranslatedRuntimeException> {
                 "§bx".fmt
-            }.translate(language),
+            }.translate(Language.ENGLISH),
             "Unexpected color code of background 'x'".fmt
         )
         assertEquals(
             assertThrows<TranslatedRuntimeException> {
                 "§sx".fmt
-            }.translate(language),
+            }.translate(Language.ENGLISH),
             "Unexpected style code 'x'".fmt
         )
         assertEquals(
             assertThrows<TranslatedRuntimeException> {
                 "§x".fmt
-            }.translate(language),
+            }.translate(Language.ENGLISH),
             "Unexpected formatting code 'x'".fmt
         )
     }

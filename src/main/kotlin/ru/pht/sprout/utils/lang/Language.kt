@@ -34,8 +34,9 @@ class Language(
     }
 
     companion object {
-        private val CACHE: MutableMap<String, Language> = HashMap()
-        private val RESOLVERS: MutableMap<Class<*>, (code: String) -> String?> = WeakHashMap()
+        val ENGLISH: Language
+        private val CACHE: MutableMap<String, Language>
+        private val RESOLVERS: MutableMap<Class<*>, (code: String) -> String?>
 
         /**
          * Добавления запросчика переводов.
@@ -73,7 +74,10 @@ class Language(
         }
 
         init {
-            this.CACHE["en"] = Language("English", "en", HashMap())
+            CACHE = HashMap()
+            CACHE["en"] = Language("English", "en", HashMap())
+            RESOLVERS = WeakHashMap()
+            ENGLISH = of(Locale.ENGLISH)
         }
     }
 }

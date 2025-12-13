@@ -11,7 +11,7 @@
     "ru.pht.sprout.cli.App.printHelp.description":      "§sb[> Description: §sr§f7{description}",
     "ru.pht.sprout.cli.App.printInfo.header":           "§sb[> ----------- INFO ----------- <]",
     "ru.pht.sprout.cli.App.printInfo.os":               "§sb§f7System:      §f3{name} {version}",
-    "ru.pht.sprout.cli.App.printInfo.java":             "§sb§f7Runtime:     §f3Java {version} {vendor)}",
+    "ru.pht.sprout.cli.App.printInfo.java":             "§sb§f7Runtime:     §f3Java {version} {vendor}",
     "ru.pht.sprout.cli.App.printInfo.lang":             "§sb§f7Lang:        §f3{name}",
     "ru.pht.sprout.cli.App.printInfo.project.name":     "§sb§f7Project:     §f4Sprout",
     "ru.pht.sprout.cli.App.printInfo.project.version":  "§sb§f7Version:     §f4{version}",
@@ -30,6 +30,11 @@
     "ru.pht.sprout.utils.fmt.FmtUtils.3": "Unexpected formatting code '{char}'",
 
     "ru.pht.sprout.utils.NotInitializedException": "Uninitialized required field '{field}'",
-    "ru.pht.sprout.utils.NotValueException": "Value has not been set"
+    "ru.pht.sprout.utils.NotValueException": "Value has not been set",
+
+    "ru.pht.sprout.module.header.lexer.LexerException$InvalidIdentifier": "Invalid identifier",
+    "ru.pht.sprout.module.header.lexer.LexerException$UnexpectedSymbol": "Unexpected symbol",
+    "ru.pht.sprout.module.header.lexer.LexerException$UncompletedString": "Uncompleted string",
+    "ru.pht.sprout.module.header.lexer.LexerException$EOF": "The lexical analyzer has reached the end of the source being processed"
   }
 }

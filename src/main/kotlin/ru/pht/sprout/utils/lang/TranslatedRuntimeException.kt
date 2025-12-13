@@ -9,13 +9,13 @@ open class TranslatedRuntimeException : RuntimeException, ITranslatedException {
     constructor(
         translation: Translation,
         vararg args: Pair<String, Any?>
-    ) : super() {
+    ) : super(translation.translate(Language.ENGLISH, *args)) {
         this.translation0 = translation
         this.args = args
     }
 
     constructor(
-        message: String,
+        message: String?,
         translation: Translation,
         vararg args: Pair<String, Any?>
     ) : super(message) {
@@ -24,7 +24,7 @@ open class TranslatedRuntimeException : RuntimeException, ITranslatedException {
     }
 
     constructor(
-        message: String,
+        message: String?,
         cause: Throwable,
         translation: Translation,
         vararg args: Pair<String, Any?>

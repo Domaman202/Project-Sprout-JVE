@@ -104,17 +104,17 @@ class Parser(val lexer: Lexer) {
                 ID_AUTHORS -> module.authors(parseStringList())
                 ID_DEPENDENCIES -> module.dependencies(parseDependenciesList())
                 ID_USES -> module.uses(parseStringList())
-                INJECT_INTO_CHAIN -> module.injectIntoChain(parseAllowDeny())
-                INJECT_INTO_MODULE -> module.injectIntoModule(parseNamesList())
-                NO_INJECT_FROM_CHAIN -> module.noInjectFromChain(parseAllowDeny())
-                NO_INJECT_FROM_MODULE -> module.noInjectFromModule(parseNamesList())
+                ID_INJECT_INTO_CHAIN -> module.injectIntoChain(parseAllowDeny())
+                ID_INJECT_INTO_MODULE -> module.injectIntoModule(parseNamesList())
+                ID_NO_INJECT_FROM_CHAIN -> module.noInjectFromChain(parseAllowDeny())
+                ID_NO_INJECT_FROM_MODULE -> module.noInjectFromModule(parseNamesList())
                 ID_IMPORTS -> module.imports(parseIntermoduleDataListOrAll())
                 ID_EXPORTS -> module.exports(parseIntermoduleDataListOrAll())
                 ID_FEATURES -> module.features(parseFeatureDefinitionList())
                 ID_SOURCE -> module.sources(parsePathOrDependenciesList())
                 ID_RESOURCE -> module.resources(parsePathOrDependenciesList())
                 ID_PLUGIN -> module.plugins(parsePathOrDependenciesList())
-                else -> throw ParserException.UnexpectedToken(token, listOf(ID_NAME, ID_VERSION, ID_DESCRIPTION, ID_AUTHORS, ID_DEPENDENCIES, ID_USES, INJECT_INTO_CHAIN, INJECT_INTO_MODULE, NO_INJECT_FROM_CHAIN, NO_INJECT_FROM_MODULE, ID_IMPORTS, ID_EXPORTS, ID_FEATURES, ID_SOURCE, ID_RESOURCE, ID_PLUGINS))
+                else -> throw ParserException.UnexpectedToken(token, listOf(ID_NAME, ID_VERSION, ID_DESCRIPTION, ID_AUTHORS, ID_DEPENDENCIES, ID_USES, ID_INJECT_INTO_CHAIN, ID_INJECT_INTO_MODULE, ID_NO_INJECT_FROM_CHAIN, ID_NO_INJECT_FROM_MODULE, ID_IMPORTS, ID_EXPORTS, ID_FEATURES, ID_SOURCE, ID_RESOURCE, ID_PLUGINS))
             }
             popTk(ATTR_END) // ]}
         }

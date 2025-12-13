@@ -5,6 +5,7 @@ import ru.pht.sprout.cli.args.Command
 import ru.pht.sprout.cli.args.CommandArgument
 import ru.pht.sprout.cli.build.BuildInfo
 import ru.pht.sprout.utils.fmt.FmtUtils.fmt
+import ru.pht.sprout.utils.lang.Language
 import ru.pht.sprout.utils.lang.SproutTranslate
 import ru.pht.sprout.utils.lang.Translation
 import java.util.*
@@ -16,7 +17,7 @@ object App {
     // ===== INITIAL ===== //
     val COMMANDS: Array<Command.Definition>
     // ===== RUNTIME ===== //
-    val LANG = SproutTranslate.language(Locale.getDefault())
+    val LANG = Language.of(Locale.getDefault())
     val BUILD_INFO = BuildInfo()
 
     // ===== MAIN ===== //
