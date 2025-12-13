@@ -28,8 +28,19 @@ abstract class ParserException : Exception {
         }
 
         class FromParser(context: ExceptionWrapContext, override val exception: ParserException) : Wrapped(context, exception) {
-            override fun print(parser: Parser, builder: StringBuilder): StringBuilder =
-                exception.print(parser, builder.printHead())
+            override fun print(parser: Parser, builder: StringBuilder): StringBuilder {
+                context.lastToken?.let {
+                    builder.append(ErrorFormatter.formatErrorWithToken(
+                        parser.lexer.source,
+                        it.position.start,
+                        it.position.end - it.position.start,
+                        it.position.line,
+                        it.position.column,
+                        ""
+                    )).append('\n')
+                } ?: builder.printHead()
+                return exception.print(parser, builder)
+            }
         }
     }
 
