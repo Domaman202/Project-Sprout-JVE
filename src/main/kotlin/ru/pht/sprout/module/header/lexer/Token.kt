@@ -62,12 +62,14 @@ data class Token(val position: Position, val type: Type, val value: String) {
         // uses
         ID_USES,
 
-        // inject-from
-        ID_INJECT_FROM,
-        // inject-into
-        ID_INJECT_INTO,
-        // inject-into-deps
-        ID_INJECT_INTO_DEPENDENCIES,
+        // inject-into-chain
+        INJECT_INTO_CHAIN,
+        // inject-into-module
+        INJECT_INTO_MODULE,
+        // no-inject-from-chain
+        NO_INJECT_FROM_CHAIN,
+        // no-inject-from-module
+        NO_INJECT_FROM_MODULE,
 
         // features
         ID_FEATURES,

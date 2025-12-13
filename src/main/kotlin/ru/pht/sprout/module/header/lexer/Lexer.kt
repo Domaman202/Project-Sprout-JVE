@@ -76,7 +76,7 @@ class Lexer(val source: String) : Iterator<Token> {
                         } else break
                     }
                     val string = value.toString()
-                    return token(
+                    token(
                         when (string) {
                             "module" -> ID_MODULE
                             "name" -> ID_NAME
@@ -85,9 +85,10 @@ class Lexer(val source: String) : Iterator<Token> {
                             "auth" -> ID_AUTHORS
                             "deps" -> ID_DEPENDENCIES
                             "uses" -> ID_USES
-                            "inject-from" -> ID_INJECT_FROM
-                            "inject-into" -> ID_INJECT_INTO
-                            "inject-into-deps" -> ID_INJECT_INTO_DEPENDENCIES
+                            "inject-into-chain" -> INJECT_INTO_CHAIN
+                            "inject-into-module" -> INJECT_INTO_MODULE
+                            "no-inject-from-chain" -> NO_INJECT_FROM_CHAIN
+                            "no-inject-from-module" -> NO_INJECT_FROM_MODULE
                             "features" -> ID_FEATURES
                             "no-features" -> ID_NO_FEATURES
                             "imports" -> ID_IMPORTS

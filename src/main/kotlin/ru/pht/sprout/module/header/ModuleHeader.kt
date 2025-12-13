@@ -34,9 +34,10 @@ data class ModuleHeader(
     val authors: List<String>,
     val dependencies: List<Dependency>,
     val uses: List<String>,
-    val injectInto: Boolean,
-    val injectIntoDependencies: Boolean,
-    val injectFrom: Boolean,
+    var injectIntoChain: Boolean,
+    var injectIntoModule: List<String>,
+    var noInjectFromChain: Boolean?,
+    var noInjectFromModule: List<String>,
     val imports: ValueOrAny<List<IntermoduleData>>,
     val exports: ValueOrAny<List<IntermoduleData>>,
     val features: List<Pair<String, Boolean>>,
@@ -248,9 +249,10 @@ data class ModuleHeader(
         var authors: List<String>? = null
         var dependencies: List<Dependency>? = null
         var uses: List<String>? = null
-        var injectInto: Boolean? = null
-        var injectIntoDependencies: Boolean? = null
-        var injectFrom: Boolean? = null
+        var injectIntoChain: Boolean? = null
+        var injectIntoModule: List<String>? = null
+        var noInjectFromChain: Boolean? = null
+        var noInjectFromModule: List<String>? = null
         var imports: ValueOrAny<List<IntermoduleData>>? = null
         var exports: ValueOrAny<List<IntermoduleData>>? = null
         var features: List<Pair<String, Boolean>>? = null
@@ -312,31 +314,41 @@ data class ModuleHeader(
             return this.uses
         }
 
-        fun injectInto(value: Boolean): Builder {
-            this.injectInto = value
+        fun injectIntoChain(value: Boolean): Builder {
+            this.injectIntoChain = value
             return this
         }
 
-        fun injectInto(): Boolean? {
-            return this.injectInto
+        fun injectIntoChain(): Boolean? {
+            return this.injectIntoChain
         }
 
-        fun injectIntoDependencies(value: Boolean): Builder {
-            this.injectIntoDependencies = value
+        fun injectIntoModule(value: List<String>): Builder {
+            this.injectIntoModule = this.injectIntoModule with value
             return this
         }
 
-        fun injectIntoDependencies(): Boolean? {
-            return this.injectIntoDependencies
+        fun injectIntoModule(): List<String>? {
+            return this.injectIntoModule
         }
 
-        fun injectFrom(value: Boolean): Builder {
-            this.injectFrom = value
+
+        fun noInjectFromChain(value: Boolean): Builder {
+            this.noInjectFromChain = value
             return this
         }
 
-        fun injectFrom(): Boolean? {
-            return this.injectFrom
+        fun noInjectFromChain(): Boolean? {
+            return this.noInjectFromChain
+        }
+
+        fun noInjectFromModule(value: List<String>): Builder {
+            this.noInjectFromModule = this.noInjectFromModule with value
+            return this
+        }
+
+        fun noInjectFromModule(): List<String>? {
+            return this.noInjectFromModule
         }
 
         fun imports(value: ValueOrAny<List<IntermoduleData>>): Builder {
@@ -401,9 +413,10 @@ data class ModuleHeader(
                 this.authors ?: emptyList(),
                 this.dependencies ?: emptyList(),
                 this.uses ?: emptyList(),
-                this.injectInto ?: false,
-                this.injectIntoDependencies ?: false,
-                this.injectFrom ?: false,
+                this.injectIntoChain ?: false,
+                this.injectIntoModule ?: emptyList(),
+                this.noInjectFromChain ?: false,
+                this.noInjectFromModule ?: emptyList(),
                 this.imports ?: ValueOrAny.of(emptyList()),
                 this.exports ?: ValueOrAny.of(emptyList()),
                 this.features ?: emptyList(),
