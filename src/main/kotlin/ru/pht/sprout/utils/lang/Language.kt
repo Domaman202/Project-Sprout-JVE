@@ -37,7 +37,7 @@ class Language(
     companion object {
         val ENGLISH: Language
         private val CACHE: MutableMap<String, Language>
-        private val RESOLVERS: MutableMap<Class<*>, (code: String) -> String?>
+        private val RESOLVERS: MutableMap<Class<*>, ITranslateResolver>
 
         /**
          * Добавления запросчика переводов.
@@ -46,10 +46,10 @@ class Language(
          * @param resolver Запросчик.
          */
         @Synchronized
-        fun addResolver(klass: Class<*>, resolver: (code: String) -> String?) {
+        fun addResolver(klass: Class<*>, resolver: ITranslateResolver) {
             RESOLVERS[klass] = resolver
             CACHE.forEach { (code, lang) ->
-                resolver(code)?.let {
+                resolver.resolve(code)?.let {
                     lang.translate += Json.decodeFromString<Language>(it).translate
                 }
             }
@@ -65,7 +65,7 @@ class Language(
         fun of(locale: Locale): Language {
             val code = locale.language
             CACHE[code]?.let { return it }
-            val resolved = RESOLVERS.asSequence().mapNotNull { it.value(code) }.toMutableList()
+            val resolved = RESOLVERS.asSequence().mapNotNull { it.value.resolve(code) }.toMutableList()
             if (resolved.isEmpty())
                 return of(Locale.ENGLISH)
             val language = Json.decodeFromString<Language>(resolved.removeFirst())

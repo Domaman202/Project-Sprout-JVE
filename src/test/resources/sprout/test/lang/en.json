@@ -4,6 +4,11 @@
   "translate": {
     "ru.pht.sprout.utils.lang.LanguageTest.simple": "Simple translate",
     "ru.pht.sprout.utils.lang.LanguageTest.values": "I = {i}, J = {j}",
-    "ru.pht.sprout.utils.lang.LanguageTest.styleAndColor": "§f2Green §srAnd §sbBold"
+    "ru.pht.sprout.utils.lang.LanguageTest.styleAndColor": "§f2Green §srAnd §sbBold",
+    "ru.pht.sprout.utils.lang.ITranslatedExceptionTest.defaultTranslateTest": "Default Translate Method",
+    "ru.pht.sprout.utils.lang.TranslatedExceptionTest.basic": "Exception text",
+    "ru.pht.sprout.utils.lang.TranslatedExceptionTest.value": "Exception text with {value}",
+    "ru.pht.sprout.utils.lang.TranslatedRuntimeExceptionTest.basic": "Exception text",
+    "ru.pht.sprout.utils.lang.TranslatedRuntimeExceptionTest.value": "Exception text with {value}"
   }
 }

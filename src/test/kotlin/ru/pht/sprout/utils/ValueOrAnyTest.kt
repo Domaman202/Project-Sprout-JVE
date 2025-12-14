@@ -38,4 +38,14 @@ class ValueOrAnyTest {
             "Value has not been set".fmt
         )
     }
+
+    @Test
+    @DisplayName("Проверка хеша")
+    fun hashTest() {
+        assertEquals(ValueOrAny.any<Any?>().hashCode(), ValueOrAny.any<Any?>().hashCode())
+        assertNotEquals(ValueOrAny.any<Any?>().hashCode(), ValueOrAny.of<Any?>(null).hashCode())
+        assertEquals(ValueOrAny.of<Any?>(null).hashCode(), ValueOrAny.of<Any?>(null).hashCode())
+        assertNotEquals(ValueOrAny.of<Any?>("Some").hashCode(), ValueOrAny.of<Any?>("Other").hashCode())
+        assertEquals(ValueOrAny.of<Any?>("Some").hashCode(), ValueOrAny.of<Any?>("Some").hashCode())
+    }
 }
