@@ -24,15 +24,9 @@ abstract class ParserException : TranslatedException {
         override val token: Token?
             get() = context.lastToken
 
-        protected fun StringBuilder.printHead(): StringBuilder {
-            context.lastToken?.let { append("[${it.position.line + 1}, ${it.position.column + 1}]") }
-            append("[${context.stage}]\n")
-            return this
-        }
-
         class FromLexer(context: ExceptionWrapContext, override val exception: LexerException) : Wrapped(context, exception) {
             override fun print(parser: Parser, language: Language, builder: StringBuilder): StringBuilder =
-                exception.print(parser.lexer, language, builder.printHead())
+                exception.print(parser.lexer, language, builder)
         }
 
         class FromParser(context: ExceptionWrapContext, override val exception: ParserException) : Wrapped(context, exception) {
@@ -49,7 +43,7 @@ abstract class ParserException : TranslatedException {
                                 ""
                             )
                         ).append('\n')
-                    } ?: builder.printHead()
+                    }
                 }
                 return exception.print(parser, language, builder)
             }

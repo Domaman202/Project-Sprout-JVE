@@ -332,7 +332,7 @@ class Parser(val lexer: Lexer) {
         checkPathString(token, token.value)
 
     private fun checkPathString(token: Token?, string: String): String {
-        if (Regex("^(?!\\.\\.(?:[/\\\\]|$))(?!\\w:[/\\\\])(?![/\\\\]{2})(?:[^/\\\\\\n]+[/\\\\])*[^/\\\\\\n]+[/\\\\]?$").matches(string))
+        if (Regex("^(?!\\.{2,}|[/\\\\]|[A-Z]:)[\\w .]*([/\\\\]([\\w ]+|([\\w ]*\\.[\\w ]+)))*(/\\*(\\.[\\w ]+)*)?$").matches(string))
             return string
         throw ParserException.ValidationException(token, string)
     }

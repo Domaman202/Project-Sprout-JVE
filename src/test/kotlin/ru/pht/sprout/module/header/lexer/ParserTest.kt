@@ -4,6 +4,8 @@ import io.github.z4kn4fein.semver.toVersion
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import ru.pht.sprout.module.header.ModuleHeader.Dependency
 import ru.pht.sprout.module.header.ModuleHeader.PathOrDependency
 import ru.pht.sprout.module.header.parser.Parser
@@ -143,6 +145,28 @@ class ParserTest {
     }
 
     @Test
+    @DisplayName("Перехват ошибки лексера")
+    fun lexerThrowTest() {
+        val parser = Parser(Lexer("""
+            (module "pht/module"
+                {[name "pht/example"]}
+                {[vers "1.0.0]})
+        """.trimIndent()))
+        val exception0 = assertThrows<ParserException> { parser.parse() }
+        val exception1 = assertCauses<LexerException.UncompletedString>(exception0)
+        assertEquals(exception1.message, "Uncompleted string".fmt)
+        assertEquals(
+            exception0.print(parser, Language.ENGLISH).toString(),
+            """
+                [1, 1] (module "pht/module"
+                       ^ 
+                [3, 12]     {[vers "1.0.0]})
+                                   ^ Uncompleted string
+            """.trimIndent().fmt
+        )
+    }
+
+    @Test
     @DisplayName("Ошибка неподдерживаемого формата модуля")
     fun unsupportedHeaderThrowTest() {
         val parser = Parser(Lexer("""
@@ -165,103 +189,97 @@ class ParserTest {
         )
     }
 
-    @Test
+    @ParameterizedTest
     @DisplayName("Ошибка валидации имени")
-    fun nameValidationThrowTest() {
+    @CsvSource(
+        "' '",
+        "-abc", "/abc", "abc-", "abc/",
+        "@bc", "a c", "a.c", "a+c",
+        "a--d", "a//d", "a-/d", "a/-d",
+        "---", "///", "-/", "/-"
+    )
+    fun nameValidationThrowTest(name: String) {
         val parser = Parser(Lexer("""
             (module "pht/module"
-                {[name "pht@example"]}
+                {[name "$name"]}
                 {[vers "1.0.0"]})
         """.trimIndent()))
         val exception0 = assertThrows<ParserException> { parser.parse() }
         val exception1 = assertCauses<ParserException.ValidationException>(exception0)
-        assertEquals(exception1.value, "pht@example")
-        assertEquals(exception1.message, "Invalid value '§sbpht@example§sr'".fmt)
+        assertEquals(exception1.value, name)
+        assertEquals(exception1.message, "Invalid value '§sb$name§sr'".fmt)
         assertEquals(
             exception0.print(parser, Language.ENGLISH).toString(),
             """
                 [1, 1] (module "pht/module"
                        ^ 
-                [2, 5]     {[name "pht@example"]}
+                [2, 5]     {[name "$name"]}
                            ^~ 
-                [2, 12]     {[name "pht@example"]}
-                                   ^~~~~~~~~~~~~ Invalid value '§sbpht@example§sr'
+                [2, 12]     {[name "$name"]}
+                                   ^${"~".repeat(name.length)}~ Invalid value '§sb$name§sr'
             """.trimIndent().fmt
         )
     }
 
-    @Test
-    @DisplayName("Ошибка валидации имени зависимости")
-    fun dependencyNameValidationThrowTest() {
-        val parser = Parser(Lexer("""
-            (module "pht/module"
-                {[name "pht/example"]}
-                {[vers "1.0.0"]}
-                {[deps [(module
-                    {[name "pht/]epend"]}
-                    {[vers "1.0.0"]})]]})
-        """.trimIndent()))
-        val exception0 = assertThrows<ParserException> { parser.parse() }
-        val exception1 = assertCauses<ParserException.ValidationException>(exception0)
-        assertEquals(exception1.value, "pht/]epend")
-        assertEquals(exception1.message, "Invalid value '§sbpht/]epend§sr'".fmt)
-        assertEquals(
-            exception0.print(parser, Language.ENGLISH).toString(),
-            """
-                [1, 1] (module "pht/module"
-                       ^ 
-                [4, 5]     {[deps [(module
-                           ^~ 
-                [4, 13]     {[deps [(module
-                                    ^ 
-                [5, 9]         {[name "pht/]epend"]}
-                               ^~ 
-                [5, 16]         {[name "pht/]epend"]}
-                                       ^~~~~~~~~~~~ Invalid value '§sbpht/]epend§sr'
-            """.trimIndent().fmt
-        )
-    }
-
-    @Test
+    @ParameterizedTest
     @DisplayName("Ошибка валидации версии")
-    fun versionValidationThrowTest() {
+    @CsvSource(
+        "1", "1.2", "1.2.3.4",
+        "a.2.3", "1.b.3", "1.2.c", "1.2.3?",
+        "01.2.3", "1.02.3", "1.2.03",
+        "1.2.3-", "1.2.3-alpha.", "1.2.3-alpha..beta", "1.2.3-.beta",
+        "1.2.3-alpha@beta", "1.2.3-alpha beta",
+        "1.2.3-01", "1.2.3-1.02.alpha", "1.2.3-alpha.001",
+        "1.2.3+", "1.2.3+alpha.", "1.2.3+alpha..beta", "1.2.3+.beta", "1.2.3-alpha+",
+        "1.2.3+alpha@beta", "1.2.3+alpha beta", "1.2.3+alpha[beta]"
+    )
+    fun versionValidationThrowTest(version: String) {
         val parser = Parser(Lexer("""
             (module "pht/module"
                 {[name "pht/example"]}
-                {[vers "1.$.0"]})
+                {[vers "$version"]})
         """.trimIndent()))
         val exception0 = assertThrows<ParserException> { parser.parse() }
         val exception1 = assertCauses<ParserException.ValidationException>(exception0)
-        assertEquals(exception1.value, "1.$.0")
-        assertEquals(exception1.message, "Invalid value '§sb1.$.0§sr'".fmt)
+        assertEquals(exception1.value, version)
+        assertEquals(exception1.message, "Invalid value '§sb$version§sr'".fmt)
         assertEquals(
             exception0.print(parser, Language.ENGLISH).toString(),
             """
                 [1, 1] (module "pht/module"
                        ^ 
-                [3, 5]     {[vers "1.$.0"]})
+                [3, 5]     {[vers "$version"]})
                            ^~ 
-                [3, 12]     {[vers "1.$.0"]})
-                                   ^~~~~~~ Invalid value '§sb1.$.0§sr'
+                [3, 12]     {[vers "$version"]})
+                                   ^${"~".repeat(version.length)}~ Invalid value '§sb$version§sr'
             """.trimIndent().fmt
         )
     }
 
-    @Test
+    @ParameterizedTest
     @DisplayName("Ошибка валидации версии зависимости")
-    fun dependencyVersionValidationThrowTest() {
+    @CsvSource(
+        "1.2.3.4",
+        "a.2.3", "1.b.3", "1.2.c", "1.2.3?",
+        "1.2.3-", "1.2.3-alpha.", "1.2.3-alpha..beta", "1.2.3-.beta",
+        "1.2.3-alpha@beta", "1.2.3-alpha beta",
+        "1.2.3-1.02.alpha",
+        "1.2.3+", "1.2.3+alpha.", "1.2.3+alpha..beta", "1.2.3+.beta", "1.2.3-alpha+",
+        "1.2.3+alpha@beta", "1.2.3+alpha beta", "1.2.3+alpha[beta]"
+    )
+    fun dependencyVersionValidationThrowTest(version: String) {
         val parser = Parser(Lexer("""
             (module "pht/module"
                 {[name "pht/example"]}
                 {[vers "1.0.0"]}
                 {[deps [(module
                     {[name "pht/depend"]}
-                    {[vers "#.0.0"]})]]})
+                    {[vers "$version"]})]]})
         """.trimIndent()))
         val exception0 = assertThrows<ParserException> { parser.parse() }
         val exception1 = assertCauses<ParserException.ValidationException>(exception0)
-        assertEquals(exception1.value, "#.0.0")
-        assertEquals(exception1.message, "Invalid value '§sb#.0.0§sr'".fmt)
+        assertEquals(exception1.value, version)
+        assertEquals(exception1.message, "Invalid value '§sb$version§sr'".fmt)
         assertEquals(
             exception0.print(parser, Language.ENGLISH).toString(),
             """
@@ -271,88 +289,47 @@ class ParserTest {
                            ^~ 
                 [4, 13]     {[deps [(module
                                     ^ 
-                [6, 9]         {[vers "#.0.0"]})]]})
+                [6, 9]         {[vers "$version"]})]]})
                                ^~ 
-                [6, 16]         {[vers "#.0.0"]})]]})
-                                       ^~~~~~~ Invalid value '§sb#.0.0§sr'
+                [6, 16]         {[vers "$version"]})]]})
+                                       ^${"~".repeat(version.length)}~ Invalid value '§sb${version}§sr'
             """.trimIndent().fmt
         )
     }
 
-    @Test
+    @ParameterizedTest
     @DisplayName("Ошибка валидации путей исходного кода")
-    fun sourceValidationThrowTest() {
+    @CsvSource(
+        "../etc/passwd", "../../../../etc/passwd", "..\\..\\..\\windows\\system32\\drivers\\etc\\hosts", "..\\/..\\/etc\\/passwd",
+        "%2e%2e%2f%2e%2e%2fetc%2fpasswd", "%252e%252e%252fetc%252fpasswd", "..%2f..%2f..%2fetc%2fpasswd",
+        "%c0%ae%c0%ae%c0%afetc%c0%afpasswd", "%e0%80%ae%e0%80%ae/etc/passwd", "%uff0e%uff0e/etc/passwd",
+        "/etc/passwd", "C:\\Windows\\System32\\drivers\\etc\\hosts",
+        "../../../etc/passwd%00.jpg", "../../etc/passwd\\0", "../../../etc/passwd\\x00.png",
+        ".../.../etc/passwd", "....//....//etc//passwd", "..;/../etc/passwd", "..\\..\\..\\/",
+        "images/../../../etc/passwd", "uploads/..%2f..%2f..%2fetc%2fpasswd",
+        "\\\\?\\C:\\Windows\\System32\\drivers\\etc\\hosts", "..\\..\\..\\..\\..:..\\..\\..\\..\\..\\etc\\passwd"
+    )
+    fun sourceValidationThrowTest(path: String) {
+        val path1 = path.replace("\\", "\\\\")
         val parser = Parser(Lexer("""
             (module "pht/module"
                 {[name "pht/example"]}
                 {[vers "1.0.0"]}
-                {[src ["../src/*.pht"]]})
+                {[src ["$path1"]]})
         """.trimIndent()))
         val exception0 = assertThrows<ParserException> { parser.parse() }
         val exception1 = assertCauses<ParserException.ValidationException>(exception0)
-        assertEquals(exception1.value, "../src/*.pht")
-        assertEquals(exception1.message, "Invalid value '§sb../src/*.pht§sr'".fmt)
+        assertEquals(exception1.value, path)
+        assertEquals(exception1.message, "Invalid value '§sb$path§sr'".fmt)
         assertEquals(
             exception0.print(parser, Language.ENGLISH).toString(),
             """
                 [1, 1] (module "pht/module"
                        ^ 
-                [4, 5]     {[src ["../src/*.pht"]]})
+                [4, 5]     {[src ["$path1"]]})
                            ^~ 
-                [4, 12]     {[src ["../src/*.pht"]]})
-                                   ^~~~~~~~~~~~~~ Invalid value '§sb../src/*.pht§sr'
-            """.trimIndent().fmt
-        )
-    }
-
-    @Test
-    @DisplayName("Ошибка валидации путей ресурсов")
-    fun resourceValidationThrowTest() {
-        val parser = Parser(Lexer("""
-            (module "pht/module"
-                {[name "pht/example"]}
-                {[vers "1.0.0"]}
-                {[res ["/res/icon.png"]]})
-        """.trimIndent()))
-        val exception0 = assertThrows<ParserException> { parser.parse() }
-        val exception1 = assertCauses<ParserException.ValidationException>(exception0)
-        assertEquals(exception1.value, "/res/icon.png")
-        assertEquals(exception1.message, "Invalid value '§sb/res/icon.png§sr'".fmt)
-        assertEquals(
-            exception0.print(parser, Language.ENGLISH).toString(),
-            """
-                [1, 1] (module "pht/module"
-                       ^ 
-                [4, 5]     {[res ["/res/icon.png"]]})
-                           ^~ 
-                [4, 12]     {[res ["/res/icon.png"]]})
-                                   ^~~~~~~~~~~~~~~ Invalid value '§sb/res/icon.png§sr'
-            """.trimIndent().fmt
-        )
-    }
-
-    @Test
-    @DisplayName("Ошибка валидации путей плагинов")
-    fun pluginValidationThrowTest() {
-        val parser = Parser(Lexer("""
-            (module "pht/module"
-                {[name "pht/example"]}
-                {[vers "1.0.0"]}
-                {[plg ["C:/plg/virus.pht"]]})
-        """.trimIndent()))
-        val exception0 = assertThrows<ParserException> { parser.parse() }
-        val exception1 = assertCauses<ParserException.ValidationException>(exception0)
-        assertEquals(exception1.value, "C:/plg/virus.pht")
-        assertEquals(exception1.message, "Invalid value '§sbC:/plg/virus.pht§sr'".fmt)
-        assertEquals(
-            exception0.print(parser, Language.ENGLISH).toString(),
-            """
-                [1, 1] (module "pht/module"
-                       ^ 
-                [4, 5]     {[plg ["C:/plg/virus.pht"]]})
-                           ^~ 
-                [4, 12]     {[plg ["C:/plg/virus.pht"]]})
-                                   ^~~~~~~~~~~~~~~~~~ Invalid value '§sbC:/plg/virus.pht§sr'
+                [4, 12]     {[src ["$path1"]]})
+                                   ^${"~".repeat(path1.length)}~ Invalid value '§sb$path§sr'
             """.trimIndent().fmt
         )
     }
@@ -398,14 +375,16 @@ class ParserTest {
         )
     }
 
-    @Suppress("UNCHECKED_CAST")
-    inline fun <reified Cause> assertCauses(actual: Throwable): Cause {
+    inline fun <reified Cause> assertCauses(actual: Throwable): Cause =
+        tryAssertCauses<Cause>(actual) ?: throw AssertionError("${actual::class.java} not contains ${Cause::class.java} in causes", actual)
+
+    inline fun <reified Cause> tryAssertCauses(actual: Throwable): Cause? {
         var last = actual
         while (true) {
             if (last is Cause)
                 return last
             if (last.cause == null || last.cause == last)
-                throw AssertionError("${actual::class.java} not contains ${Cause::class.java} in causes", actual)
+                return null
             last = last.cause!!
         }
     }

@@ -4,6 +4,7 @@ import com.github.pwittchen.kirai.library.Kirai
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import ru.pht.sprout.utils.fmt.FmtUtils.fmt
+import java.lang.String.valueOf
 import java.util.*
 
 /**
@@ -29,7 +30,7 @@ class Language(
     fun translate(key: String, vararg args: Pair<String, Any?>): String {
         val kirai = Kirai.from(this.translate[key] ?: throw RuntimeException("Перевод '${key}' не найден"))
         for ((key, value) in args)
-            kirai.put(key, value)
+            kirai.put(key, valueOf(value).ifEmpty { " " })
         return kirai.format().toString().fmt
     }
 
