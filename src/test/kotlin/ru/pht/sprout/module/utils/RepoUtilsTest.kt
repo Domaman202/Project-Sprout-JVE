@@ -121,7 +121,13 @@ class RepoUtilsTest {
         assertEquals(list.size, 1)
         assertEquals(
             list.map { (it as CombinedDownloadable).originals },
-            listOf(listOf(TestDownloadableB200B, TestDownloadableB200D))
+            listOf(listOf(
+                TestDownloadableB200B,
+                TestDownloadableB200D,
+                // Компрометация идёт со стороны репозитория - хеш не совпадёт с остальными репозиториями.
+                // Это выявляется в момент получения ссылки, поэтому сам ресурс не проходит.
+//                TestDownloadableB200DCrack
+            ))
         )
     }
 
@@ -159,7 +165,12 @@ class RepoUtilsTest {
             listOf<IDownloadable>(
                 TestDownloadableA100B, TestDownloadableA110B, TestDownloadableA200B, TestDownloadableA300B, TestDownloadableB100B, TestDownloadableB200B,
                 TestDownloadableA300D, TestDownloadableB200D,
-                TestDownloadableA300DCrack
+                // Компрометация идёт со стороны пользователя - хеш архива не совпадёт при проверке после его загрузки.
+                // Это выявляется в момент загрузки архива, поэтому сам ресурс проходит.
+                TestDownloadableA300DCrack,
+                // Компрометация идёт со стороны репозитория - хеш не совпадёт с остальными репозиториями.
+                // Это выявляется в момент получения ссылки, поэтому сам ресурс не проходит.
+//                TestDownloadableB200DCrack
             ).sortedBy { it.hashCode() }
         )
     }

@@ -79,8 +79,12 @@ open class GitRepository(
         override val hash: String,
         val file: String
     ) : IDownloadable {
-        override suspend fun headerAsync(): ModuleHeader =
-            ZipUtils.unzipHeader(this@GitRepository.getAsStream(this.file))
+        override suspend fun headerAsync(): ModuleHeader {
+            val bytes = this@GitRepository.getAsBytes(this.file)
+            if (MessageDigest.getInstance("SHA-512").digest(bytes).toHexString() != this.hash)
+                throw IOException("Hash check failed")
+            return ZipUtils.unzipHeader(bytes)
+        }
 
         override suspend fun downloadAsync(dir: Path) {
             val bytes = this@GitRepository.getAsBytes(this.file)
@@ -102,5 +106,15 @@ open class GitRepository(
                 Files.write(file, bytes)
             }
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            other as GitDownloadable
+            return this.hash == other.hash && this.file == other.file
+        }
+
+        override fun hashCode(): Int =
+            this.hash.hashCode() + this.file.hashCode() * 31
     }
 }

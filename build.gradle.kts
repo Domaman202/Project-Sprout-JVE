@@ -21,6 +21,8 @@ dependencies {
     // Https
     implementation("io.ktor:ktor-client-core:${project.properties["ktor_version"]}")
     implementation("io.ktor:ktor-client-cio:${project.properties["ktor_version"]}")
+    implementation("io.ktor:ktor-client-apache5:3.3.3")
+
     implementation("io.ktor:ktor-client-content-negotiation:${project.properties["ktor_version"]}")
     implementation("io.ktor:ktor-serialization-kotlinx-json:${project.properties["ktor_version"]}")
     // Сериализация
@@ -31,6 +33,7 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:3.3.3")
     implementation("org.slf4j:slf4j-api:2.1.0-alpha1")
     implementation("org.slf4j:slf4j-simple:2.1.0-alpha1")
+    implementation("io.ktor:ktor-client-apache:3.3.3")
 
     // ===== ТЕСТОВЫЕ ===== //
 

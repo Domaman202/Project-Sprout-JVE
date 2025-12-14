@@ -59,6 +59,17 @@ class NoCacheRepository(private val repositories: List<IRepository>) : ICachingR
             downloadZipAsync(file)
         }
 
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            other as CombinedDownloadable
+            return this.hash == other.hash && this.originals == other.originals
+        }
+
+        override fun hashCode(): Int =
+            this.hash.hashCode() + this.originals.hashCode() * 31
+
         private inline fun <T> tryAllSources(block: IDownloadable.() -> T): T {
             for (downloadable in this.originals) {
                 try {

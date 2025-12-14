@@ -6,7 +6,6 @@ import ru.pht.sprout.module.header.parser.Parser
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.zip.ZipEntry
@@ -43,8 +42,8 @@ object ZipUtils {
         }
     }
 
-    fun unzipHeader(zip: InputStream): ModuleHeader {
-        ZipInputStream(zip).use {
+    fun unzipHeader(zip: ByteArray): ModuleHeader {
+        ZipInputStream(ByteArrayInputStream(zip)).use {
             while (true) {
                 val entry = it.nextEntry ?: throw IOException("File 'module.pht' not founded")
                 if (!entry.isDirectory && entry.name == "module.pht")

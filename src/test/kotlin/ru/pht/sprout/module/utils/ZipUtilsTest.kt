@@ -1,20 +1,19 @@
 package ru.pht.sprout.module.utils
 
-import io.github.z4kn4fein.semver.Version
+import io.github.z4kn4fein.semver.toVersion
 import org.junit.jupiter.api.DisplayName
-import java.io.ByteArrayInputStream
 import java.nio.file.Files
 import kotlin.io.path.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@OptIn(ExperimentalPathApi::class)
 class ZipUtilsTest {
-    @OptIn(ExperimentalPathApi::class)
     @Test
     @DisplayName("Проверка всех функций сразу")
     fun test() {
-        val tmpZip = Files.createTempDirectory("ProjectSprout.ZipUtils.TestZip")
-        val tmpUnzip = Files.createTempDirectory("ProjectSprout.ZipUtils.TestUnzip")
+        val tmpZip = Files.createTempDirectory("ProjectSprout.ZipUtilsTest.TestZip")
+        val tmpUnzip = Files.createTempDirectory("ProjectSprout.ZipUtilsTest.TestUnzip")
         try {
             // Пишем тестовые данные
             tmpZip.resolve("module.pht").writeText("(module \"pht/module\" {[name \"pht/example/zip\"]} {[vers \"1.0.0\"]})")
@@ -28,9 +27,9 @@ class ZipUtilsTest {
             // Архивируем
             val zip = ZipUtils.zip(tmpZip)
             // Распакуем заголовок
-            val header = ZipUtils.unzipHeader(ByteArrayInputStream(zip))
+            val header = ZipUtils.unzipHeader(zip)
             assertEquals(header.name, "pht/example/zip")
-            assertEquals(header.version, Version.parse("1.0.0"))
+            assertEquals(header.version, "1.0.0".toVersion())
             // Распакуем в папку
             ZipUtils.unzip(tmpUnzip, zip)
             // Читаем тестовые данные

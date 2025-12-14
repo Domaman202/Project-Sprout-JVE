@@ -16,7 +16,6 @@ import ru.pht.sprout.module.repo.cache.ICachingRepository
 import ru.pht.sprout.module.utils.RepoUtils
 import ru.pht.sprout.module.utils.ZipUtils
 import java.io.File
-import java.io.FileInputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.*
@@ -107,7 +106,7 @@ class LocalCacheRepository(
         override suspend fun headerAsync(): ModuleHeader {
             this.checkDownloadCache()
             return withContext(Dispatchers.IO) {
-                ZipUtils.unzipHeader(FileInputStream(this@MaybeCachedDownloadable.file))
+                ZipUtils.unzipHeader(Files.readAllBytes(File(this@MaybeCachedDownloadable.file).toPath()))
             }
         }
 
@@ -152,10 +151,10 @@ class LocalCacheRepository(
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
             other as MaybeCachedDownloadable
-            return this.file == other.file
+            return this.hash == other.hash && this.file == other.file
         }
 
         override fun hashCode(): Int =
-            this.file.hashCode()
+            this.hash.hashCode() + this.file.hashCode() * 31
     }
 }
