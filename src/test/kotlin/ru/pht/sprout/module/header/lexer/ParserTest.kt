@@ -259,13 +259,11 @@ class ParserTest {
     @ParameterizedTest
     @DisplayName("Ошибка валидации версии зависимости")
     @CsvSource(
-        "1.2.3.4",
-        "a.2.3", "1.b.3", "1.2.c", "1.2.3?",
-        "1.2.3-", "1.2.3-alpha.", "1.2.3-alpha..beta", "1.2.3-.beta",
-        "1.2.3-alpha@beta", "1.2.3-alpha beta",
-        "1.2.3-1.02.alpha",
-        "1.2.3+", "1.2.3+alpha.", "1.2.3+alpha..beta", "1.2.3+.beta", "1.2.3-alpha+",
-        "1.2.3+alpha@beta", "1.2.3+alpha beta", "1.2.3+alpha[beta]"
+        ">>=1.0.0", "<==1.0.0", "^^1.0.0", "~~1.0.0",
+        "=!1.0.0", "!>1.0.0", "<>1.0.0",
+        "1.0.0 - ", " - 2.0.0", "1.0.0 -  - 2.0.0", "1.0.0 -- 2.0.0",
+        "1..0.0", ".1.0.0", "1.0.0.", "1 .0.0", "1. 0.0",
+        "'1,0,0'", "1-0-0", "1_0_0", "1:0:0"
     )
     fun dependencyVersionValidationThrowTest(version: String) {
         val parser = Parser(Lexer("""
