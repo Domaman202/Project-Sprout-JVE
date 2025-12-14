@@ -15,11 +15,11 @@ class NoCacheRepository(private val repositories: List<IRepository>) : ICachingR
     constructor(buildSystem: BuildInfo) : this(buildSystem.repositories)
 
     override suspend fun findAsync(name: String, version: Constraint): List<IDownloadable> =
-        RepoUtils.findAndVerifySortedAsync(this.repositories, name, version, this::combineAndAdd)
+        RepoUtils.findAndVerifySortedAsync(this.repositories, name, version, CombinedDownloadable::combineAndAdd)
 
     override suspend fun findAllAsync(): List<IDownloadable> {
         val verified: MutableList<IDownloadable> = ArrayList()
-        RepoUtils.findAllAndVerifyAsync(repositories) { verified += combine(it) }
+        RepoUtils.findAllAndVerifyAsync(repositories) { verified += CombinedDownloadable.of(it) }
         return verified
     }
 
@@ -29,16 +29,7 @@ class NoCacheRepository(private val repositories: List<IRepository>) : ICachingR
     override suspend fun findAllCachedAsync(): List<IDownloadable> =
         emptyList()
 
-    private inline fun combineAndAdd(combine: List<IDownloadable>, addTo: (IDownloadable) -> Unit) {
-        addTo(this.combine(combine))
-    }
-
-    private fun combine(combine: List<IDownloadable>): IDownloadable {
-        val first = combine.first()
-        return CombinedDownloadable(combine, first.name, first.version, first.hash)
-    }
-
-    private class CombinedDownloadable(
+    class CombinedDownloadable(
         val originals: List<IDownloadable>,
         override val name: String,
         override val version: Version,
@@ -76,6 +67,18 @@ class NoCacheRepository(private val repositories: List<IRepository>) : ICachingR
                 }
             }
             throw IOException("Все источники '${this.name}' недоступны")
+        }
+
+        companion object {
+            @Suppress("NOTHING_TO_INLINE")
+            inline fun of(combine: List<IDownloadable>): CombinedDownloadable {
+                val first = combine.first()
+                return CombinedDownloadable(combine, first.name, first.version, first.hash)
+            }
+
+            inline fun combineAndAdd(combine: List<IDownloadable>, addTo: (IDownloadable) -> Unit) {
+                addTo(of(combine))
+            }
         }
     }
 }

@@ -88,7 +88,7 @@ object RepoUtils {
     inline fun findAllAndVerify(
         repositories: List<IRepository>,
         combineAndAddToVerified: (List<IDownloadable>) -> Unit
-    ) = findAllAndVerify0(repositories, { findAll() }, combineAndAddToVerified)
+    ): Unit = findAllAndVerify0(repositories, { findAll() }, combineAndAddToVerified)
 
     /**
      * Асинхронный поиск всех доступных модулей в репозиториях.
@@ -100,7 +100,7 @@ object RepoUtils {
     suspend inline fun findAllAndVerifyAsync(
         repositories: List<IRepository>,
         combineAndAddToVerified: (List<IDownloadable>) -> Unit
-    ) = findAllAndVerify0(repositories, { findAllAsync() }, combineAndAddToVerified)
+    ): Unit = findAllAndVerify0(repositories, { findAllAsync() }, combineAndAddToVerified)
 
     inline fun findAllAndVerify0(
         repositories: List<IRepository>,
