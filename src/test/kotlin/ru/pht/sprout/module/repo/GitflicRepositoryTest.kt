@@ -6,6 +6,7 @@ import kotlinx.io.IOException
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.condition.EnabledIf
 import ru.pht.sprout.module.repo.impl.GitflicRepository
 import java.nio.file.Files
 import java.security.MessageDigest
@@ -15,6 +16,7 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@EnabledIf("ru.pht.sprout.TestConfigInternal#realNetRepoTest", disabledReason = "Тест выключен конфигурацией")
 @OptIn(ExperimentalPathApi::class)
 class GitflicRepositoryTest {
     @Test

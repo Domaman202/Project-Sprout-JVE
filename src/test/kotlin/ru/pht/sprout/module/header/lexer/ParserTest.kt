@@ -4,6 +4,7 @@ import io.github.z4kn4fein.semver.toVersion
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.condition.EnabledIf
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import ru.pht.sprout.module.header.ModuleHeader.Dependency
@@ -17,6 +18,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@EnabledIf("ru.pht.sprout.TestConfigInternal#headerParseTest", disabledReason = "Тест выключен конфигурацией")
 class ParserTest {
     @Test
     @DisplayName("Парсинг заголовка из документации")

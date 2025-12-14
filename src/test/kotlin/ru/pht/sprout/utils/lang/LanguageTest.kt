@@ -3,12 +3,14 @@ package ru.pht.sprout.utils.lang
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.condition.EnabledIf
 import ru.pht.sprout.utils.fmt.FmtUtils.fmt
 import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@EnabledIf("ru.pht.sprout.TestConfigInternal#translateTest", disabledReason = "Тест выключен конфигурацией")
 class LanguageTest {
     @Test
     @DisplayName("Поиск английского перевода")

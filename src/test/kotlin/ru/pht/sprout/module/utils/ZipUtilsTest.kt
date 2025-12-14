@@ -2,11 +2,13 @@ package ru.pht.sprout.module.utils
 
 import io.github.z4kn4fein.semver.toVersion
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.condition.EnabledIf
 import java.nio.file.Files
 import kotlin.io.path.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@EnabledIf("ru.pht.sprout.TestConfigInternal#zipTest", disabledReason = "Тест выключен конфигурацией")
 @OptIn(ExperimentalPathApi::class)
 class ZipUtilsTest {
     @Test

@@ -2,12 +2,14 @@ package ru.pht.sprout.utils.fmt
 
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.condition.EnabledIf
 import ru.pht.sprout.utils.fmt.FmtUtils.fmt
 import ru.pht.sprout.utils.lang.Language
 import ru.pht.sprout.utils.lang.TranslatedRuntimeException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@EnabledIf("ru.pht.sprout.TestConfigInternal#fmtTest", disabledReason = "Тест выключен конфигурацией")
 class FmtUtilsTest {
     @Test
     @DisplayName("Проверка форматирования")

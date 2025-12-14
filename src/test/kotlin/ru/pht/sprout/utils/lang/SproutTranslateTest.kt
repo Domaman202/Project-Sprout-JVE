@@ -1,12 +1,14 @@
 package ru.pht.sprout.utils.lang
 
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.condition.EnabledIf
 import ru.pht.sprout.cli.App
 import ru.pht.sprout.utils.NotValueException
 import ru.pht.sprout.utils.fmt.FmtUtils.fmt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@EnabledIf("ru.pht.sprout.TestConfigInternal#translateTest", disabledReason = "Тест выключен конфигурацией")
 class SproutTranslateTest {
     @Test
     @DisplayName("Проверка метода of")

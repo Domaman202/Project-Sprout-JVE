@@ -4,6 +4,7 @@ import io.github.z4kn4fein.semver.constraints.Constraint
 import io.github.z4kn4fein.semver.constraints.toConstraint
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.condition.EnabledIf
 import ru.pht.sprout.module.repo.IDownloadable
 import ru.pht.sprout.module.repo.IRepository
 import ru.pht.sprout.module.repo.cache.impl.NoCacheRepository.CombinedDownloadable
@@ -11,6 +12,7 @@ import ru.pht.sprout.module.repo.test.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@EnabledIf("ru.pht.sprout.TestConfigInternal#repoTest", disabledReason = "Тест выключен конфигурацией")
 class RepoUtilsTest {
     @Test
     @DisplayName("Тестирование поиска / фильтрации / объединения")

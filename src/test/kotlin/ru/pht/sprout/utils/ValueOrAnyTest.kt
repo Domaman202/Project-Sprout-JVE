@@ -2,10 +2,12 @@ package ru.pht.sprout.utils
 
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.condition.EnabledIf
 import ru.pht.sprout.utils.fmt.FmtUtils.fmt
 import ru.pht.sprout.utils.lang.Language
 import kotlin.test.*
 
+@EnabledIf("ru.pht.sprout.TestConfigInternal#otherUtilsTest", disabledReason = "Тест выключен конфигурацией")
 class ValueOrAnyTest {
     @Test
     @DisplayName("Проверка null значения")

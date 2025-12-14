@@ -2,8 +2,11 @@ package ru.pht.sprout.utils.fmt
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.condition.EnabledIf
 import kotlin.test.Test
 
+
+@EnabledIf("ru.pht.sprout.TestConfigInternal#fmtTest", disabledReason = "Тест выключен конфигурацией")
 class ErrorFormatterTest {
     @Test
     @DisplayName("Тест сообщения в одну строку")
