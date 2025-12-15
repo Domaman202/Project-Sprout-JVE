@@ -1,4 +1,4 @@
-package ru.pht.sprout.module.repo
+package ru.pht.sprout.module.repo.impl
 
 import io.github.z4kn4fein.semver.constraints.toConstraint
 import io.github.z4kn4fein.semver.toVersion
@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.condition.EnabledIf
-import ru.pht.sprout.module.repo.impl.GiteaRepository
 import java.nio.file.Files
 import java.security.MessageDigest
 import kotlin.io.path.*

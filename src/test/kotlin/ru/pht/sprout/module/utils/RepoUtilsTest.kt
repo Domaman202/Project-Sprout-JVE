@@ -39,7 +39,6 @@ class RepoUtilsTest {
         }
     }
 
-
     @Test
     @DisplayName("Тестирование асинхронного поиска / фильтрации / верификация / объединения")
     fun findFilterCombineVerifyAsyncTest() = runTest {
@@ -50,7 +49,7 @@ class RepoUtilsTest {
 
     @Test
     @DisplayName("Тестирование поиска / объединения")
-    fun findFilterTest() {
+    fun findAllTest() {
         findCombineTest0 { repositories, combineAndAddToVerified ->
             RepoUtils.findAllAndVerify(repositories, combineAndAddToVerified)
         }
@@ -59,7 +58,7 @@ class RepoUtilsTest {
 
     @Test
     @DisplayName("Тестирование асинхронного поиска / объединения")
-    fun findFilterAsyncTest() = runTest {
+    fun findAllAsyncTest() = runTest {
         findCombineTest0 { repositories, combineAndAddToVerified ->
             RepoUtils.findAllAndVerifyAsync(repositories, combineAndAddToVerified)
         }
@@ -67,7 +66,7 @@ class RepoUtilsTest {
 
     @Test
     @DisplayName("Тестирование поиска / верификация / объединения")
-    fun findFilterVerifyTest() {
+    fun findAllVerifyTest() {
         findCombineVerifyTest0 { repositories, combineAndAddToVerified ->
             RepoUtils.findAllAndVerify(repositories, combineAndAddToVerified)
         }
@@ -76,7 +75,7 @@ class RepoUtilsTest {
 
     @Test
     @DisplayName("Тестирование асинхронного поиска / верификация / объединения")
-    fun findFilterVerifyAsyncTest() = runTest {
+    fun findAllVerifyAsyncTest() = runTest {
         findCombineVerifyTest0 { repositories, combineAndAddToVerified ->
             RepoUtils.findAllAndVerifyAsync(repositories, combineAndAddToVerified)
         }
