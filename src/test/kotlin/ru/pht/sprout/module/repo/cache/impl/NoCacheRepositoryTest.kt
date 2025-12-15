@@ -1,13 +1,22 @@
 package ru.pht.sprout.module.repo.cache.impl
 
 import io.github.z4kn4fein.semver.constraints.toConstraint
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.EnabledIf
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import ru.pht.sprout.module.repo.test.*
+import java.nio.file.Files
+import java.security.MessageDigest
+import kotlin.io.path.*
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @EnabledIf("ru.pht.sprout.TestConfigInternal#repoTest", disabledReason = "Тест выключен конфигурацией")
+@OptIn(ExperimentalPathApi::class)
 class NoCacheRepositoryTest {
     @Test
     @DisplayName("Тестирование поиска / фильтрации / объединения")
@@ -24,6 +33,7 @@ class NoCacheRepositoryTest {
             assertEquals(first.originals, listOf(TestDownloadableA200A, TestDownloadableA200C))
             assertEquals(second.originals, listOf(TestDownloadableA300A, TestDownloadableA300D))
         }
+        assertTrue(repository.findAllCached().isEmpty())
     }
 
     @Test
@@ -45,6 +55,55 @@ class NoCacheRepositoryTest {
 //                    TestDownloadableB200DCrack
                 )
             )
+        }
+        assertTrue(repository.findAllCached().isEmpty())
+    }
+
+    @ParameterizedTest
+    @DisplayName("Тестирование поиска / фильтрации / объединения / загрузка")
+    @CsvSource("true", "false")
+    fun findFilterCombineDownloadTest(reversed: Boolean) = runTest {
+        val repository = NoCacheRepository(
+            if (reversed)
+                listOf(TestRepositoryDBroken, TestRepositoryD)
+            else listOf(TestRepositoryD, TestRepositoryDBroken)
+        )
+        // Поломка заголовка
+        val findA = repository.find("test/a", "3.0.0".toConstraint())
+        assertEquals(findA.size, 1)
+        assertEquals(findA.first().header().name, "test/a")
+        assertEquals(findA.first().headerAsync().name, "test/a")
+        // Поломка скачивания
+        val tmp0 = Files.createTempDirectory("ProjectSprout.NoCacheRepositoryTest.findFilterCombineDownloadTest.sync")
+        try {
+            val find = repository.find("test/b", "2.0.0".toConstraint())
+            assertEquals(find.size, 1)
+            val download = find.first()
+            val zip = tmp0.resolve("module.zip")
+            download.downloadZip(zip)
+            assertTrue(zip.exists())
+            assertEquals(MessageDigest.getInstance("SHA-512").digest(zip.readBytes()).toHexString(), download.hash)
+            val tmpUnzip = tmp0.resolve("unzip").createDirectory()
+            download.download(tmpUnzip)
+            assertTrue(tmpUnzip.resolve("test/b/module.pht").exists())
+        } finally {
+            tmp0.deleteRecursively()
+        }
+        // Поломка скачивания
+        val tmp1 = Files.createTempDirectory("ProjectSprout.NoCacheRepositoryTest.findFilterCombineDownloadTest.async")
+        try {
+            val find = repository.findAsync("test/b", "2.0.0".toConstraint())
+            assertEquals(find.size, 1)
+            val download = find.first()
+            val zip = tmp1.resolve("module.zip")
+            download.downloadZipAsync(zip)
+            assertTrue(zip.exists())
+            assertEquals(MessageDigest.getInstance("SHA-512").digest(zip.readBytes()).toHexString(), download.hash)
+            val tmpUnzip = tmp1.resolve("unzip").createDirectory()
+            download.downloadAsync(tmpUnzip)
+            assertTrue(tmpUnzip.resolve("test/b/module.pht").exists())
+        } finally {
+            tmp1.deleteRecursively()
         }
     }
 
@@ -69,6 +128,10 @@ class NoCacheRepositoryTest {
                 ).sortedBy { it.hashCode() }
             )
         }
+        val find = repository.find("test/a", "1.0.0".toConstraint())
+        assertEquals(find.size, 1)
+        assertContains(list, find.first())
+        assertTrue(repository.findAllCached().isEmpty())
     }
 
     @Test
@@ -96,5 +159,6 @@ class NoCacheRepositoryTest {
                 ).sortedBy { it.hashCode() }
             )
         }
+        assertTrue(repository.findAllCached().isEmpty())
     }
 }

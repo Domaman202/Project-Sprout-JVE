@@ -16,6 +16,8 @@ import java.nio.file.Path
 import java.security.MessageDigest
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlin.io.path.createDirectories
+import kotlin.io.path.notExists
 import kotlin.io.path.writeBytes
 
 open class TestRepository(downloads: List<IDownloadable>) : IRepository {
@@ -55,6 +57,9 @@ open class TestDownloadable(
     override fun download(dir: Path) {
         if (MessageDigest.getInstance("SHA-512").digest(this.zip0).toHexString() != this.hash)
             throw IOException("Hash check failed")
+        val dir = dir.resolve(this.name).normalize()
+        if (dir.notExists())
+            dir.createDirectories()
         ZipUtils.unzip(dir, this.zip0)
     }
 
@@ -127,8 +132,8 @@ object TestRepositoryC : TestRepository(listOf(TestDownloadableA100C, TestDownlo
 object TestRepositoryD : TestRepository(listOf(TestDownloadableA300D, TestDownloadableB200D))
 // Последние версии модулей A и B (скомпрометированные)
 object TestRepositoryDCrack : TestRepository(listOf(TestDownloadableA300DCrack, TestDownloadableB200DCrack))
-// Все версии модулей C и D
-object TestRepositoryF : TestRepository(listOf(TestDownloadableC100F, TestDownloadableD100F))
+// Последние версии модулей A и B (сломанные)
+object TestRepositoryDBroken : TestRepository(listOf(TestDownloadableA300EBroken, TestDownloadableB200EBroken))
 
 // [=====] НОРМАЛЬНЫЕ ВЕРСИИ [=====]
 
@@ -151,9 +156,7 @@ object TestDownloadableB200A : TestDownloadable("test/b", "2.0.0".toVersion())
 object TestDownloadableB200B : TestDownloadable("test/b", "2.0.0".toVersion())
 object TestDownloadableB200D : TestDownloadable("test/b", "2.0.0".toVersion())
 object TestDownloadableC100A : TestDownloadable("test/c", "1.0.0".toVersion())
-object TestDownloadableC100F : TestDownloadable("test/c", "1.0.0".toVersion())
 object TestDownloadableD100A : TestDownloadable("test/d", "1.0.0".toVersion())
-object TestDownloadableD100F : TestDownloadable("test/d", "1.0.0".toVersion())
 
 // [=====] СКОМПРОМЕТИРОВАННЫЕ ВЕРСИИ [=====]
 
@@ -161,3 +164,16 @@ object TestDownloadableD100F : TestDownloadable("test/d", "1.0.0".toVersion())
 object TestDownloadableA300DCrack : TestDownloadable("test/a", "3.0.0".toVersion(), TestDownloadable::initCrack) { init { this.hash0 = TestDownloadableA300D.hash } }
 // Компрометация репозитория
 object TestDownloadableB200DCrack : TestDownloadable("test/b", "2.0.0".toVersion(), TestDownloadable::initCrack)
+
+// [=====] СЛОМАННЫЕ ВЕРСИИ [=====]
+
+// Поломка заголовка
+object TestDownloadableA300EBroken : TestDownloadable("test/a", "3.0.0".toVersion()) {
+    override fun header(): ModuleHeader = throw IOException("Broken")
+}
+
+// Поломка скачивания
+object TestDownloadableB200EBroken : TestDownloadable("test/a", "3.0.0".toVersion()) {
+    override fun download(dir: Path) = throw IOException("Broken")
+    override fun downloadZip(file: Path) = throw IOException("Broken")
+}

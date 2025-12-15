@@ -23,9 +23,6 @@ class NoCacheRepository(private val repositories: List<IRepository>) : ICachingR
         return verified
     }
 
-    override fun findAllCached(): List<IDownloadable> =
-        emptyList()
-
     override suspend fun findAllCachedAsync(): List<IDownloadable> =
         emptyList()
 
