@@ -1,9 +1,11 @@
-package ru.pht.sprout.utils.lang
+package ru.pht.sprout.utils.lang.exception
 
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.EnabledIf
 import ru.pht.sprout.utils.fmt.FmtUtils.fmt
+import ru.pht.sprout.utils.lang.Language
+import ru.pht.sprout.utils.lang.Translation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -11,7 +13,7 @@ import kotlin.test.assertNull
 @EnabledIf("ru.pht.sprout.TestConfigInternal#translateTest", disabledReason = "Тест выключен конфигурацией")
 class ITranslatedExceptionTest {
     @Test
-    @DisplayName("Проверка метода translate по умолчанию")
+    @DisplayName("Метод translate по умолчанию")
     fun defaultTranslateTest() {
         val normal: ITranslatedException = object : ITranslatedException {
             override val translation = Translation.of<ITranslatedExceptionTest>("defaultTranslateTest")

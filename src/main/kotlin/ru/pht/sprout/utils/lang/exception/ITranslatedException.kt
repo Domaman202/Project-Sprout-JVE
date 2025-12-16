@@ -1,4 +1,7 @@
-package ru.pht.sprout.utils.lang
+package ru.pht.sprout.utils.lang.exception
+
+import ru.pht.sprout.utils.lang.Language
+import ru.pht.sprout.utils.lang.Translation
 
 /**
  * Исключение, которое содержит переводимое сообщение.

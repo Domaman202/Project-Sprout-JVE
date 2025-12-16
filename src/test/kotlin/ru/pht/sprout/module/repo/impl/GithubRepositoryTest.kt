@@ -7,20 +7,16 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.condition.EnabledIf
-import ru.pht.sprout.module.repo.impl.GithubRepository
 import java.nio.file.Files
 import java.security.MessageDigest
 import kotlin.io.path.*
-import kotlin.test.Test
-import kotlin.test.assertContains
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 @EnabledIf("ru.pht.sprout.TestConfigInternal#realNetRepoTest", disabledReason = "Тест выключен конфигурацией")
 @OptIn(ExperimentalPathApi::class)
 class GithubRepositoryTest {
     @Test
-    @DisplayName("Тестирование поиска конкретного модуля")
+    @DisplayName("Поиск конкретного модуля")
     fun findTest() {
         val find = REPO.find("pht/example/example-github-module", "1.0.0".toConstraint())
         assertEquals(find.size, 1)
@@ -46,7 +42,7 @@ class GithubRepositoryTest {
     }
 
     @Test
-    @DisplayName("Тестирование поиска всех доступных модулей")
+    @DisplayName("Поиск всех доступных модулей")
     fun findAllTest() {
         val all = REPO.findAll()
         assertTrue(all.isNotEmpty())
@@ -56,7 +52,7 @@ class GithubRepositoryTest {
     }
 
     @Test
-    @DisplayName("Тестирование верификации во время загрузки")
+    @DisplayName("Верификация во время загрузки")
     fun verifyTest() {
         val find = REPO.find("pht/example/crack-example-github-module", "1.0.1".toConstraint())
         assertEquals(find.size, 1)
@@ -69,6 +65,18 @@ class GithubRepositoryTest {
         } finally {
             tmp.deleteRecursively()
         }
+    }
+
+    @Test
+    @DisplayName("equals & hash")
+    fun equalsAndHashTest() {
+        val normal0 = REPO.find("pht/example/example-github-module", "1.0.0".toConstraint())
+        val normal1 = REPO.find("pht/example/example-github-module", "1.0.0".toConstraint())
+        val cracked = REPO.find("pht/example/crack-example-github-module", "1.0.1".toConstraint())
+        assertEquals(normal0, normal1)
+        assertEquals(normal0.hashCode(), normal1.hashCode())
+        assertNotEquals(normal0, cracked)
+        assertNotEquals(normal0.hashCode(), cracked.hashCode())
     }
 
     companion object {

@@ -24,23 +24,25 @@
     "ru.pht.sprout.cli.App.cmd.version.desc": "Выводит версию программы",
     "ru.pht.sprout.cli.App.cmd.shell.desc":   "Интерактивная консоль",
 
+    "ru.pht.sprout.module.repo.cache.impl.CombinedDownloadable.of": "Не все источники в списке принадлежат модулю '§sb{name}§sr'",
+
+    "ru.pht.sprout.module.header.lexer.LexerException$InvalidIdentifier": "Неопознанный идентификатор",
+    "ru.pht.sprout.module.header.lexer.LexerException$UnexpectedSymbol":  "Неожиданный символ",
+    "ru.pht.sprout.module.header.lexer.LexerException$UncompletedString": "Незавершённая строка",
+    "ru.pht.sprout.module.header.lexer.LexerException$EOF":               "Лексический анализатор достиг конца обрабатываемого источника",
+
+    "ru.pht.sprout.module.header.parser.ParserException$UnsupportedHeader":       "Неподдерживаемый формат модуля '§sb{format}§sr'",
+    "ru.pht.sprout.module.header.parser.ParserException$ValidationException":     "Невалидное значение '§sb{value}§sr'",
+    "ru.pht.sprout.module.header.parser.ParserException$NotInitializedException": "Неинициализированное обязательное поле '§sb{field}§sr'",
+    "ru.pht.sprout.module.header.parser.ParserException$UnexpectedToken":         "Неожиданный токен '§sb{accepted}§sr', ожидались токены типа: §sb{expected}",
+    "ru.pht.sprout.module.header.parser.ParserException$UnexpectedToken.print":   "Неожиданный токен '§sb{accepted}§sr'\nОжидались токены типа: §sb{expected}",
+
     "ru.pht.sprout.utils.fmt.FmtUtils.0": "Неожиданный цветовой код текста '{char}'",
     "ru.pht.sprout.utils.fmt.FmtUtils.1": "Неожиданный цветовой код фона '{char}'",
     "ru.pht.sprout.utils.fmt.FmtUtils.2": "Неожиданный код стиля '{char}'",
     "ru.pht.sprout.utils.fmt.FmtUtils.3": "Неожиданный код форматирования '{char}'",
 
     "ru.pht.sprout.utils.NotInitializedException": "Неинициализированное обязательное поле '{field}'",
-    "ru.pht.sprout.utils.NotValueException": "Значение не было установлено",
-
-    "ru.pht.sprout.module.header.lexer.LexerException$InvalidIdentifier": "Неопознанный идентификатор",
-    "ru.pht.sprout.module.header.lexer.LexerException$UnexpectedSymbol": "Неожиданный символ",
-    "ru.pht.sprout.module.header.lexer.LexerException$UncompletedString": "Незавершённая строка",
-    "ru.pht.sprout.module.header.lexer.LexerException$EOF": "Лексический анализатор достиг конца обрабатываемого источника",
-
-    "ru.pht.sprout.module.header.parser.ParserException$UnsupportedHeader": "Неподдерживаемый формат модуля '§sb{format}§sr'",
-    "ru.pht.sprout.module.header.parser.ParserException$ValidationException": "Невалидное значение '§sb{value}§sr'",
-    "ru.pht.sprout.module.header.parser.ParserException$NotInitializedException": "Неинициализированное обязательное поле '§sb{field}§sr'",
-    "ru.pht.sprout.module.header.parser.ParserException$UnexpectedToken": "Неожиданный токен '§sb{accepted}§sr', ожидались токены типа: §sb{expected}",
-    "ru.pht.sprout.module.header.parser.ParserException$UnexpectedToken.print": "Неожиданный токен '§sb{accepted}§sr'\nОжидались токены типа: §sb{expected}"
+    "ru.pht.sprout.utils.NotValueException": "Значение не было установлено"
   }
 }

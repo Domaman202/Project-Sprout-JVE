@@ -1,7 +1,7 @@
 package ru.pht.sprout.utils.fmt
 
 import ru.pht.sprout.utils.lang.SproutTranslate
-import ru.pht.sprout.utils.lang.TranslatedRuntimeException
+import ru.pht.sprout.utils.lang.exception.TranslatedRuntimeException
 
 object FmtUtils {
     val String.fmt: String get() {

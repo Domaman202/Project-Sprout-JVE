@@ -73,6 +73,16 @@ open class TestDownloadable(
     override suspend fun downloadZipAsync(file: Path) =
         this.downloadZip(file)
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as TestDownloadable
+        return this.hash0 == other.hash0
+    }
+
+    override fun hashCode(): Int =
+        this.hash0.hashCode()
+
     init {
         init()
     }
@@ -133,7 +143,7 @@ object TestRepositoryD : TestRepository(listOf(TestDownloadableA300D, TestDownlo
 // Последние версии модулей A и B (скомпрометированные)
 object TestRepositoryDCrack : TestRepository(listOf(TestDownloadableA300DCrack, TestDownloadableB200DCrack))
 // Последние версии модулей A и B (сломанные)
-object TestRepositoryDBroken : TestRepository(listOf(TestDownloadableA300EBroken, TestDownloadableB200EBroken))
+object TestRepositoryDBroken : TestRepository(listOf(TestDownloadableA300DBroken, TestDownloadableB200DBroken))
 
 // [=====] НОРМАЛЬНЫЕ ВЕРСИИ [=====]
 
@@ -168,12 +178,12 @@ object TestDownloadableB200DCrack : TestDownloadable("test/b", "2.0.0".toVersion
 // [=====] СЛОМАННЫЕ ВЕРСИИ [=====]
 
 // Поломка заголовка
-object TestDownloadableA300EBroken : TestDownloadable("test/a", "3.0.0".toVersion()) {
+object TestDownloadableA300DBroken : TestDownloadable("test/a", "3.0.0".toVersion()) {
     override fun header(): ModuleHeader = throw IOException("Broken")
 }
 
 // Поломка скачивания
-object TestDownloadableB200EBroken : TestDownloadable("test/a", "3.0.0".toVersion()) {
+object TestDownloadableB200DBroken : TestDownloadable("test/a", "3.0.0".toVersion()) {
     override fun download(dir: Path) = throw IOException("Broken")
     override fun downloadZip(file: Path) = throw IOException("Broken")
 }

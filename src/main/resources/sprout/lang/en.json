@@ -24,23 +24,25 @@
     "ru.pht.sprout.cli.App.cmd.version.desc": "Print program version",
     "ru.pht.sprout.cli.App.cmd.shell.desc":   "Interactive shell",
 
+    "ru.pht.sprout.module.repo.cache.impl.CombinedDownloadable.of": "Not all sources in the list belong to module '§sb{name}§sr'",
+
+    "ru.pht.sprout.module.header.lexer.LexerException$InvalidIdentifier": "Invalid identifier",
+    "ru.pht.sprout.module.header.lexer.LexerException$UnexpectedSymbol":  "Unexpected symbol",
+    "ru.pht.sprout.module.header.lexer.LexerException$UncompletedString": "Uncompleted string",
+    "ru.pht.sprout.module.header.lexer.LexerException$EOF":               "The lexical analyzer has reached the end of the source being processed",
+
+    "ru.pht.sprout.module.header.parser.ParserException$UnsupportedHeader":       "Unsupported module format '§sb{format}§sr'",
+    "ru.pht.sprout.module.header.parser.ParserException$ValidationException":     "Invalid value '§sb{value}§sr'",
+    "ru.pht.sprout.module.header.parser.ParserException$NotInitializedException": "Uninitialized required field '§sb{field}§sr'",
+    "ru.pht.sprout.module.header.parser.ParserException$UnexpectedToken":         "Unexpected token '§sb{accepted}§sr', expected tokens of type: §sb{expected}",
+    "ru.pht.sprout.module.header.parser.ParserException$UnexpectedToken.print":   "Unexpected token '§sb{accepted}§sr'\nExpected tokens of type: §sb{expected}",
+
     "ru.pht.sprout.utils.fmt.FmtUtils.0": "Unexpected color code of foreground '{char}'",
     "ru.pht.sprout.utils.fmt.FmtUtils.1": "Unexpected color code of background '{char}'",
     "ru.pht.sprout.utils.fmt.FmtUtils.2": "Unexpected style code '{char}'",
     "ru.pht.sprout.utils.fmt.FmtUtils.3": "Unexpected formatting code '{char}'",
 
     "ru.pht.sprout.utils.NotInitializedException": "Uninitialized required field '{field}'",
-    "ru.pht.sprout.utils.NotValueException": "Value has not been set",
-
-    "ru.pht.sprout.module.header.lexer.LexerException$InvalidIdentifier": "Invalid identifier",
-    "ru.pht.sprout.module.header.lexer.LexerException$UnexpectedSymbol": "Unexpected symbol",
-    "ru.pht.sprout.module.header.lexer.LexerException$UncompletedString": "Uncompleted string",
-    "ru.pht.sprout.module.header.lexer.LexerException$EOF": "The lexical analyzer has reached the end of the source being processed",
-
-    "ru.pht.sprout.module.header.parser.ParserException$UnsupportedHeader": "Unsupported module format '§sb{format}§sr'",
-    "ru.pht.sprout.module.header.parser.ParserException$ValidationException": "Invalid value '§sb{value}§sr'",
-    "ru.pht.sprout.module.header.parser.ParserException$NotInitializedException": "Uninitialized required field '§sb{field}§sr'",
-    "ru.pht.sprout.module.header.parser.ParserException$UnexpectedToken": "Unexpected token '§sb{accepted}§sr', expected tokens of type: §sb{expected}",
-    "ru.pht.sprout.module.header.parser.ParserException$UnexpectedToken.print": "Unexpected token '§sb{accepted}§sr'\nExpected tokens of type: §sb{expected}"
+    "ru.pht.sprout.utils.NotValueException": "Value has not been set"
   }
 }

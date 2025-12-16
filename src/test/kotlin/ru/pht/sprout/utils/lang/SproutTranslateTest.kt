@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 @EnabledIf("ru.pht.sprout.TestConfigInternal#translateTest", disabledReason = "Тест выключен конфигурацией")
 class SproutTranslateTest {
     @Test
-    @DisplayName("Проверка метода of")
+    @DisplayName("Метод of")
     fun ofTest() {
         assertEquals(
             SproutTranslate
@@ -22,7 +22,7 @@ class SproutTranslateTest {
     }
 
     @Test
-    @DisplayName("Проверка метода of с параметром key")
+    @DisplayName("Метод of с параметром key")
     fun ofKeyTest() {
         assertEquals(
             SproutTranslate
@@ -33,7 +33,7 @@ class SproutTranslateTest {
     }
 
     @Test
-    @DisplayName("Проверка метода translate")
+    @DisplayName("Метод translate")
     fun translateTest() {
         assertEquals(
             SproutTranslate.translate<App>(Language.ENGLISH, "printHelp.command", Pair("long", "help")),

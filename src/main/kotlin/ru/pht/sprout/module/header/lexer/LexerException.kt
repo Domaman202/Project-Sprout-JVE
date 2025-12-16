@@ -3,7 +3,7 @@ package ru.pht.sprout.module.header.lexer
 import ru.pht.sprout.utils.fmt.ErrorFormatter
 import ru.pht.sprout.utils.lang.Language
 import ru.pht.sprout.utils.lang.SproutTranslate
-import ru.pht.sprout.utils.lang.TranslatedException
+import ru.pht.sprout.utils.lang.exception.TranslatedException
 import ru.pht.sprout.utils.lang.Translation
 
 /**

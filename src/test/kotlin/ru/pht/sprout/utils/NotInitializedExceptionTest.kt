@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 @EnabledIf("ru.pht.sprout.TestConfigInternal#otherUtilsTest", disabledReason = "Тест выключен конфигурацией")
 class NotInitializedExceptionTest {
     @Test
-    @DisplayName("Проверка перевода")
+    @DisplayName("Перевод")
     fun translateTest() {
         assertEquals(NotInitializedException("i").translate(Language.ENGLISH), "Uninitialized required field 'i'".fmt)
     }

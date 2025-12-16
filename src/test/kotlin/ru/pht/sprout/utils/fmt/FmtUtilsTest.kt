@@ -5,7 +5,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.condition.EnabledIf
 import ru.pht.sprout.utils.fmt.FmtUtils.fmt
 import ru.pht.sprout.utils.lang.Language
-import ru.pht.sprout.utils.lang.TranslatedRuntimeException
+import ru.pht.sprout.utils.lang.exception.TranslatedRuntimeException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -99,7 +99,7 @@ class FmtUtilsTest {
     }
 
     @Test
-    @DisplayName("Тесты ошибок и их перевода")
+    @DisplayName("Ошибки и их перевод")
     fun testException() {
         assertEquals(
             assertThrows<TranslatedRuntimeException> {

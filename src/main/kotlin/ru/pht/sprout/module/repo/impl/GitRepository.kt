@@ -7,7 +7,6 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -18,7 +17,6 @@ import ru.pht.sprout.module.repo.IRepository
 import ru.pht.sprout.module.utils.HttpUtils
 import ru.pht.sprout.module.utils.ZipUtils
 import java.io.IOException
-import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.MessageDigest
@@ -60,9 +58,6 @@ open class GitRepository(
 
     private suspend fun getAsBytes(url: String): ByteArray =
         this.client.get(url).readRawBytes()
-
-    private suspend fun getAsStream(url: String): InputStream =
-        this.client.get(url).bodyAsChannel().toInputStream()
 
     @Serializable
     private data class Repository(

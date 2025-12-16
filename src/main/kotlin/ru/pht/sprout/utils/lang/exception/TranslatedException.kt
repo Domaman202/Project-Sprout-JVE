@@ -1,15 +1,20 @@
-package ru.pht.sprout.utils.lang
+package ru.pht.sprout.utils.lang.exception
 
-open class TranslatedRuntimeException : RuntimeException, ITranslatedException {
+import ru.pht.sprout.utils.lang.Language
+import ru.pht.sprout.utils.lang.Translation
+
+open class TranslatedException : Exception, ITranslatedException {
     private val args: Array<out Pair<String, Any?>>
     private val translation0: Translation?
     override val translation: Translation?
         get() = this.translation0
+    override val message: String?
+        get() = super.message ?: this.translate(Language.ENGLISH)
 
     constructor(
         translation: Translation?,
         vararg args: Pair<String, Any?>
-    ) : super(translation?.translate(Language.ENGLISH, *args)) {
+    ) : super() {
         this.translation0 = translation
         this.args = args
     }

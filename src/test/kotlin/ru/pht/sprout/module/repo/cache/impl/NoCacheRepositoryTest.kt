@@ -29,7 +29,7 @@ class NoCacheRepositoryTest {
             listOf("test/a@2.0.0", "test/a@3.0.0")
         )
         val (first, second) = find
-        if (first is NoCacheRepository.CombinedDownloadable && second is NoCacheRepository.CombinedDownloadable) {
+        if (first is CombinedDownloadable && second is CombinedDownloadable) {
             assertEquals(first.originals, listOf(TestDownloadableA200A, TestDownloadableA200C))
             assertEquals(second.originals, listOf(TestDownloadableA300A, TestDownloadableA300D))
         }
@@ -44,7 +44,7 @@ class NoCacheRepositoryTest {
         assertEquals(find.size, 1)
         val first = find.first()
         assertEquals(first.hash, TestDownloadableB200B.hash)
-        if (first is NoCacheRepository.CombinedDownloadable) {
+        if (first is CombinedDownloadable) {
             assertEquals(
                 first.originals,
                 listOf(
@@ -89,7 +89,7 @@ class NoCacheRepositoryTest {
         } finally {
             tmp0.deleteRecursively()
         }
-        // Поломка скачивания
+        // Поломка асинхронного скачивания
         val tmp1 = Files.createTempDirectory("ProjectSprout.NoCacheRepositoryTest.findFilterCombineDownloadTest.async")
         try {
             val find = repository.findAsync("test/b", "2.0.0".toConstraint())
@@ -113,9 +113,9 @@ class NoCacheRepositoryTest {
         val repository = NoCacheRepository(listOf(TestRepositoryA, TestRepositoryC, TestRepositoryD, AssertNoCacheRepository))
         val list = repository.findAll()
         assertEquals(list.size, 8)
-        if (list.all { it is NoCacheRepository.CombinedDownloadable }) {
+        if (list.all { it is CombinedDownloadable }) {
             assertEquals(
-                list.map { (it as NoCacheRepository.CombinedDownloadable).originals }.sortedBy { it.hashCode() },
+                list.map { (it as CombinedDownloadable).originals }.sortedBy { it.hashCode() },
                 listOf(
                     listOf(TestDownloadableA100A, TestDownloadableA100C),
                     listOf(TestDownloadableA110A, TestDownloadableA110C),
@@ -140,9 +140,9 @@ class NoCacheRepositoryTest {
         val repository = NoCacheRepository(listOf(TestRepositoryB, TestRepositoryD, TestRepositoryDCrack))
         val list = repository.findAll()
         assertEquals(list.size, 6)
-        if (list.all { it is NoCacheRepository.CombinedDownloadable }) {
+        if (list.all { it is CombinedDownloadable }) {
             assertEquals(
-                list.map { (it as NoCacheRepository.CombinedDownloadable).originals }.sortedBy { it.hashCode() },
+                list.map { (it as CombinedDownloadable).originals }.sortedBy { it.hashCode() },
                 listOf(
                     listOf(TestDownloadableA100B),
                     listOf(TestDownloadableA110B),

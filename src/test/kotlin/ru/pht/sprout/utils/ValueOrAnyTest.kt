@@ -10,7 +10,7 @@ import kotlin.test.*
 @EnabledIf("ru.pht.sprout.TestConfigInternal#otherUtilsTest", disabledReason = "Тест выключен конфигурацией")
 class ValueOrAnyTest {
     @Test
-    @DisplayName("Проверка null значения")
+    @DisplayName("null значение")
     fun testNullValue() {
         val valueOrAny = ValueOrAny.of(null)
         assertFalse(valueOrAny.isAny)
@@ -19,7 +19,7 @@ class ValueOrAnyTest {
     }
 
     @Test
-    @DisplayName("Проверка значения")
+    @DisplayName("Значение")
     fun testValue() {
         val valueOrAny = ValueOrAny.of("Test!")
         assertFalse(valueOrAny.isAny)
@@ -28,7 +28,7 @@ class ValueOrAnyTest {
     }
 
     @Test
-    @DisplayName("Проверка любого")
+    @DisplayName("Любое")
     fun testAny() {
         val valueOrAny = ValueOrAny.any<String>()
         assertTrue(valueOrAny.isAny)
@@ -42,7 +42,7 @@ class ValueOrAnyTest {
     }
 
     @Test
-    @DisplayName("Проверка хеша")
+    @DisplayName("Хеш")
     fun hashTest() {
         assertEquals(ValueOrAny.any<Any?>().hashCode(), ValueOrAny.any<Any?>().hashCode())
         assertNotEquals(ValueOrAny.any<Any?>().hashCode(), ValueOrAny.of<Any?>(null).hashCode())

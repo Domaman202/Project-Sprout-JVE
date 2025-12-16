@@ -9,7 +9,7 @@ import kotlin.test.Test
 @EnabledIf("ru.pht.sprout.TestConfigInternal#fmtTest", disabledReason = "Тест выключен конфигурацией")
 class ErrorFormatterTest {
     @Test
-    @DisplayName("Тест сообщения в одну строку")
+    @DisplayName("Сообщение в одну строку")
     fun oneLineTest() {
         val source = """
             line1
@@ -25,7 +25,7 @@ class ErrorFormatterTest {
     }
 
     @Test
-    @DisplayName("Тест сообщения в одну строку с табуляцией в исходном коде")
+    @DisplayName("Сообщение в одну строку с табуляцией в исходном коде")
     fun tabInSourceOneLineTest() {
         val source = "line1\n22\tline2\nline3"
         val expected = """
@@ -37,7 +37,7 @@ class ErrorFormatterTest {
     }
 
     @Test
-    @DisplayName("Тест сообщения в несколько строк")
+    @DisplayName("Сообщение в несколько строк")
     fun oneMultilineTest() {
         val source = """
             line1
@@ -55,7 +55,7 @@ class ErrorFormatterTest {
     }
 
     @Test
-    @DisplayName("Тест сообщения в несколько строк и табуляцией")
+    @DisplayName("Сообщение в несколько строк и табуляцией")
     fun oneMultilineAndTabTest() {
         val source = """
             line1
@@ -73,7 +73,7 @@ class ErrorFormatterTest {
     }
 
     @Test
-    @DisplayName("Тест сообщения в несколько строк и табуляцией с табуляцией в исходном коде")
+    @DisplayName("Сообщение в несколько строк и табуляцией с табуляцией в исходном коде")
     fun tabInSourceOneMultilineAndTabTest() {
         val source = "line1\n22\tline2\nline3"
         val expected = """
