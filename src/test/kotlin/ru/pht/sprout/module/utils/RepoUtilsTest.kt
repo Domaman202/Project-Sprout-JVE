@@ -115,8 +115,8 @@ class RepoUtilsTest {
             CombinedDownloadable::combineAndAdd
         )
         assertEquals(
-            cached.map { if (it is CombinedDownloadable) it.originals else it },
-            listOf(TestDownloadableA100B, TestDownloadableA110B, listOf(TestDownloadableA200A, TestDownloadableA300A))
+            cached.flatMap { if (it is CombinedDownloadable) it.originals else listOf(it) },
+            listOf(TestDownloadableA100B, TestDownloadableA110B, TestDownloadableA200A, TestDownloadableA300A)
         )
     }
 
@@ -160,14 +160,14 @@ class RepoUtilsTest {
         )
         assertEquals(list.size, 1)
         assertEquals(
-            list.map { (it as CombinedDownloadable).originals },
-            listOf(listOf(
+            (list.first() as CombinedDownloadable).originals,
+            listOf(
                 TestDownloadableB200B,
                 TestDownloadableB200D,
                 // Компрометация идёт со стороны репозитория - хеш не совпадёт с остальными репозиториями.
                 // Это выявляется в момент получения ссылки, поэтому сам ресурс не проходит.
 //                TestDownloadableB200DCrack
-            ))
+            )
         )
     }
 

@@ -154,7 +154,7 @@ class LocalCacheRepository(
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
             other as MaybeCachedDownloadable
-            return this.hash == other.hash && this.file == other.file
+            return this.file == other.file
         }
 
         override fun hashCode(): Int =

@@ -41,7 +41,7 @@ open class GitRepository(
             .filter { (m, v) -> m.name == name && version.isSatisfiedBy(v) }
             .map { (m, v) -> GitDownloadable(m.name, v, m.hash, m.file) }
             .toMutableList()
-            .sortedBy { it.version }
+            .apply { sortBy { it.version } }
 
     override suspend fun findAllAsync(): List<IDownloadable> =
         this

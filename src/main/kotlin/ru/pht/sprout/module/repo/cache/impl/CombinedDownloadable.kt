@@ -47,12 +47,11 @@ class CombinedDownloadable(
         downloadZipAsync(file)
     }
 
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as CombinedDownloadable
-        return this.hash == other.hash && this.originals == other.originals
+        return this.originals == other.originals
     }
 
     override fun hashCode(): Int =

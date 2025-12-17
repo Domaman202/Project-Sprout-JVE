@@ -29,6 +29,7 @@ object RepoUtils {
             { it.name == name && available.none { cache -> cache.version == it.version } && version.isSatisfiedBy(it.version) },
             { combineAndAdd(it, available::add) }
         )
+        available.sortBy { it.version }
     }
 
     /**
@@ -53,6 +54,7 @@ object RepoUtils {
             { it.name == name && available.none { cache -> cache.version == it.version } && version.isSatisfiedBy(it.version) },
             { combineAndAdd(it, available::add) }
         )
+        available.sortBy { it.version }
     }
 
     /**
@@ -77,6 +79,7 @@ object RepoUtils {
             { it.name == name && version.isSatisfiedBy(it.version) },
             { combineAndAdd(it, verified::add) }
         )
+        verified.sortBy { it.version }
         return verified
     }
 
@@ -102,6 +105,7 @@ object RepoUtils {
             { it.name == name && version.isSatisfiedBy(it.version) },
             { combineAndAdd(it, verified::add) }
         )
+        verified.sortBy { it.version }
         return verified
     }
 
