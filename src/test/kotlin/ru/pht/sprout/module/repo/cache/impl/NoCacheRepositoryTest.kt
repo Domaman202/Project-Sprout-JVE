@@ -7,8 +7,8 @@ import org.junit.jupiter.api.condition.EnabledIf
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import ru.pht.sprout.module.repo.impl.*
+import ru.pht.sprout.module.utils.ZipUtils
 import ru.pht.sprout.module.utils.useTmpDir
-import java.security.MessageDigest
 import kotlin.io.path.createDirectory
 import kotlin.io.path.exists
 import kotlin.io.path.readBytes
@@ -82,7 +82,7 @@ class NoCacheRepositoryTest {
             val zip = tmp.resolve("module.zip")
             download.downloadZip(zip)
             assertTrue(zip.exists())
-            assertEquals(MessageDigest.getInstance("SHA-512").digest(zip.readBytes()).toHexString(), download.hash)
+            assertEquals(ZipUtils.calcSHA512(zip.readBytes()), download.hash)
             val tmpUnzip = tmp.resolve("unzip").createDirectory()
             download.download(tmpUnzip)
             assertTrue(tmpUnzip.resolve("test/b/module.pht").exists())
@@ -95,7 +95,7 @@ class NoCacheRepositoryTest {
             val zip = tmp.resolve("module.zip")
             download.downloadZipAsync(zip)
             assertTrue(zip.exists())
-            assertEquals(MessageDigest.getInstance("SHA-512").digest(zip.readBytes()).toHexString(), download.hash)
+            assertEquals(ZipUtils.calcSHA512(zip.readBytes()), download.hash)
             val tmpUnzip = tmp.resolve("unzip").createDirectory()
             download.downloadAsync(tmpUnzip)
             assertTrue(tmpUnzip.resolve("test/b/module.pht").exists())

@@ -1,5 +1,6 @@
 package ru.pht.sprout.module.utils
 
+import org.kotlincrypto.hash.sha2.SHA512
 import ru.pht.sprout.module.header.ModuleHeader
 import ru.pht.sprout.module.header.lexer.Lexer
 import ru.pht.sprout.module.header.parser.Parser
@@ -14,6 +15,21 @@ import java.util.zip.ZipOutputStream
 import kotlin.io.path.*
 
 object ZipUtils {
+    /**
+     * Вычисление хеша SHA-512 для массива байт.
+     *
+     * @param zip Массив.
+     * @return Хеш.
+     */
+    fun calcSHA512(zip: ByteArray): String =
+        SHA512().digest(zip).toHexString(HexFormat.Default)
+
+    /**
+     * Архивация директории и её файлов.
+     *
+     * @param dir Директория.
+     * @return Архив.
+     */
     fun zip(dir: Path): ByteArray {
         val bytes = ByteArrayOutputStream()
         ZipOutputStream(bytes).use { zip ->
@@ -26,6 +42,12 @@ object ZipUtils {
         return bytes.toByteArray()
     }
 
+    /**
+     * Распаковка архива в директорию.
+     *
+     * @param dir Директория.
+     * @param zip Архив.
+     */
     fun unzip(dir: Path, zip: ByteArray) {
         ZipInputStream(ByteArrayInputStream(zip)).use {
             while (true) {
@@ -42,6 +64,12 @@ object ZipUtils {
         }
     }
 
+    /**
+     * Распаковка и парсинг заголовка модуля.
+     *
+     * @param zip Архив.
+     * @return Заголовок.
+     */
     fun unzipHeader(zip: ByteArray): ModuleHeader {
         ZipInputStream(ByteArrayInputStream(zip)).use {
             while (true) {

@@ -19,7 +19,6 @@ import ru.pht.sprout.module.utils.ZipUtils
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
-import java.security.MessageDigest
 import kotlin.io.path.createDirectories
 import kotlin.io.path.notExists
 
@@ -76,14 +75,14 @@ open class GitRepository(
     ) : IDownloadable {
         override suspend fun headerAsync(): ModuleHeader {
             val bytes = this@GitRepository.getAsBytes(this.file)
-            if (MessageDigest.getInstance("SHA-512").digest(bytes).toHexString() != this.hash)
+            if (ZipUtils.calcSHA512(bytes) != this.hash)
                 throw IOException("Hash check failed")
             return ZipUtils.unzipHeader(bytes)
         }
 
         override suspend fun downloadAsync(dir: Path) {
             val bytes = this@GitRepository.getAsBytes(this.file)
-            if (MessageDigest.getInstance("SHA-512").digest(bytes).toHexString() != this.hash)
+            if (ZipUtils.calcSHA512(bytes) != this.hash)
                 throw IOException("Hash check failed")
             val dir = dir.resolve(this.name).normalize()
             if (dir.notExists())
@@ -93,7 +92,7 @@ open class GitRepository(
 
         override suspend fun downloadZipAsync(file: Path) {
             val bytes = this@GitRepository.getAsBytes(this.file)
-            if (MessageDigest.getInstance("SHA-512").digest(bytes).toHexString() != this.hash)
+            if (ZipUtils.calcSHA512(bytes) != this.hash)
                 throw IOException("Hash check failed")
             if (file.parent.notExists())
                 file.parent.createDirectories()

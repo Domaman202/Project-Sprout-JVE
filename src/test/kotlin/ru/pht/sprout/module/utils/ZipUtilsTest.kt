@@ -7,13 +7,24 @@ import java.nio.file.Files
 import kotlin.io.path.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 @EnabledIf("ru.pht.sprout.TestConfigInternal#zipTest", disabledReason = "Тест выключен конфигурацией")
 @OptIn(ExperimentalPathApi::class)
 class ZipUtilsTest {
     @Test
-    @DisplayName("Проверка всех функций сразу")
-    fun test() {
+    @DisplayName("Хеш SHA-512")
+    fun sha512Test() {
+        val hash0 = ZipUtils.calcSHA512(byteArrayOf(12, 21, 33))
+        val hash1 = ZipUtils.calcSHA512(byteArrayOf(12, 21, 33))
+        val hash2 = ZipUtils.calcSHA512(byteArrayOf(127, 0, 127))
+        assertEquals(hash0, hash1)
+        assertNotEquals(hash0, hash2)
+    }
+
+    @Test
+    @DisplayName("Архивация / распаковка")
+    fun zipUnzipTest() {
         val tmpZip = Files.createTempDirectory("ProjectSprout.ZipUtilsTest.TestZip")
         val tmpUnzip = Files.createTempDirectory("ProjectSprout.ZipUtilsTest.TestUnzip")
         try {

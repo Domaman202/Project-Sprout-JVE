@@ -7,8 +7,8 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.condition.EnabledIf
+import ru.pht.sprout.module.utils.ZipUtils
 import ru.pht.sprout.module.utils.useTmpDir
-import java.security.MessageDigest
 import kotlin.io.path.createDirectory
 import kotlin.io.path.exists
 import kotlin.io.path.readBytes
@@ -29,7 +29,7 @@ class GiteaRepositoryTest {
             val zip = tmp.resolve("module.zip")
             download.downloadZip(zip)
             assertTrue(zip.exists())
-            assertEquals(MessageDigest.getInstance("SHA-512").digest(zip.readBytes()).toHexString(), download.hash)
+            assertEquals(ZipUtils.calcSHA512(zip.readBytes()), download.hash)
             val tmpUnzip = tmp.resolve("unzip").createDirectory()
             download.download(tmpUnzip)
             val unzip = tmpUnzip.resolve("pht/example/example-gitea-module")

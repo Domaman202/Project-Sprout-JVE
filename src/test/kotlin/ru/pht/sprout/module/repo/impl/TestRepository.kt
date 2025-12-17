@@ -116,7 +116,7 @@ open class TestDownloadable(
             bytes.toByteArray()
         }
         this.zip0 = zip
-        this.hash0 = MessageDigest.getInstance("SHA-512").digest(zip).toHexString()
+        this.hash0 = ZipUtils.calcSHA512(zip)
     }
 }
 

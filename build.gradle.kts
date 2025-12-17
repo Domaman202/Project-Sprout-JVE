@@ -14,6 +14,8 @@ repositories {
 dependencies {
     // ===== РАБОЧИЕ ===== //
 
+    // Хеш SHA-512
+    implementation("org.kotlincrypto.hash:sha2-512:0.2.7")
     // Форматирование строк
     implementation("com.github.pwittchen.kirai:library:1.4.1")
     // Версии
