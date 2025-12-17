@@ -20,7 +20,7 @@ object TestConfig {
         const val ZIP_TEST = true
         // ===== (СЕТЬ) ===== //
         // Тесты с реальными сетевыми запросами.
-        const val REAL_NET_TEST = false
+        const val REAL_NET_TEST = true
         // ===== (ЗАГОЛОВОК) ===== //
         // Тесты парсинга заголовка
         const val HEADER_PARSE_TEST = true

@@ -83,7 +83,7 @@ open class TestDownloadable(
     }
 
     override fun hashCode(): Int =
-        this.zip0.hashCode()
+        this.zip0.contentHashCode()
 
     init {
         init()
@@ -94,7 +94,11 @@ open class TestDownloadable(
         this.header0 = Parser(Lexer(header)).parse()
         val zip = ByteArrayOutputStream().use { bytes ->
             ZipOutputStream(bytes).use { zip ->
-                zip.putNextEntry(ZipEntry("module.pht"))
+                zip.putNextEntry(
+                    ZipEntry("module.pht").apply {
+                        this.time = 0
+                    }
+                )
                 zip.write(header.toByteArray(Charsets.UTF_8))
                 zip.closeEntry()
             }
