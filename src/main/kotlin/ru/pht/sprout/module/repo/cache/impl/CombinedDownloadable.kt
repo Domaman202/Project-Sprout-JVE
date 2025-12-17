@@ -56,7 +56,7 @@ class CombinedDownloadable(
     }
 
     override fun hashCode(): Int =
-        this.hash.hashCode() + this.originals.hashCode() * 31
+        this.originals.hashCode()
 
     private inline fun <T> tryAllSources(block: IDownloadable.() -> T): T {
         for (downloadable in this.originals) {

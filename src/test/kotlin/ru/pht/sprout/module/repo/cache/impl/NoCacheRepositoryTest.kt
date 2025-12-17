@@ -6,20 +6,21 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.EnabledIf
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
-import ru.pht.sprout.module.repo.test.*
-import java.nio.file.Files
+import ru.pht.sprout.module.repo.impl.*
+import ru.pht.sprout.module.utils.useTmpDir
 import java.security.MessageDigest
-import kotlin.io.path.*
+import kotlin.io.path.createDirectory
+import kotlin.io.path.exists
+import kotlin.io.path.readBytes
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @EnabledIf("ru.pht.sprout.TestConfigInternal#repoTest", disabledReason = "Тест выключен конфигурацией")
-@OptIn(ExperimentalPathApi::class)
 class NoCacheRepositoryTest {
     @Test
-    @DisplayName("Тестирование поиска / фильтрации / объединения")
+    @DisplayName("Поиск / фильтрация / объединение")
     fun findFilterCombineTest() {
         val repository = NoCacheRepository(listOf(TestRepositoryA, TestRepositoryC, TestRepositoryD, AssertNoCacheRepository))
         val find = repository.find("test/a", ">=2.0.0".toConstraint())
@@ -37,7 +38,7 @@ class NoCacheRepositoryTest {
     }
 
     @Test
-    @DisplayName("Тестирование поиска / фильтрации / верификация / объединения")
+    @DisplayName("Поиск / фильтрация / верификация / объединение")
     fun findFilterCombineVerifyTest() {
         val repository = NoCacheRepository(listOf(TestRepositoryB, TestRepositoryD, TestRepositoryDCrack))
         val find = repository.find("test/b", "2.0.0".toConstraint())
@@ -60,7 +61,7 @@ class NoCacheRepositoryTest {
     }
 
     @ParameterizedTest
-    @DisplayName("Тестирование поиска / фильтрации / объединения / загрузка")
+    @DisplayName("Поиск / фильтрация / объединение / загрузка")
     @CsvSource("true", "false")
     fun findFilterCombineDownloadTest(reversed: Boolean) = runTest {
         val repository = NoCacheRepository(
@@ -74,41 +75,37 @@ class NoCacheRepositoryTest {
         assertEquals(findA.first().header().name, "test/a")
         assertEquals(findA.first().headerAsync().name, "test/a")
         // Поломка скачивания
-        val tmp0 = Files.createTempDirectory("ProjectSprout.NoCacheRepositoryTest.findFilterCombineDownloadTest.sync")
-        try {
+        useTmpDir("ProjectSprout.NoCacheRepositoryTest.findFilterCombineDownloadTest.sync") { tmp ->
             val find = repository.find("test/b", "2.0.0".toConstraint())
             assertEquals(find.size, 1)
             val download = find.first()
-            val zip = tmp0.resolve("module.zip")
+            val zip = tmp.resolve("module.zip")
             download.downloadZip(zip)
             assertTrue(zip.exists())
             assertEquals(MessageDigest.getInstance("SHA-512").digest(zip.readBytes()).toHexString(), download.hash)
-            val tmpUnzip = tmp0.resolve("unzip").createDirectory()
+            val tmpUnzip = tmp.resolve("unzip").createDirectory()
             download.download(tmpUnzip)
             assertTrue(tmpUnzip.resolve("test/b/module.pht").exists())
-        } finally {
-            tmp0.deleteRecursively()
         }
         // Поломка асинхронного скачивания
-        val tmp1 = Files.createTempDirectory("ProjectSprout.NoCacheRepositoryTest.findFilterCombineDownloadTest.async")
-        try {
+        useTmpDir("ProjectSprout.NoCacheRepositoryTest.findFilterCombineDownloadTest.async") { tmp ->
             val find = repository.findAsync("test/b", "2.0.0".toConstraint())
             assertEquals(find.size, 1)
             val download = find.first()
-            val zip = tmp1.resolve("module.zip")
+            val zip = tmp.resolve("module.zip")
             download.downloadZipAsync(zip)
             assertTrue(zip.exists())
             assertEquals(MessageDigest.getInstance("SHA-512").digest(zip.readBytes()).toHexString(), download.hash)
-            val tmpUnzip = tmp1.resolve("unzip").createDirectory()
+            val tmpUnzip = tmp.resolve("unzip").createDirectory()
             download.downloadAsync(tmpUnzip)
             assertTrue(tmpUnzip.resolve("test/b/module.pht").exists())
-        } finally {
-            tmp1.deleteRecursively()
         }
+        // Отсутствие кеширования
+        assertTrue(repository.findAllCached().isEmpty())
     }
 
     @Test
-    @DisplayName("Тестирование поиска / объединения")
+    @DisplayName("Поиск всех / объединение")
     fun findAllTest() {
         val repository = NoCacheRepository(listOf(TestRepositoryA, TestRepositoryC, TestRepositoryD, AssertNoCacheRepository))
         val list = repository.findAll()
@@ -135,7 +132,7 @@ class NoCacheRepositoryTest {
     }
 
     @Test
-    @DisplayName("Тестирование поиска / верификация / объединения")
+    @DisplayName("Поиск / верификация / объединение")
     fun findAllVerifyTest() {
         val repository = NoCacheRepository(listOf(TestRepositoryB, TestRepositoryD, TestRepositoryDCrack))
         val list = repository.findAll()

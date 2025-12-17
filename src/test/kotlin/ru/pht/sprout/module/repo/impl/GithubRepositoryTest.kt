@@ -7,13 +7,14 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.condition.EnabledIf
-import java.nio.file.Files
+import ru.pht.sprout.module.utils.useTmpDir
 import java.security.MessageDigest
-import kotlin.io.path.*
+import kotlin.io.path.createDirectory
+import kotlin.io.path.exists
+import kotlin.io.path.readBytes
 import kotlin.test.*
 
-@EnabledIf("ru.pht.sprout.TestConfigInternal#realNetRepoTest", disabledReason = "Тест выключен конфигурацией")
-@OptIn(ExperimentalPathApi::class)
+@EnabledIf("ru.pht.sprout.TestConfigInternal#githubRepoTest", disabledReason = "Тест выключен конфигурацией")
 class GithubRepositoryTest {
     @Test
     @DisplayName("Поиск конкретного модуля")
@@ -24,8 +25,7 @@ class GithubRepositoryTest {
         val header = download.header()
         assertEquals(header.name, "pht/example/example-github-module")
         assertEquals(header.version, "1.0.0".toVersion())
-        val tmp = Files.createTempDirectory("ProjectSprout.GithubRepositoryTest.findTest")
-        try {
+        useTmpDir("ProjectSprout.GithubRepositoryTest.findTest") { tmp ->
             val zip = tmp.resolve("module.zip")
             download.downloadZip(zip)
             assertTrue(zip.exists())
@@ -36,8 +36,6 @@ class GithubRepositoryTest {
             assertTrue(unzip.resolve("module.pht").exists())
             assertTrue(unzip.resolve("src/example.pht").exists())
             assertTrue(unzip.resolve("plg/example.pht").exists())
-        } finally {
-            tmp.deleteRecursively()
         }
     }
 
@@ -57,13 +55,10 @@ class GithubRepositoryTest {
         val find = REPO.find("pht/example/crack-example-github-module", "1.0.1".toConstraint())
         assertEquals(find.size, 1)
         val download = find.first()
-        val tmp = Files.createTempDirectory("ProjectSprout.GithubRepositoryTest.verifyTest")
-        try {
+        useTmpDir("ProjectSprout.GithubRepositoryTest.verifyTest") { tmp ->
             assertThrows<IOException> { download.header() }
             assertThrows<IOException> { download.download(tmp.resolve("module.zip")) }
             assertThrows<IOException> { download.downloadZip(tmp.resolve("unzip")) }
-        } finally {
-            tmp.deleteRecursively()
         }
     }
 

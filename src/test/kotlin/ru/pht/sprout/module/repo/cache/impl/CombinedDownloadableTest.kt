@@ -6,19 +6,20 @@ import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
-import ru.pht.sprout.module.repo.test.*
+import ru.pht.sprout.module.repo.impl.*
+import ru.pht.sprout.module.utils.useTmpDir
 import ru.pht.sprout.utils.fmt.FmtUtils.fmt
 import ru.pht.sprout.utils.lang.Language
 import ru.pht.sprout.utils.lang.exception.TranslatedIllegalArgumentException
-import java.nio.file.Files
 import java.security.MessageDigest
-import kotlin.io.path.*
+import kotlin.io.path.createDirectory
+import kotlin.io.path.exists
+import kotlin.io.path.readBytes
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalPathApi::class)
 class CombinedDownloadableTest {
     @Test
     @DisplayName("Успешный of")
@@ -50,30 +51,24 @@ class CombinedDownloadableTest {
         assertEquals(download.header().name, "test/a")
         assertEquals(download.headerAsync().name, "test/a")
         // Поломка скачивания
-        val tmp0 = Files.createTempDirectory("ProjectSprout.CombinedDownloadableTest.faultToleranceTest.sync")
-        try {
-            val zip = tmp0.resolve("module.zip")
+        useTmpDir("ProjectSprout.CombinedDownloadableTest.faultToleranceTest.sync") { tmp ->
+            val zip = tmp.resolve("module.zip")
             download.downloadZip(zip)
             assertTrue(zip.exists())
             assertEquals(MessageDigest.getInstance("SHA-512").digest(zip.readBytes()).toHexString(), download.hash)
-            val tmpUnzip = tmp0.resolve("unzip").createDirectory()
+            val tmpUnzip = tmp.resolve("unzip").createDirectory()
             download.download(tmpUnzip)
             assertTrue(tmpUnzip.resolve("test/a/module.pht").exists())
-        } finally {
-            tmp0.deleteRecursively()
         }
         // Поломка асинхронного скачивания
-        val tmp1 = Files.createTempDirectory("ProjectSprout.CombinedDownloadableTest.faultToleranceTest.async")
-        try {
-            val zip = tmp1.resolve("module.zip")
+        useTmpDir("ProjectSprout.CombinedDownloadableTest.faultToleranceTest.async") { tmp ->
+            val zip = tmp.resolve("module.zip")
             download.downloadZipAsync(zip)
             assertTrue(zip.exists())
             assertEquals(MessageDigest.getInstance("SHA-512").digest(zip.readBytes()).toHexString(), download.hash)
-            val tmpUnzip = tmp1.resolve("unzip").createDirectory()
+            val tmpUnzip = tmp.resolve("unzip").createDirectory()
             download.downloadAsync(tmpUnzip)
             assertTrue(tmpUnzip.resolve("test/a/module.pht").exists())
-        } finally {
-            tmp1.deleteRecursively()
         }
     }
 

@@ -1,4 +1,4 @@
-package ru.pht.sprout.module.repo.test
+package ru.pht.sprout.module.repo.impl
 
 import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.constraints.Constraint
@@ -67,6 +67,8 @@ open class TestDownloadable(
         this.download(dir)
 
     override fun downloadZip(file: Path) {
+        if (file.parent.notExists())
+            file.parent.createDirectories()
         file.writeBytes(this.zip0)
     }
 
@@ -81,7 +83,7 @@ open class TestDownloadable(
     }
 
     override fun hashCode(): Int =
-        this.hash0.hashCode()
+        this.zip0.hashCode()
 
     init {
         init()

@@ -8,12 +8,28 @@ import org.junit.jupiter.api.condition.EnabledIf
 import ru.pht.sprout.module.repo.IDownloadable
 import ru.pht.sprout.module.repo.IRepository
 import ru.pht.sprout.module.repo.cache.impl.CombinedDownloadable
-import ru.pht.sprout.module.repo.test.*
+import ru.pht.sprout.module.repo.impl.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @EnabledIf("ru.pht.sprout.TestConfigInternal#repoTest", disabledReason = "Тест выключен конфигурацией")
 class RepoUtilsTest {
+    @Test
+    @DisplayName("Поиск отсутствующих / фильтрация / объединение")
+    fun findUnavailableAndVerifySortedTest() {
+        findUnavailableAndVerifySortedTest0 { repositories, available, name, version, combineAndAdd ->
+            RepoUtils.findUnavailableAndVerifySorted(repositories, available, name, version, combineAndAdd)
+        }
+    }
+
+    @Test
+    @DisplayName("Асинхронный поиск отсутствующих / фильтрация / объединение")
+    fun findUnavailableAndVerifySortedAsyncTest() = runTest {
+        findUnavailableAndVerifySortedTest0 { repositories, available, name, version, combineAndAdd ->
+            RepoUtils.findUnavailableAndVerifySortedAsync(repositories, available, name, version, combineAndAdd)
+        }
+    }
+
     @Test
     @DisplayName("Поиск / фильтрация / объединение")
     fun findFilterCombineTest() {
@@ -48,7 +64,7 @@ class RepoUtilsTest {
     }
 
     @Test
-    @DisplayName("Поиск / объединение")
+    @DisplayName("Поиск всех / объединение")
     fun findAllTest() {
         findCombineTest0 { repositories, combineAndAddToVerified ->
             RepoUtils.findAllAndVerify(repositories, combineAndAddToVerified)
@@ -57,7 +73,7 @@ class RepoUtilsTest {
 
 
     @Test
-    @DisplayName("Асинхронный поиск / объединение")
+    @DisplayName("Асинхронный поиск всех / объединение")
     fun findAllAsyncTest() = runTest {
         findCombineTest0 { repositories, combineAndAddToVerified ->
             RepoUtils.findAllAndVerifyAsync(repositories, combineAndAddToVerified)
@@ -65,7 +81,7 @@ class RepoUtilsTest {
     }
 
     @Test
-    @DisplayName("Поиск / верификация / объединение")
+    @DisplayName("Поиск всех / верификация / объединение")
     fun findAllVerifyTest() {
         findCombineVerifyTest0 { repositories, combineAndAddToVerified ->
             RepoUtils.findAllAndVerify(repositories, combineAndAddToVerified)
@@ -74,11 +90,34 @@ class RepoUtilsTest {
 
 
     @Test
-    @DisplayName("Асинхронный поиск / верификация / объединение")
+    @DisplayName("Асинхронный поиск всех / верификация / объединение")
     fun findAllVerifyAsyncTest() = runTest {
         findCombineVerifyTest0 { repositories, combineAndAddToVerified ->
             RepoUtils.findAllAndVerifyAsync(repositories, combineAndAddToVerified)
         }
+    }
+
+    private inline fun findUnavailableAndVerifySortedTest0(
+        method: (
+            repositories: List<IRepository>,
+            available: MutableList<IDownloadable>,
+            name: String,
+            version: Constraint,
+            combineAndAdd: (combine: List<IDownloadable>, addTo: (IDownloadable) -> Unit) -> Unit
+        ) -> Unit
+    ) {
+        val cached = mutableListOf<IDownloadable>(TestDownloadableA110B, TestDownloadableA100B)
+        method(
+            listOf(TestRepositoryA),
+            cached,
+            "test/a",
+            ">=1.0.0".toConstraint(),
+            CombinedDownloadable::combineAndAdd
+        )
+        assertEquals(
+            cached.map { if (it is CombinedDownloadable) it.originals else it },
+            listOf(TestDownloadableA100B, TestDownloadableA110B, listOf(TestDownloadableA200A, TestDownloadableA300A))
+        )
     }
 
     private inline fun findFilterCombineTest0(

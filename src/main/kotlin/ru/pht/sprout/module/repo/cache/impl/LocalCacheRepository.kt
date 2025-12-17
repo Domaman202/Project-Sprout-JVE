@@ -51,8 +51,11 @@ class LocalCacheRepository(
         }
     }
 
-    override suspend fun findAsync(name: String, version: Constraint): List<IDownloadable> =
-        RepoUtils.findAndVerifySortedAsync(this.repositories, name, version, this::tryAddCache)
+    override suspend fun findAsync(name: String, version: Constraint): List<IDownloadable> {
+        val cached = this.cached.filterTo(ArrayList()) { it.name == name && version.isSatisfiedBy(it.version) }
+        RepoUtils.findUnavailableAndVerifySortedAsync(this.repositories, cached, name, version, this::tryAddCache)
+        return cached
+    }
 
     override suspend fun findAllAsync(): List<IDownloadable> {
         RepoUtils.findAllAndVerifyAsync(this.repositories) { tryAddCache(it) { } }
@@ -63,7 +66,7 @@ class LocalCacheRepository(
         this.localized
 
     override suspend fun findAllCachedAsync(): List<IDownloadable> =
-        this.localized
+        this.findAllCached()
 
     private inline fun tryAddCache(combine: (List<IDownloadable>), addTo: (IDownloadable) -> Unit) {
         val first = combine.first()
@@ -155,6 +158,6 @@ class LocalCacheRepository(
         }
 
         override fun hashCode(): Int =
-            this.hash.hashCode() + this.file.hashCode() * 31
+            this.file.hashCode()
     }
 }
