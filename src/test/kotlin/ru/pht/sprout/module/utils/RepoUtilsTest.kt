@@ -115,8 +115,8 @@ class RepoUtilsTest {
             CombinedDownloadable::combineAndAdd
         )
         assertEquals(
-            cached.flatMap { if (it is CombinedDownloadable) it.originals else listOf(it) },
-            listOf(TestDownloadableA100B, TestDownloadableA110B, TestDownloadableA200A, TestDownloadableA300A)
+            listOf(TestDownloadableA100B, TestDownloadableA110B, TestDownloadableA200A, TestDownloadableA300A),
+            cached.flatMap { if (it is CombinedDownloadable) it.originals else listOf(it) }
         )
     }
 
@@ -134,13 +134,13 @@ class RepoUtilsTest {
             ">=2.0.0".toConstraint(),
             CombinedDownloadable::combineAndAdd
         )
-        assertEquals(list.size, 2)
+        assertEquals(2, list.size)
         assertEquals(
-            list.map { (it as CombinedDownloadable).originals },
             listOf(
                 listOf(TestDownloadableA200A, TestDownloadableA200C),
                 listOf(TestDownloadableA300A, TestDownloadableA300D)
-            )
+            ),
+            list.map { (it as CombinedDownloadable).originals }
         )
     }
 
@@ -160,14 +160,14 @@ class RepoUtilsTest {
         )
         assertEquals(list.size, 1)
         assertEquals(
-            (list.first() as CombinedDownloadable).originals,
             listOf(
                 TestDownloadableB200B,
                 TestDownloadableB200D,
                 // Компрометация идёт со стороны репозитория - хеш не совпадёт с остальными репозиториями.
                 // Это выявляется в момент получения ссылки, поэтому сам ресурс не проходит.
 //                TestDownloadableB200DCrack
-            )
+            ),
+            (list.first() as CombinedDownloadable).originals
         )
     }
 
@@ -181,12 +181,12 @@ class RepoUtilsTest {
         method.invoke(listOf(TestRepositoryA, TestRepositoryC, TestRepositoryD, AssertNoCacheRepository)) { list += it }
         assertEquals(list.size, 14)
         assertEquals(
-            list.sortedBy { it.hashCode() },
             listOf<IDownloadable>(
                 TestDownloadableA100A, TestDownloadableA110A, TestDownloadableA200A, TestDownloadableA300A, TestDownloadableB100A, TestDownloadableB200A, TestDownloadableC100A, TestDownloadableD100A,
                 TestDownloadableA100C, TestDownloadableA110C, TestDownloadableA200C, TestDownloadableB100C,
                 TestDownloadableA300D, TestDownloadableB200D
-            ).sortedBy { it.hashCode() }
+            ).sortedBy { it.hashCode() },
+            list.sortedBy { it.hashCode() }
         )
     }
 
@@ -199,9 +199,8 @@ class RepoUtilsTest {
     ) {
         val list: MutableList<IDownloadable> = ArrayList()
         method.invoke(listOf(TestRepositoryB, TestRepositoryD, TestRepositoryDCrack)) { list += it }
-        assertEquals(list.size, 9)
+        assertEquals(9, list.size)
         assertEquals(
-            list.sortedBy { it.hashCode() },
             listOf<IDownloadable>(
                 TestDownloadableA100B, TestDownloadableA110B, TestDownloadableA200B, TestDownloadableA300B, TestDownloadableB100B, TestDownloadableB200B,
                 TestDownloadableA300D, TestDownloadableB200D,
@@ -211,7 +210,8 @@ class RepoUtilsTest {
                 // Компрометация идёт со стороны репозитория - хеш не совпадёт с остальными репозиториями.
                 // Это выявляется в момент получения ссылки, поэтому сам ресурс не проходит.
 //                TestDownloadableB200DCrack
-            ).sortedBy { it.hashCode() }
+            ).sortedBy { it.hashCode() },
+            list.sortedBy { it.hashCode() }
         )
     }
 }

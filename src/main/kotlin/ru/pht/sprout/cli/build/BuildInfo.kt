@@ -20,7 +20,7 @@ class BuildInfo {
     val moduleDirectory = Path(".").absolutePathString()
     // ===== РЕПОЗИТОРИИ ===== //
     val repositories: List<IRepository> = mutableListOf(GithubRepository(), GiteaRepository())
-    val cachingRepository: ICachingRepository = LocalCacheRepository(this)
+    val cachingRepository: ICachingRepository = LocalCacheRepository(this.sproutDirectory, this.repositories)
     // ===== МОДУЛЬ ===== //
     var moduleHeader: ModuleHeader? = null
         private set

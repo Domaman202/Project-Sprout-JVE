@@ -8,7 +8,6 @@ import kotlinx.io.IOException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
-import ru.pht.sprout.cli.build.BuildInfo
 import ru.pht.sprout.module.header.ModuleHeader
 import ru.pht.sprout.module.repo.IDownloadable
 import ru.pht.sprout.module.repo.IRepository
@@ -28,10 +27,10 @@ class LocalCacheRepository(
     private val localized: MutableList<MaybeCachedDownloadable>
     private val cached: MutableSet<IDownloadable>
 
-    constructor(buildSystem: BuildInfo) : this(
-        File("${buildSystem.sproutDirectory}/cache/modules").toPath(),
-        File("${buildSystem.sproutDirectory}/cache/modules.json").toPath(),
-        buildSystem.repositories
+    constructor(sproutDirectory: String, repositories: List<IRepository>) : this(
+        File("$sproutDirectory/cache/modules").toPath(),
+        File("$sproutDirectory/cache/modules.json").toPath(),
+        repositories
     )
 
     init {

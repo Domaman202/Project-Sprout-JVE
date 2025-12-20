@@ -41,15 +41,15 @@ class ZipUtilsTest {
             val zip = ZipUtils.zip(tmpZip)
             // Распакуем заголовок
             val header = ZipUtils.unzipHeader(zip)
-            assertEquals(header.name, "pht/example/zip")
-            assertEquals(header.version, "1.0.0".toVersion())
+            assertEquals("pht/example/zip", header.name)
+            assertEquals("1.0.0".toVersion(), header.version)
             // Распакуем в папку
             ZipUtils.unzip(tmpUnzip, zip)
             // Читаем тестовые данные
-            assertEquals(tmpUnzip.resolve("module.pht").readText(), "(module \"pht/module\" {[name \"pht/example/zip\"]} {[vers \"1.0.0\"]})")
-            assertEquals(tmpUnzip.resolve("src/main.pht").readText(), "source content")
-            assertEquals(tmpUnzip.resolve("plg/main.pht").readText(), "plugin content")
-            assertEquals(tmpUnzip.resolve("res/txt/data.txt").readText(), "data content")
+            assertEquals("(module \"pht/module\" {[name \"pht/example/zip\"]} {[vers \"1.0.0\"]})", tmpUnzip.resolve("module.pht").readText())
+            assertEquals("source content", tmpUnzip.resolve("src/main.pht").readText())
+            assertEquals("plugin content", tmpUnzip.resolve("plg/main.pht").readText())
+            assertEquals("data content", tmpUnzip.resolve("res/txt/data.txt").readText(), )
             assertEquals(tmpUnzip.resolve("res/empty").exists(), tmpUnzip.resolve("res/empty").isDirectory())
         } finally {
             tmpZip.deleteRecursively()

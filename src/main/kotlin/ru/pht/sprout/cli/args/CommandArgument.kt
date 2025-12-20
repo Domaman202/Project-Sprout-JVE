@@ -1,6 +1,6 @@
 package ru.pht.sprout.cli.args
 
-import ru.pht.sprout.utils.lang.Translation
+import ru.DmN.translate.TranslationPair
 import java.util.function.Supplier
 
 class CommandArgument(
@@ -9,7 +9,7 @@ class CommandArgument(
 ) {
     class Definition(
         val name: String,
-        val displayedName: Translation,
+        val displayedName: TranslationPair,
         val type: Type,
         val variants: Variants?,
         val optional: Boolean

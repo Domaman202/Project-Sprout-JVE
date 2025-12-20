@@ -1,10 +1,9 @@
-package ru.pht.sprout.utils.fmt
+package ru.pht.sprout.utils
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.EnabledIf
 import kotlin.test.Test
-
 
 @EnabledIf("ru.pht.sprout.TestConfigInternal#fmtTest", disabledReason = "Тест выключен конфигурацией")
 class ErrorFormatterTest {

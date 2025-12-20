@@ -7,13 +7,13 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.condition.EnabledIf
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import ru.DmN.cmd.style.FmtUtils.fmt
+import ru.DmN.translate.Language
 import ru.pht.sprout.module.header.ModuleHeader.Dependency
 import ru.pht.sprout.module.header.ModuleHeader.PathOrDependency
 import ru.pht.sprout.module.header.parser.Parser
 import ru.pht.sprout.module.header.parser.ParserException
 import ru.pht.sprout.utils.ValueOrAny
-import ru.pht.sprout.utils.fmt.FmtUtils.fmt
-import ru.pht.sprout.utils.lang.Language
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -116,33 +116,33 @@ class ParserTest {
         assertEquals(header.authors, listOf("DomamaN202", "Phantom"))
         assertTrue(header.imports.isAny)
         assertTrue(header.exports.isAny)
-        assertEquals(header.features, listOf(Pair("log", true), Pair("fast", false)))
+        assertEquals(header.features, listOf("log" to true, "fast" to false))
         assertEquals(
-            header.source,
             listOf(
                 PathOrDependency.ofPath("src/*"),
                 PathOrDependency.ofPath("src/*.pht"),
                 PathOrDependency.ofPath("src/main.pht"),
                 PathOrDependency.ofDependency(Dependency.Builder().name("pht/example/sources").version(ValueOrAny.any()).build())
-            )
+            ),
+            header.source
         )
         assertEquals(
-            header.resource,
             listOf(
                 PathOrDependency.ofPath("res/*"),
                 PathOrDependency.ofPath("res/*.png"),
                 PathOrDependency.ofPath("res/icon.png"),
                 PathOrDependency.ofDependency(Dependency.Builder().name("pht/example/resources").version(ValueOrAny.any()).build())
-            )
+            ),
+            header.resource
         )
         assertEquals(
-            header.plugin,
             listOf(
                 PathOrDependency.ofPath("plg/*"),
                 PathOrDependency.ofPath("plg/*.pht"),
                 PathOrDependency.ofPath("plg/main.pht"),
                 PathOrDependency.ofDependency(Dependency.Builder().name("pht/example/plugin").version(ValueOrAny.any()).build())
-            )
+            ),
+            header.plugin
         )
     }
 
@@ -158,13 +158,13 @@ class ParserTest {
         val exception1 = assertCauses<LexerException.UncompletedString>(exception0)
         assertEquals(exception1.message, "Uncompleted string".fmt)
         assertEquals(
-            exception0.print(parser, Language.ENGLISH).toString(),
             """
                 [1, 1] (module "pht/module"
                        ^ 
                 [3, 12]     {[vers "1.0.0]})
                                    ^ Uncompleted string
-            """.trimIndent().fmt
+            """.trimIndent().fmt,
+            exception0.print(parser, Language.ENGLISH).toString()
         )
     }
 
@@ -181,13 +181,13 @@ class ParserTest {
         assertEquals(exception1.format, "my/header")
         assertEquals(exception1.message, "Unsupported module format '§sbmy/header§sr'".fmt)
         assertEquals(
-            exception0.print(parser, Language.ENGLISH).toString(),
             """
                 [1, 1] (module "my/header"
                        ^ 
                 [1, 9] (module "my/header"
                                ^~~~~~~~~~~ Unsupported module format '§sbmy/header§sr'
-            """.trimIndent().fmt
+            """.trimIndent().fmt,
+            exception0.print(parser, Language.ENGLISH).toString()
         )
     }
 
@@ -211,7 +211,6 @@ class ParserTest {
         assertEquals(exception1.value, name)
         assertEquals(exception1.message, "Invalid value '§sb$name§sr'".fmt)
         assertEquals(
-            exception0.print(parser, Language.ENGLISH).toString(),
             """
                 [1, 1] (module "pht/module"
                        ^ 
@@ -219,7 +218,8 @@ class ParserTest {
                            ^~ 
                 [2, 12]     {[name "$name"]}
                                    ^${"~".repeat(name.length)}~ Invalid value '§sb$name§sr'
-            """.trimIndent().fmt
+            """.trimIndent().fmt,
+            exception0.print(parser, Language.ENGLISH).toString()
         )
     }
 
@@ -246,7 +246,6 @@ class ParserTest {
         assertEquals(exception1.value, version)
         assertEquals(exception1.message, "Invalid value '§sb$version§sr'".fmt)
         assertEquals(
-            exception0.print(parser, Language.ENGLISH).toString(),
             """
                 [1, 1] (module "pht/module"
                        ^ 
@@ -254,7 +253,8 @@ class ParserTest {
                            ^~ 
                 [3, 12]     {[vers "$version"]})
                                    ^${"~".repeat(version.length)}~ Invalid value '§sb$version§sr'
-            """.trimIndent().fmt
+            """.trimIndent().fmt,
+            exception0.print(parser, Language.ENGLISH).toString()
         )
     }
 
@@ -281,7 +281,6 @@ class ParserTest {
         assertEquals(exception1.value, version)
         assertEquals(exception1.message, "Invalid value '§sb$version§sr'".fmt)
         assertEquals(
-            exception0.print(parser, Language.ENGLISH).toString(),
             """
                 [1, 1] (module "pht/module"
                        ^ 
@@ -293,7 +292,8 @@ class ParserTest {
                                ^~ 
                 [6, 16]         {[vers "$version"]})]]})
                                        ^${"~".repeat(version.length)}~ Invalid value '§sb${version}§sr'
-            """.trimIndent().fmt
+            """.trimIndent().fmt,
+            exception0.print(parser, Language.ENGLISH).toString()
         )
     }
 
@@ -322,7 +322,6 @@ class ParserTest {
         assertEquals(exception1.value, path)
         assertEquals(exception1.message, "Invalid value '§sb$path§sr'".fmt)
         assertEquals(
-            exception0.print(parser, Language.ENGLISH).toString(),
             """
                 [1, 1] (module "pht/module"
                        ^ 
@@ -330,7 +329,8 @@ class ParserTest {
                            ^~ 
                 [4, 12]     {[src ["$path1"]]})
                                    ^${"~".repeat(path1.length)}~ Invalid value '§sb$path§sr'
-            """.trimIndent().fmt
+            """.trimIndent().fmt,
+            exception0.print(parser, Language.ENGLISH).toString()
         )
     }
 
@@ -346,11 +346,11 @@ class ParserTest {
         assertEquals(exception1.field, "version")
         assertEquals(exception1.message, "Uninitialized required field '§sbversion§sr'".fmt)
         assertEquals(
-            exception0.print(parser, Language.ENGLISH).toString(),
             """
                 [1, 1] (module "pht/module"
                        ^ Uninitialized required field '§sbversion§sr'
-            """.trimIndent().fmt
+            """.trimIndent().fmt,
+            exception0.print(parser, Language.ENGLISH).toString()
         )
     }
 
@@ -364,14 +364,14 @@ class ParserTest {
         assertEquals(exception1.expected, listOf(Token.Type.ID_MODULE))
         assertEquals(exception1.message, "Unexpected token '§sbLIST_START§sr', expected tokens of type: §sb['ID_MODULE']".fmt)
         assertEquals(
-            exception0.print(parser, Language.ENGLISH).toString(),
             """
                 [1, 1] ([])
                        ^ 
                 [1, 2] ([])
                         ^ Unexpected token '§sbLIST_START§sr'
                           Expected tokens of type: §sb['ID_MODULE']
-            """.trimIndent().fmt
+            """.trimIndent().fmt,
+            exception0.print(parser, Language.ENGLISH).toString()
         )
     }
 

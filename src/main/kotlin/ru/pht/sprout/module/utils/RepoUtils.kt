@@ -6,6 +6,9 @@ import ru.pht.sprout.module.repo.IDownloadable
 import ru.pht.sprout.module.repo.IRepository
 import ru.pht.sprout.module.repo.cache.ICachingRepository
 
+/**
+ * Утилиты для работы с репозиториями.
+ */
 object RepoUtils {
     /**
      * Поиск отсутствующих и добавления версий модулей в репозиториях.

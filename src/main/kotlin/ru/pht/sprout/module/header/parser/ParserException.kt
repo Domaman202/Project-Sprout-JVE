@@ -1,19 +1,24 @@
 package ru.pht.sprout.module.header.parser
 
+import ru.DmN.translate.Language
+import ru.DmN.translate.exception.ITranslatedThrowable
+import ru.DmN.translate.exception.ThrowableTranslator
 import ru.pht.sprout.module.header.lexer.LexerException
 import ru.pht.sprout.module.header.lexer.Token
-import ru.pht.sprout.utils.fmt.ErrorFormatter
-import ru.pht.sprout.utils.lang.Language
-import ru.pht.sprout.utils.lang.SproutTranslate
-import ru.pht.sprout.utils.lang.exception.TranslatedException
-import ru.pht.sprout.utils.lang.Translation
+import ru.pht.sprout.utils.ErrorFormatter
+import ru.pht.sprout.utils.SproutTranslate
 
-abstract class ParserException : TranslatedException {
+abstract class ParserException : Exception, ITranslatedThrowable<ParserException> {
     abstract val token: Token?
     abstract fun print(parser: Parser, language: Language, builder: StringBuilder = StringBuilder()): StringBuilder
 
-    constructor(translation: Translation) : super(translation = translation)
-    constructor(cause: Throwable) : super(cause = cause, translation = null)
+    override val translator: ThrowableTranslator<ParserException>
+        get() = SproutTranslate.ExceptionTranslator
+    override val message: String?
+        get() = this.translate(Language.ENGLISH)
+
+    constructor() : super()
+    constructor(cause: Throwable) : super(cause)
 
     class ExceptionWrapContext(
         var stage: String,
@@ -23,6 +28,8 @@ abstract class ParserException : TranslatedException {
     abstract class Wrapped(val context: ExceptionWrapContext, open val exception: Throwable) : ParserException(exception) {
         override val token: Token?
             get() = context.lastToken
+        override val message: String?
+            get() = null
 
         class FromLexer(context: ExceptionWrapContext, override val exception: LexerException) : Wrapped(context, exception) {
             override fun print(parser: Parser, language: Language, builder: StringBuilder): StringBuilder =
@@ -50,7 +57,7 @@ abstract class ParserException : TranslatedException {
         }
     }
 
-    class UnsupportedHeader(override val token: Token?, val format: String) : ParserException(SproutTranslate.of<UnsupportedHeader>()) {
+    class UnsupportedHeader(override val token: Token?, val format: String) : ParserException() {
         override fun print(parser: Parser, language: Language, builder: StringBuilder): StringBuilder =
             token?.let {
                 builder.append(ErrorFormatter.formatErrorWithToken(
@@ -62,12 +69,9 @@ abstract class ParserException : TranslatedException {
                     message!!
                 ))
             } ?: builder.append(message)
-
-        override fun translate(language: Language): String? =
-            this.translation?.translate(language, Pair("format", this.format))
     }
 
-    class ValidationException(override val token: Token?, val value: String) : ParserException(SproutTranslate.of<ValidationException>()) {
+    class ValidationException(override val token: Token?, val value: String) : ParserException() {
         override fun print(parser: Parser, language: Language, builder: StringBuilder): StringBuilder =
             token?.let {
                 builder.append(ErrorFormatter.formatErrorWithToken(
@@ -79,12 +83,9 @@ abstract class ParserException : TranslatedException {
                     message!!
                 ))
             } ?: builder.append(message)
-
-        override fun translate(language: Language): String? =
-            this.translation?.translate(language, Pair("value", this.value))
     }
 
-    class NotInitializedException(override val token: Token?, val field: String) : ParserException(SproutTranslate.of<NotInitializedException>()) {
+    class NotInitializedException(override val token: Token?, val field: String) : ParserException() {
         override fun print(parser: Parser, language: Language, builder: StringBuilder): StringBuilder =
             token?.let {
                 builder.append(ErrorFormatter.formatErrorWithToken(
@@ -96,12 +97,9 @@ abstract class ParserException : TranslatedException {
                     message!!
                 ))
             } ?: builder.append(message)
-
-        override fun translate(language: Language): String? =
-            this.translation?.translate(language, Pair("field", this.field))
     }
 
-    class UnexpectedToken(val accepted: Token, val expected: List<Token.Type>) : ParserException(SproutTranslate.of<UnexpectedToken>()) {
+    class UnexpectedToken(val accepted: Token, val expected: List<Token.Type>) : ParserException() {
         override val token: Token
             get() = this.accepted
 
@@ -114,10 +112,17 @@ abstract class ParserException : TranslatedException {
                 accepted.position.end - accepted.position.start,
                 accepted.position.line,
                 accepted.position.column,
-                SproutTranslate.of<UnexpectedToken>("print").translate(language, Pair("expected", this.expected.map { "'$it'" }), Pair("accepted", this.accepted.type))
+                SproutTranslate.of<UnexpectedToken>(language, "print", "expected" to this.expected.map { "'$it'" }, "accepted" to this.accepted.type)
             ))
 
-        override fun translate(language: Language): String =
-            this.translation!!.translate(language, Pair("expected", this.expected.map { "'$it'" }), Pair("accepted", this.accepted.type))
+        override val translator: ThrowableTranslator<ParserException>
+            get() = Companion
+
+        private companion object : ThrowableTranslator<ParserException>() {
+            override fun translate(language: Language, throwable: ParserException): String =
+                if (throwable !is UnexpectedToken)
+                    SproutTranslate.ExceptionTranslator.translate(language, throwable)
+                else SproutTranslate.of<UnexpectedToken>(language, "expected" to throwable.expected.map { "'$it'" }, "accepted" to throwable.accepted.type)
+        }
     }
 }

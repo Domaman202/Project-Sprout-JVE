@@ -1,7 +1,7 @@
 package ru.pht.sprout.cli.args
 
+import ru.DmN.translate.Language
 import ru.pht.sprout.cli.args.CommandArgument.Type.*
-import ru.pht.sprout.utils.lang.Language
 
 class ArgumentsParser(
     val args: Array<String>,
@@ -55,7 +55,10 @@ class ArgumentsParser(
             cmdI++
         }
         // Проверка аргументов
-
+        val definedArgs = arguments.map { it.definition.name }
+        val undefinedArgs = definition.arguments.filter { !it.optional && !definedArgs.contains(it.name) }
+        if (undefinedArgs.isNotEmpty())
+            throw ArgumentsParserException("Неуказаны обязательные аргументы: ${definedArgs.joinToString(", ")}")
         //
         return Command(definition, arguments)
     }

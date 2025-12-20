@@ -2,8 +2,8 @@ package ru.pht.sprout.utils
 
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.EnabledIf
-import ru.pht.sprout.utils.fmt.FmtUtils.fmt
-import ru.pht.sprout.utils.lang.Language
+import ru.DmN.cmd.style.FmtUtils.fmt
+import ru.DmN.translate.Language
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -12,6 +12,14 @@ class NotInitializedExceptionTest {
     @Test
     @DisplayName("Перевод")
     fun translateTest() {
-        assertEquals(NotInitializedException("i").translate(Language.ENGLISH), "Uninitialized required field 'i'".fmt)
+        val exception = NotInitializedException("i")
+        assertEquals(
+            "Uninitialized required field 'i'".fmt,
+            exception.message
+        )
+        assertEquals(
+            "Uninitialized required field 'i'".fmt,
+            exception.translate(Language.ENGLISH)
+        )
     }
 }

@@ -1,4 +1,4 @@
-package ru.pht.sprout.utils.fmt
+package ru.pht.sprout.utils
 
 object ErrorFormatter {
     /**

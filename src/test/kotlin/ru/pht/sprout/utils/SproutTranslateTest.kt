@@ -1,10 +1,10 @@
-package ru.pht.sprout.utils.lang
+package ru.pht.sprout.utils
 
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.EnabledIf
+import ru.DmN.cmd.style.FmtUtils.fmt
+import ru.DmN.translate.Language
 import ru.pht.sprout.cli.App
-import ru.pht.sprout.utils.NotValueException
-import ru.pht.sprout.utils.fmt.FmtUtils.fmt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -14,10 +14,8 @@ class SproutTranslateTest {
     @DisplayName("Метод of")
     fun ofTest() {
         assertEquals(
-            SproutTranslate
-                .of<NotValueException>()
-                .translate(Language.ENGLISH),
-            "Value has not been set".fmt
+            "Value has not been set".fmt,
+            SproutTranslate.of<NotValueException>(Language.ENGLISH)
         )
     }
 
@@ -25,10 +23,8 @@ class SproutTranslateTest {
     @DisplayName("Метод of с параметром key")
     fun ofKeyTest() {
         assertEquals(
-            SproutTranslate
-                .of<App>("cmd.help.desc")
-                .translate(Language.ENGLISH),
-            "Print it text / Help about command".fmt
+            "Print it text / Help about command".fmt,
+            SproutTranslate.of<App>(Language.ENGLISH, "cmd.help.desc")
         )
     }
 
@@ -36,8 +32,8 @@ class SproutTranslateTest {
     @DisplayName("Метод translate")
     fun translateTest() {
         assertEquals(
-            SproutTranslate.translate<App>(Language.ENGLISH, "printHelp.command", Pair("long", "help")),
-            "§sb[§f4help§sr§sb]".fmt
+            "§sb[§f4help§sr§sb]".fmt,
+            SproutTranslate.of<App>(Language.ENGLISH, "printHelp.command", "long" to "help")
         )
     }
 }

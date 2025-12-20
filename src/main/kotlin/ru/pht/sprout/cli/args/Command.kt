@@ -1,6 +1,6 @@
 package ru.pht.sprout.cli.args
 
-import ru.pht.sprout.utils.lang.Translation
+import ru.DmN.translate.TranslationPair
 
 class Command(
     val definition: Definition,
@@ -13,6 +13,6 @@ class Command(
         val short: String?,
         val long: String,
         val arguments: Array<CommandArgument.Definition>,
-        val description: Translation?
+        val description: TranslationPair?
     )
 }

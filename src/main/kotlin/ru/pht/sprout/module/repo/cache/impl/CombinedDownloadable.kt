@@ -2,10 +2,10 @@ package ru.pht.sprout.module.repo.cache.impl
 
 import io.github.z4kn4fein.semver.Version
 import kotlinx.io.IOException
+import ru.DmN.translate.TranslationKey
 import ru.pht.sprout.module.header.ModuleHeader
 import ru.pht.sprout.module.repo.IDownloadable
-import ru.pht.sprout.utils.lang.SproutTranslate
-import ru.pht.sprout.utils.lang.exception.TranslatedIllegalArgumentException
+import ru.pht.sprout.utils.SproutIllegalArgumentException
 import java.nio.file.Path
 
 /**
@@ -79,7 +79,7 @@ class CombinedDownloadable(
             val first = combine.first()
             if (combine.all { it.name == first.name && it.version == first.version && it.hash == first.hash })
                 return CombinedDownloadable(combine, first.name, first.version, first.hash)
-            throw TranslatedIllegalArgumentException(SproutTranslate.of<CombinedDownloadable>("of"), Pair("name", "${first.name}@${first.version}"))
+            throw SproutIllegalArgumentException(TranslationKey.of<CombinedDownloadable>("exception"), "name" to "${first.name}@${first.version}")
         }
 
         /**

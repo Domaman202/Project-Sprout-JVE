@@ -9,6 +9,7 @@ version = "1.0.0"
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
@@ -16,15 +17,16 @@ dependencies {
 
     // Хеш SHA-512
     implementation("org.kotlincrypto.hash:sha2-512:0.2.7")
-    // Форматирование строк
-    implementation("com.github.pwittchen.kirai:library:1.4.1")
+    // Цвета
+    implementation("io.github.domaman202:CmdStyleKt:${project.properties["cmdstyle_version"]}")
+    // Перевод
+    implementation("io.github.domaman202:TranslateKt:${project.properties["translate_version"]}")
     // Версии
     implementation("io.github.z4kn4fein:semver:${project.properties["semver_version"]}")
     // Https
     implementation("io.ktor:ktor-client-core:${project.properties["ktor_version"]}")
     implementation("io.ktor:ktor-client-cio:${project.properties["ktor_version"]}")
     implementation("io.ktor:ktor-client-apache5:3.3.3")
-
     implementation("io.ktor:ktor-client-content-negotiation:${project.properties["ktor_version"]}")
     implementation("io.ktor:ktor-serialization-kotlinx-json:${project.properties["ktor_version"]}")
     // Сериализация
@@ -32,10 +34,9 @@ dependencies {
     // Корутины
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${project.properties["coroutines_version"]}")
     // Логирование
-    implementation("io.ktor:ktor-client-logging:3.3.3")
-    implementation("org.slf4j:slf4j-api:2.1.0-alpha1")
-    implementation("org.slf4j:slf4j-simple:2.1.0-alpha1")
-    implementation("io.ktor:ktor-client-apache:3.3.3")
+    implementation("io.ktor:ktor-client-logging:${project.properties["ktor_version"]}")
+    implementation("org.slf4j:slf4j-api:${project.properties["slf4j_version"]}")
+    implementation("org.slf4j:slf4j-simple:${project.properties["slf4j_version"]}")
 
     // ===== ТЕСТОВЫЕ ===== //
 

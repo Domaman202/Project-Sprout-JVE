@@ -26,15 +26,15 @@ class LocalCacheRepositoryTest {
                 listOf(TestRepositoryA, TestRepositoryC, TestRepositoryD, AssertNoCacheRepository)
             )
             val find = repository.find("test/a", ">=2.0.0".toConstraint())
-            assertEquals(find.size, 2)
+            assertEquals(2, find.size)
             assertEquals(
-                find.map { "${it.name}@${it.version}" },
-                listOf("test/a@2.0.0", "test/a@3.0.0")
+                listOf("test/a@2.0.0", "test/a@3.0.0"),
+                find.map { "${it.name}@${it.version}" }
             )
             val (first, second) = find
             if (first is CombinedDownloadable && second is CombinedDownloadable) {
-                assertEquals(first.originals, listOf(TestDownloadableA200A, TestDownloadableA200C))
-                assertEquals(second.originals, listOf(TestDownloadableA300A, TestDownloadableA300D))
+                assertEquals(listOf(TestDownloadableA200A, TestDownloadableA200C), first.originals)
+                assertEquals(listOf(TestDownloadableA300A, TestDownloadableA300D), second.originals)
             }
             assertTrue(repository.findAllCached().isEmpty())
         }
@@ -55,14 +55,14 @@ class LocalCacheRepositoryTest {
             assertNotEquals(first.hash, TestDownloadableB200DCrack.hash)
             if (first is CombinedDownloadable) {
                 assertEquals(
-                    first.originals,
                     listOf(
                         TestDownloadableB200B,
                         TestDownloadableB200D,
                         // Компрометация идёт со стороны репозитория - хеш не совпадёт с остальными репозиториями.
                         // Это выявляется в момент получения ссылки, поэтому сам ресурс не проходит.
 //                        TestDownloadableB200DCrack
-                    )
+                    ),
+                    first.originals
                 )
             }
             assertTrue(repository.findAllCached().isEmpty())
@@ -85,15 +85,15 @@ class LocalCacheRepositoryTest {
             assertTrue(repository.findAllCachedAsync().isEmpty())
             // Поломка заголовка
             val findA = repository.find("test/a", "3.0.0".toConstraint())
-            assertEquals(findA.size, 1)
-            assertEquals(findA.first().header().name, "test/a")
-            assertEquals(findA.first().headerAsync().name, "test/a")
+            assertEquals(1, findA.size)
+            assertEquals("test/a", findA.first().header().name)
+            assertEquals("test/a", findA.first().headerAsync().name)
             // Проверка кеширования
             assertEquals(repository.findAllCachedAsync().size, 1)
             // Поломка скачивания
             useTmpDir("ProjectSprout.NoCacheRepositoryTest.findFilterCombineDownloadTest.sync") { tmp ->
                 val find = repository.find("test/b", "2.0.0".toConstraint())
-                assertEquals(find.size, 1)
+                assertEquals(1, find.size)
                 val download = find.first()
                 val zip = tmp.resolve("module.zip")
                 download.downloadZip(zip)
@@ -106,7 +106,7 @@ class LocalCacheRepositoryTest {
             // Поломка асинхронного скачивания
             useTmpDir("ProjectSprout.NoCacheRepositoryTest.findFilterCombineDownloadTest.async") { tmp ->
                 val find = repository.findAsync("test/b", "2.0.0".toConstraint())
-                assertEquals(find.size, 1)
+                assertEquals(1, find.size)
                 val download = find.first()
                 val zip = tmp.resolve("module.zip")
                 download.downloadZipAsync(zip)
@@ -117,7 +117,7 @@ class LocalCacheRepositoryTest {
                 assertTrue(tmpUnzip.resolve("test/b/module.pht").exists())
             }
             // Проверка кеширования
-            assertEquals(repository.findAllCachedAsync().size, 2)
+            assertEquals(2, repository.findAllCachedAsync().size)
         }
     }
 
@@ -133,7 +133,7 @@ class LocalCacheRepositoryTest {
                     listOf(TestRepositoryA)
                 )
                 val find = original.find("test/a", ">=2.0.0".toConstraint())
-                assertEquals(find.size, 2)
+                assertEquals(2, find.size)
                 useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest.original") { tmp ->
                     find.forEach { it.downloadZip(tmp.resolve("${it.name}@${it.version}")) }
                     assertTrue(tmp.resolve("test/a@2.0.0").exists())
@@ -147,9 +147,9 @@ class LocalCacheRepositoryTest {
                     tmp.resolve("modules.json"),
                     emptyList()
                 )
-                assertEquals(cached.findAllCached().size, 2)
+                assertEquals(2, cached.findAllCached().size)
                 val find = cached.find("test/a", ">=1.0.0".toConstraint())
-                assertEquals(find.size, 2)
+                assertEquals(2, find.size)
                 useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest.cached") { tmp ->
                     find.forEach { it.downloadZip(tmp.resolve("${it.name}@${it.version}")) }
                     assertTrue(tmp.resolve("test/a@2.0.0").exists())
@@ -163,9 +163,9 @@ class LocalCacheRepositoryTest {
                     tmp.resolve("modules.json"),
                     listOf(TestRepositoryA)
                 )
-                assertEquals(new.findAllCached().size, 2)
+                assertEquals(2, new.findAllCached().size)
                 val find = new.find("test/a", ">=1.0.0".toConstraint())
-                assertEquals(find.size, 4)
+                assertEquals(4, find.size)
                 useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest.new") { tmp ->
                     find.forEach { it.downloadZip(tmp.resolve("${it.name}@${it.version}")) }
                     assertTrue(tmp.resolve("test/a@1.0.0").exists())
@@ -173,7 +173,7 @@ class LocalCacheRepositoryTest {
                     assertTrue(tmp.resolve("test/a@2.0.0").exists())
                     assertTrue(tmp.resolve("test/a@3.0.0").exists())
                 }
-                assertEquals(new.findAllCached().size, 4)
+                assertEquals(4, new.findAllCached().size)
             }
         }
     }
@@ -188,10 +188,9 @@ class LocalCacheRepositoryTest {
                 listOf(TestRepositoryA, TestRepositoryC, TestRepositoryD, AssertNoCacheRepository)
             )
             val list = repository.findAll()
-            assertEquals(list.size, 8)
+            assertEquals(8, list.size)
             if (list.all { it is CombinedDownloadable }) {
                 assertEquals(
-                    list.map { (it as CombinedDownloadable).originals }.sortedBy { it.hashCode() },
                     listOf(
                         listOf(TestDownloadableA100A, TestDownloadableA100C),
                         listOf(TestDownloadableA110A, TestDownloadableA110C),
@@ -201,11 +200,12 @@ class LocalCacheRepositoryTest {
                         listOf(TestDownloadableB200A, TestDownloadableB200D),
                         listOf(TestDownloadableC100A),
                         listOf(TestDownloadableD100A)
-                    ).sortedBy { it.hashCode() }
+                    ).sortedBy { it.hashCode() },
+                    list.map { (it as CombinedDownloadable).originals }.sortedBy { it.hashCode() }
                 )
             }
             val find = repository.find("test/a", "1.0.0".toConstraint())
-            assertEquals(find.size, 1)
+            assertEquals(1, find.size)
             assertContains(list, find.first())
             assertTrue(repository.findAllCached().isEmpty())
         }
@@ -221,10 +221,9 @@ class LocalCacheRepositoryTest {
                 listOf(TestRepositoryB, TestRepositoryD, TestRepositoryDCrack)
             )
             val list = repository.findAll()
-            assertEquals(list.size, 6)
+            assertEquals(6, list.size)
             if (list.all { it is CombinedDownloadable }) {
                 assertEquals(
-                    list.map { (it as CombinedDownloadable).originals }.sortedBy { it.hashCode() },
                     listOf(
                         listOf(TestDownloadableA100B),
                         listOf(TestDownloadableA110B),
@@ -238,7 +237,8 @@ class LocalCacheRepositoryTest {
                         // Это выявляется в момент получения ссылки, поэтому сам ресурс не проходит.
                         listOf(TestDownloadableB200B, TestDownloadableB200D)
 //                        listOf(TestDownloadableB200B, TestDownloadableB200D, TestDownloadableB200DCrack)
-                    ).sortedBy { it.hashCode() }
+                    ).sortedBy { it.hashCode() },
+                    list.map { (it as CombinedDownloadable).originals }.sortedBy { it.hashCode() }
                 )
             }
             assertTrue(repository.findAllCached().isEmpty())

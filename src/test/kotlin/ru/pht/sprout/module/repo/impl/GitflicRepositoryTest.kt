@@ -20,11 +20,11 @@ class GitflicRepositoryTest {
     @DisplayName("Поиск конкретного модуля")
     fun findTest() {
         val find = REPO.find("pht/example/example-gitflic-module", "1.0.0".toConstraint())
-        assertEquals(find.size, 1)
+        assertEquals(1, find.size)
         val download = find.first()
         val header = download.header()
-        assertEquals(header.name, "pht/example/example-gitflic-module")
-        assertEquals(header.version, "1.0.0".toVersion())
+        assertEquals("pht/example/example-gitflic-module", header.name)
+        assertEquals("1.0.0".toVersion(), header.version)
         useTmpDir("ProjectSprout.GitflicRepositoryTest.findTest") { tmp ->
             val zip = tmp.resolve("module.zip")
             download.downloadZip(zip)
@@ -45,7 +45,7 @@ class GitflicRepositoryTest {
         val all = REPO.findAll()
         assertTrue(all.isNotEmpty())
         val find = REPO.find("pht/example/example-gitflic-module", "1.0.0".toConstraint())
-        assertEquals(find.size, 1)
+        assertEquals(1, find.size)
         assertContains(all, find.first())
     }
 
@@ -53,7 +53,7 @@ class GitflicRepositoryTest {
     @DisplayName("Верификация во время загрузки")
     fun verifyTest() {
         val find = REPO.find("pht/example/crack-example-gitflic-module", "1.0.1".toConstraint())
-        assertEquals(find.size, 1)
+        assertEquals(1, find.size)
         val download = find.first()
         useTmpDir("ProjectSprout.GitflicRepositoryTest.verifyTest") { tmp ->
             assertThrows<IOException> { download.header() }

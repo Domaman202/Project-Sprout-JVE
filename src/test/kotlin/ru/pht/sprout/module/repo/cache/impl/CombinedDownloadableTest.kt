@@ -6,12 +6,12 @@ import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import ru.DmN.cmd.style.FmtUtils.fmt
+import ru.DmN.translate.Language
 import ru.pht.sprout.module.repo.impl.*
 import ru.pht.sprout.module.utils.ZipUtils
 import ru.pht.sprout.module.utils.useTmpDir
-import ru.pht.sprout.utils.fmt.FmtUtils.fmt
-import ru.pht.sprout.utils.lang.Language
-import ru.pht.sprout.utils.lang.exception.TranslatedIllegalArgumentException
+import ru.pht.sprout.utils.SproutIllegalArgumentException
 import kotlin.io.path.createDirectory
 import kotlin.io.path.exists
 import kotlin.io.path.readBytes
@@ -30,11 +30,16 @@ class CombinedDownloadableTest {
     @Test
     @DisplayName("Провальный of")
     fun ofFailTest() {
+        val exception = assertThrows<SproutIllegalArgumentException> {
+            CombinedDownloadable.of(listOf(TestDownloadableA100A, TestDownloadableA200A))
+        }
         assertEquals(
-            assertThrows<TranslatedIllegalArgumentException> {
-                CombinedDownloadable.of(listOf(TestDownloadableA100A, TestDownloadableA200A))
-            }.translate(Language.ENGLISH),
-            "Not all sources in the list belong to module '§sbtest/a@1.0.0§sr'".fmt
+            "Not all sources in the list belong to module '§sbtest/a@1.0.0§sr'".fmt,
+            exception.message
+        )
+        assertEquals(
+            "Not all sources in the list belong to module '§sbtest/a@1.0.0§sr'".fmt,
+            exception.translate(Language.ENGLISH)
         )
     }
 
@@ -48,8 +53,8 @@ class CombinedDownloadableTest {
             else listOf(TestDownloadableA300D, TestDownloadableA300DBroken)
         )
         // Поломка заголовка
-        assertEquals(download.header().name, "test/a")
-        assertEquals(download.headerAsync().name, "test/a")
+        assertEquals("test/a", download.header().name)
+        assertEquals("test/a", download.headerAsync().name)
         // Поломка скачивания
         useTmpDir("ProjectSprout.CombinedDownloadableTest.faultToleranceTest.sync") { tmp ->
             val zip = tmp.resolve("module.zip")

@@ -5,7 +5,13 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.logging.*
 
+/**
+ * Утилиты для работы с сетевым соединением.
+ */
 object HttpUtils {
+    /**
+     * [io.ktor.client.HttpClient] с выключенным логированием.
+     */
     fun clientWithoutLogging(): HttpClient = HttpClient(CIO) {
         install(Logging) {
             level = LogLevel.NONE

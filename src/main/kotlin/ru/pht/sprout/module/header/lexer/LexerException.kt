@@ -1,21 +1,26 @@
 package ru.pht.sprout.module.header.lexer
 
-import ru.pht.sprout.utils.fmt.ErrorFormatter
-import ru.pht.sprout.utils.lang.Language
-import ru.pht.sprout.utils.lang.SproutTranslate
-import ru.pht.sprout.utils.lang.exception.TranslatedException
-import ru.pht.sprout.utils.lang.Translation
+import ru.DmN.translate.Language
+import ru.DmN.translate.exception.ITranslatedThrowable
+import ru.DmN.translate.exception.ThrowableTranslator
+import ru.pht.sprout.utils.ErrorFormatter
+import ru.pht.sprout.utils.SproutTranslate
 
 /**
  * Исключение лексического анализатора.
  */
-abstract class LexerException(translation: Translation) : TranslatedException(translation) {
+abstract class LexerException : Exception(), ITranslatedThrowable<LexerException> {
     abstract fun print(lexer: Lexer, language: Language, builder: StringBuilder = StringBuilder()): StringBuilder
+
+    override val translator: ThrowableTranslator<LexerException>
+        get() = SproutTranslate.ExceptionTranslator
+    override val message: String
+        get() = this.translate(Language.ENGLISH)
 
     /**
      * Идентификатор не существует.
      */
-    class InvalidIdentifier(val snapshot: Lexer.Snapshot, val identifier: String) : LexerException(SproutTranslate.of<InvalidIdentifier>()) {
+    class InvalidIdentifier(val snapshot: Lexer.Snapshot, val identifier: String) : LexerException() {
         override fun print(lexer: Lexer, language: Language, builder: StringBuilder): StringBuilder =
             builder.append(ErrorFormatter.formatErrorWithToken(lexer.source, snapshot.start, identifier.length, snapshot.startLine, snapshot.startColumn, message!!))
     }
@@ -23,7 +28,7 @@ abstract class LexerException(translation: Translation) : TranslatedException(tr
     /**
      * Неизвестный / неожиданный символ.
      */
-    class UnexpectedSymbol(val symbol: Char) : LexerException(SproutTranslate.of<UnexpectedSymbol>()) {
+    class UnexpectedSymbol(val symbol: Char) : LexerException() {
         override fun print(lexer: Lexer, language: Language, builder: StringBuilder): StringBuilder =
             builder.append(ErrorFormatter.formatErrorWithToken(lexer.source, lexer.ptr - 1, 1, lexer.line, lexer.column - 1, message!!))
     }
@@ -31,7 +36,7 @@ abstract class LexerException(translation: Translation) : TranslatedException(tr
     /**
      * Строка не была завершена.
      */
-    class UncompletedString(val snapshot: Lexer.Snapshot) : LexerException(SproutTranslate.of<UncompletedString>()) {
+    class UncompletedString(val snapshot: Lexer.Snapshot) : LexerException() {
         override fun print(lexer: Lexer, language: Language, builder: StringBuilder): StringBuilder =
             builder.append(ErrorFormatter.formatErrorWithToken(lexer.source, snapshot.start, 1, snapshot.startLine, snapshot.startColumn, message!!))
     }
@@ -39,7 +44,7 @@ abstract class LexerException(translation: Translation) : TranslatedException(tr
     /**
      * Достигнут конец файла.
      */
-    class EOF : LexerException(SproutTranslate.of<EOF>()) {
+    class EOF : LexerException() {
         override fun print(lexer: Lexer, language: Language, builder: StringBuilder): StringBuilder =
             builder.append(this.message)
     }

@@ -1,13 +1,14 @@
 package ru.pht.sprout.cli
 
+import ru.DmN.cmd.style.FmtUtils.fmt
+import ru.DmN.translate.Language
+import ru.DmN.translate.TranslationKey
+import ru.DmN.translate.TranslationPair
 import ru.pht.sprout.cli.args.ArgumentsParser
 import ru.pht.sprout.cli.args.Command
 import ru.pht.sprout.cli.args.CommandArgument
 import ru.pht.sprout.cli.build.BuildInfo
-import ru.pht.sprout.utils.fmt.FmtUtils.fmt
-import ru.pht.sprout.utils.lang.Language
-import ru.pht.sprout.utils.lang.SproutTranslate
-import ru.pht.sprout.utils.lang.Translation
+import ru.pht.sprout.utils.SproutTranslate
 import java.util.*
 
 object App {
@@ -53,10 +54,18 @@ object App {
     }
 
     private fun printHelp(command: Command.Definition) {
-        println(translate("printHelp.command", Pair("long", command.long)))
-        println(if (command.short == null) translate("printHelp.noShort") else translate("printHelp.short", Pair("short", command.short)))
-        println(translate("printHelp.long", Pair("long", command.long)))
-        println(if (command.description == null) translate("printHelp.noDescription") else translate("printHelp.description", Pair("description", command.description.translate(LANG))))
+        println(translate("printHelp.command", "long" to command.long))
+        println(
+            if (command.short == null)
+                translate("printHelp.noShort")
+            else translate("printHelp.short", "short" to command.short)
+        )
+        println(translate("printHelp.long", "long" to command.long))
+        println(
+            if (command.description == null)
+                translate("printHelp.noDescription")
+            else translate("printHelp.description", "description" to command.description.translate(LANG))
+        )
     }
 
     private fun printInfo() {
@@ -66,28 +75,28 @@ object App {
         println("§sb§bc§f0       IN       §sb§bc§f0        BY        ".fmt)
         println("§sb§b9§f0     RUSSIA     §sb§b9§f0     QUMUQLAR     ".fmt)
         println()
-        println(translate("printInfo.os",   Pair("name", System.getProperty("os.name")), Pair("version", System.getProperty("os.version"))))
-        println(translate("printInfo.java", Pair("version", System.getProperty("java.version")), Pair("vendor", System.getProperty("java.vendor"))))
-        println(translate("printInfo.lang", Pair("name", LANG.name)))
+        println(translate("printInfo.os",   "name"    to System.getProperty("os.name"),      "version" to System.getProperty("os.version")))
+        println(translate("printInfo.java", "version" to System.getProperty("java.version"), "vendor"  to System.getProperty("java.vendor")))
+        println(translate("printInfo.lang"))
         println()
         printVersionInfo()
         println()
-        println(translate("printInfo.build.module",     Pair("status", if (BUILD_INFO.tryParseModule()) "§f6${BUILD_INFO.moduleHeader!!.name}" else if (BUILD_INFO.moduleHeaderError == null) "§f1Не найден" else "§f1Ошибка чтения")))
-        println(translate("printInfo.build.download",   Pair("download", BUILD_INFO.cachingRepository.findAllCached().size)))
-        println(translate("printInfo.build.repository", Pair("repository", BUILD_INFO.repositories.size)))
+        println(translate("printInfo.build.module",     "status"     to if (BUILD_INFO.tryParseModule()) "§f6${BUILD_INFO.moduleHeader!!.name}" else if (BUILD_INFO.moduleHeaderError == null) "§f1Не найден" else "§f1Ошибка чтения"))
+        println(translate("printInfo.build.download",   "download"   to BUILD_INFO.cachingRepository.findAllCached().size))
+        println(translate("printInfo.build.repository", "repository" to BUILD_INFO.repositories.size))
     }
 
     private fun printVersionInfo() {
         println(translate("printInfo.project.name"))
-        println(translate("printInfo.project.version",  Pair("version", VERSION)))
-        println(translate("printInfo.project.author",   Pair("author", AUTHOR)))
+        println(translate("printInfo.project.version",  "version" to VERSION))
+        println(translate("printInfo.project.author",   "author"  to AUTHOR))
     }
 
     private fun translate(key: String, vararg args: Pair<String, Any?>): String =
-        SproutTranslate.translate<App>(LANG, key, *args)
+        SproutTranslate.of<App>(LANG, key, *args)
 
-    private fun translation(key: String): Translation =
-        SproutTranslate.of<App>(key)
+    private fun translationPair(group: String): TranslationPair =
+        TranslationPair(TranslationKey("${App.javaClass.name}.$group"), SproutTranslate)
 
     init {
         COMMANDS = arrayOf(
@@ -97,25 +106,25 @@ object App {
                 arrayOf(
                     CommandArgument.Definition(
                         "command",
-                        translation("cmd.help.arg0"),
+                        translationPair("cmd.help.arg0"),
                         CommandArgument.Type.VARIATION,
                         CommandArgument.Variants.of { COMMANDS.map { it.long } },
                         true
                     )
                 ),
-                translation("cmd.help.desc")
+                translationPair("cmd.help.desc")
             ),
             Command.Definition(
                 "v",
                 "version",
                 emptyArray(),
-                translation("cmd.version.desc")
+                translationPair("cmd.version.desc")
             ),
             Command.Definition(
                 null,
                 "shell",
                 emptyArray(),
-                translation("cmd.help.desc")
+                translationPair("cmd.help.desc")
             )
         )
     }

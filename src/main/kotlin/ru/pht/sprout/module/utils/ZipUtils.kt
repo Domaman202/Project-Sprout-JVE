@@ -14,6 +14,9 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.*
 
+/**
+ * Утилиты для работы с архивами.
+ */
 object ZipUtils {
     /**
      * Вычисление хеша SHA-512 для массива байт.

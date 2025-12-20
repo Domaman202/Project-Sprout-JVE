@@ -3,9 +3,9 @@ package ru.pht.sprout.module.header.lexer
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.condition.EnabledIf
+import ru.DmN.cmd.style.FmtUtils.fmt
+import ru.DmN.translate.Language
 import ru.pht.sprout.module.header.lexer.Token.Type.*
-import ru.pht.sprout.utils.fmt.FmtUtils.fmt
-import ru.pht.sprout.utils.lang.Language
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -94,8 +94,8 @@ class LexerTest {
     @DisplayName("Токенизация строки")
     fun stringTokenTest() {
         val token = Lexer("\"Какой-то текст\\\\\\\"\\n\\r\\t\"").next()
-        assertEquals(token.type, STRING)
-        assertEquals(token.value, "Какой-то текст\\\"\n\r\t")
+        assertEquals(STRING, token.type)
+        assertEquals("Какой-то текст\\\"\n\r\t", token.value)
     }
 
     @Test
@@ -103,8 +103,8 @@ class LexerTest {
     fun invalidIdentifierThrowTest() {
         val lexer = Lexer("xxx")
         val exception = assertThrows<LexerException.InvalidIdentifier> { lexer.next() }
-        assertEquals(exception.message, "Invalid identifier".fmt)
-        assertEquals(exception.identifier, "xxx")
+        assertEquals("Invalid identifier".fmt, exception.message)
+        assertEquals("xxx", exception.identifier)
         assertEquals(
             """
                 [1, 1] xxx
@@ -119,8 +119,8 @@ class LexerTest {
     fun unexpectedSymbolThrowTest0() {
         val lexer = Lexer("$")
         val exception = assertThrows<LexerException.UnexpectedSymbol> { lexer.next() }
-        assertEquals(exception.message, "Unexpected symbol".fmt)
-        assertEquals(exception.symbol, '$')
+        assertEquals("Unexpected symbol".fmt, exception.message)
+        assertEquals('$', exception.symbol)
         assertEquals(
             """
                 [1, 1] $
@@ -135,8 +135,8 @@ class LexerTest {
     fun unexpectedSymbolThrowTest1() {
         val lexer = Lexer("[*)")
         val exception = assertThrows<LexerException.UnexpectedSymbol> { lexer.next() }
-        assertEquals(exception.message, "Unexpected symbol".fmt)
-        assertEquals(exception.symbol, ')')
+        assertEquals("Unexpected symbol".fmt, exception.message)
+        assertEquals(')', exception.symbol)
         assertEquals(
             """
                 [1, 3] [*)
@@ -151,8 +151,8 @@ class LexerTest {
     fun unexpectedSymbolInStringThrowTest() {
         val lexer = Lexer("\"\\$\"")
         val exception = assertThrows<LexerException.UnexpectedSymbol> { lexer.next() }
-        assertEquals(exception.message, "Unexpected symbol".fmt)
-        assertEquals(exception.symbol, '$')
+        assertEquals("Unexpected symbol".fmt, exception.message)
+        assertEquals('$', exception.symbol)
         assertEquals(
             """
                 [1, 3] "\$"
@@ -167,7 +167,7 @@ class LexerTest {
     fun uncompletedStringThrowTest() {
         val lexer = Lexer("\"")
         val exception = assertThrows<LexerException.UncompletedString> { lexer.next() }
-        assertEquals(exception.message, "Uncompleted string".fmt)
+        assertEquals("Uncompleted string".fmt, exception.message)
         assertEquals(
             """
                 [1, 1] "
@@ -183,7 +183,7 @@ class LexerTest {
     fun eofThrowTest() {
         val lexer = Lexer("")
         val exception = assertThrows<LexerException.EOF> { lexer.next() }
-        assertEquals(exception.message, "The lexical analyzer has reached the end of the source being processed".fmt)
+        assertEquals("The lexical analyzer has reached the end of the source being processed".fmt, exception.message)
         assertEquals(
             "The lexical analyzer has reached the end of the source being processed".fmt,
             exception.print(lexer, Language.ENGLISH).toString()

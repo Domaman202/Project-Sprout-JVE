@@ -3,8 +3,8 @@ package ru.pht.sprout.utils
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.condition.EnabledIf
-import ru.pht.sprout.utils.fmt.FmtUtils.fmt
-import ru.pht.sprout.utils.lang.Language
+import ru.DmN.cmd.style.FmtUtils.fmt
+import ru.DmN.translate.Language
 import kotlin.test.*
 
 @EnabledIf("ru.pht.sprout.TestConfigInternal#otherUtilsTest", disabledReason = "Тест выключен конфигурацией")
@@ -33,11 +33,16 @@ class ValueOrAnyTest {
         val valueOrAny = ValueOrAny.any<String>()
         assertTrue(valueOrAny.isAny)
         assertFalse(valueOrAny.isValue)
+        val exception = assertThrows<NotValueException> {
+            valueOrAny.value()
+        }
         assertEquals(
-            assertThrows<NotValueException> {
-                valueOrAny.value()
-            }.translate(Language.ENGLISH),
-            "Value has not been set".fmt
+            "Value has not been set".fmt,
+            exception.message
+        )
+        assertEquals(
+            "Value has not been set".fmt,
+            exception.translate(Language.ENGLISH)
         )
     }
 

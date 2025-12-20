@@ -13,6 +13,6 @@ class HttpUtilsTest {
     @Test
     @DisplayName("Клиент без логирования")
     fun clientWithoutLoggingTest() = runTest {
-        assertEquals(HttpUtils.clientWithoutLogging().get("https://google.com").status, HttpStatusCode.OK)
+        assertEquals(HttpStatusCode.OK, HttpUtils.clientWithoutLogging().get("https://google.com").status)
     }
 }
