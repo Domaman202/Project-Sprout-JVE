@@ -2,16 +2,18 @@ package ru.pht.sprout.cli.args
 
 import ru.DmN.translate.Language
 import ru.pht.sprout.cli.args.CommandArgument.Type.*
+import ru.pht.sprout.utils.SproutTranslate
 
 class ArgumentsParser(
     val args: Array<String>,
     val commands: Array<Command.Definition>,
     val lang: Language
 ) {
+    @Throws(ArgumentsParserException::class)
     fun findCommand(): Command {
         // Первичная проверка команды
         if (this.args.isEmpty())
-            throw ArgumentsParserException("Команда отсутвует")
+            throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "noCommand"))
         // Нахождение команды
         val command = this.args.first()
         val definition =
@@ -21,8 +23,8 @@ class ArgumentsParser(
             } else if (command.startsWith("-")) {
                 val commandName = command.drop(1)
                 this.commands.find { it.short == commandName }
-            } else throw ArgumentsParserException("'${command}' не является командой")
-        definition ?: throw ArgumentsParserException("Команда '${command} не найдена")
+            } else throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "notCommand", "command" to command))
+        definition ?: throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "notFoundedCommand", "command" to command))
         // Парсинг аргументов
         val arguments = ArrayList<CommandArgument>()
         var argI = 1
@@ -44,12 +46,12 @@ class ArgumentsParser(
                         }
                         VARIATION -> {
                             cmdArg.variants!!.parse(this.args[argI])
-                                ?: throw ArgumentsParserException("Неопознанный вариант '${this.args[argI]}' аргумента '${cmdArg.displayedName.translate(lang)}'")
+                                ?: throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "notFoundedVariant", "variant" to this.args[argI], "argument" to cmdArg.displayedName.translate(lang)))
                         }
                     }
                 )
             } catch (e: NumberFormatException) {
-                throw ArgumentsParserException("Ошибка форматирования аргумента '${cmdArg.displayedName.translate(lang)}'", e)
+                throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "formattingError", "argument" to cmdArg.displayedName.translate(lang)), e)
             }
             argI++
             cmdI++
@@ -58,7 +60,7 @@ class ArgumentsParser(
         val definedArgs = arguments.map { it.definition.name }
         val undefinedArgs = definition.arguments.filter { !it.optional && !definedArgs.contains(it.name) }
         if (undefinedArgs.isNotEmpty())
-            throw ArgumentsParserException("Неуказаны обязательные аргументы: ${definedArgs.joinToString(", ")}")
+            throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "requiredArguments", "arguments" to definedArgs.joinToString(", ")))
         //
         return Command(definition, arguments)
     }
