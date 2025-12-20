@@ -10,9 +10,9 @@ import ru.DmN.translate.provider.ResourceTranslationProvider
  */
 object SproutTranslate : ResourceTranslationProvider("sprout/lang") {
     inline fun <reified T> of(language: Language, vararg args: Pair<String, Any?>): String =
-        this.translate(language, TranslationKey(T::class.java.name), *args)
+        this.translate(language, TranslationKey.of<T>(), *args)
     inline fun <reified T> of(language: Language, category: String, vararg args: Pair<String, Any?>): String =
-        this.translate(language, TranslationKey("${T::class.java.name}.$category"), *args)
+        this.translate(language, TranslationKey.of<T>(category), *args)
 
     object ExceptionTranslator : ReflectiveThrowableTranslator<Throwable>(this)
 }
