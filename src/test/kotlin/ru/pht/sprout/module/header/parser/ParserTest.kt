@@ -1,4 +1,4 @@
-package ru.pht.sprout.module.header.lexer
+package ru.pht.sprout.module.header.parser
 
 import io.github.z4kn4fein.semver.toVersion
 import org.junit.jupiter.api.DisplayName
@@ -11,8 +11,9 @@ import ru.DmN.cmd.style.FmtUtils.fmt
 import ru.DmN.translate.Language
 import ru.pht.sprout.module.header.ModuleHeader.Dependency
 import ru.pht.sprout.module.header.ModuleHeader.PathOrDependency
-import ru.pht.sprout.module.header.parser.Parser
-import ru.pht.sprout.module.header.parser.ParserException
+import ru.pht.sprout.module.header.lexer.Lexer
+import ru.pht.sprout.module.header.lexer.LexerException
+import ru.pht.sprout.module.header.lexer.Token
 import ru.pht.sprout.utils.ValueOrAny
 import kotlin.test.Test
 import kotlin.test.assertEquals
