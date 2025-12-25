@@ -4,11 +4,11 @@ import ru.pht.sprout.module.header.ModuleHeader
 import ru.pht.sprout.module.header.lexer.Lexer
 import ru.pht.sprout.module.header.parser.Parser
 import ru.pht.sprout.module.header.parser.ParserException
-import ru.pht.sprout.module.repo.cache.ICachingRepository
 import ru.pht.sprout.module.repo.IRepository
-import ru.pht.sprout.module.repo.impl.GiteaRepository
-import ru.pht.sprout.module.repo.impl.GithubRepository
+import ru.pht.sprout.module.repo.cache.ICachingRepository
 import ru.pht.sprout.module.repo.cache.impl.LocalCacheRepository
+import ru.pht.sprout.module.repo.impl.GitflicRepository
+import ru.pht.sprout.module.repo.impl.GithubRepository
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.notExists
@@ -19,7 +19,7 @@ class BuildInfo {
     val sproutDirectory = Path("${System.getProperty("user.home")}/.sprout/").absolutePathString()
     val moduleDirectory = Path(".").absolutePathString()
     // ===== РЕПОЗИТОРИИ ===== //
-    val repositories: List<IRepository> = mutableListOf(GithubRepository(), GiteaRepository())
+    val repositories: List<IRepository> = mutableListOf(GithubRepository(), GitflicRepository())
     val cachingRepository: ICachingRepository = LocalCacheRepository(this.sproutDirectory, this.repositories)
     // ===== МОДУЛЬ ===== //
     var moduleHeader: ModuleHeader? = null

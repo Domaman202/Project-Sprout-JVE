@@ -13,13 +13,13 @@ import kotlin.test.assertEquals
 @EnabledIf("ru.pht.sprout.TestConfigInternal#graphTest", disabledReason = "Тест выключен конфигурацией")
 class GraphTest {
     @Nested
-    inner class Lineal {
+    inner class Linear {
         @Test
         @DisplayName("Никаких зависимостей")
         fun emptyNoFmtTest() {
             val moduleA = module("example/a")
             val graphBuilder = GraphBuilder(moduleA)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
@@ -34,7 +34,7 @@ class GraphTest {
         fun emptyTest() {
             val moduleA = module("example/a")
             val graphBuilder = GraphBuilder(moduleA)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
@@ -52,7 +52,7 @@ class GraphTest {
             val moduleC = module("example/c")
             val moduleD = module("example/d")
             val graphBuilder = GraphBuilder(moduleA, moduleB, moduleC, moduleD)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
@@ -73,7 +73,7 @@ class GraphTest {
             val moduleC = module("example/c")
             val moduleD = module("example/d")
             val graphBuilder = GraphBuilder(moduleA, moduleB, moduleC, moduleD)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
@@ -88,12 +88,12 @@ class GraphTest {
 
         @Test
         @DisplayName("Линейная цепочка зависимостей")
-        fun linealChainNoFmtTest() {
+        fun linearChainNoFmtTest() {
             val moduleA = module("example/a", listOf(dependency("example/b")))
             val moduleB = module("example/b", listOf(dependency("example/c")))
             val moduleC = module("example/c")
             val graphBuilder = GraphBuilder(moduleA, moduleB, moduleC)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
@@ -107,12 +107,12 @@ class GraphTest {
 
         @Test
         @DisplayName("Линейная цепочка зависимостей")
-        fun linealChainTest() {
+        fun linearChainTest() {
             val moduleA = module("example/a", listOf(dependency("example/b")))
             val moduleB = module("example/b", listOf(dependency("example/c")))
             val moduleC = module("example/c")
             val graphBuilder = GraphBuilder(moduleA, moduleB, moduleC)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
@@ -126,14 +126,14 @@ class GraphTest {
 
         @Test
         @DisplayName("Линейная цепочка с разделением на двое")
-        fun linealChainTwoSplitNoFmtTest() {
+        fun linearChainTwoSplitNoFmtTest() {
             val moduleA = module("example/a", listOf(dependency("example/b"), dependency("example/c")))
             val moduleB = module("example/b", listOf(dependency("example/d")))
             val moduleC = module("example/c", listOf(dependency("example/e")))
             val moduleD = module("example/d")
             val moduleE = module("example/e")
             val graphBuilder = GraphBuilder(moduleA, moduleB, moduleC, moduleD, moduleE)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
@@ -149,14 +149,14 @@ class GraphTest {
 
         @Test
         @DisplayName("Линейная цепочка с разделением на двое")
-        fun linealChainTwoSplitTest() {
+        fun linearChainTwoSplitTest() {
             val moduleA = module("example/a", listOf(dependency("example/b"), dependency("example/c")))
             val moduleB = module("example/b", listOf(dependency("example/d")))
             val moduleC = module("example/c", listOf(dependency("example/e")))
             val moduleD = module("example/d")
             val moduleE = module("example/e")
             val graphBuilder = GraphBuilder(moduleA, moduleB, moduleC, moduleD, moduleE)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
@@ -175,7 +175,7 @@ class GraphTest {
         fun cyclicChainOneElementNoFmtTest() {
             val moduleA = module("example/a", listOf(dependency("example/a")))
             val graphBuilder = GraphBuilder(moduleA)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
@@ -191,7 +191,7 @@ class GraphTest {
         fun cyclicChainOneElementTest() {
             val moduleA = module("example/a", listOf(dependency("example/a")))
             val graphBuilder = GraphBuilder(moduleA)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
@@ -208,7 +208,7 @@ class GraphTest {
             val moduleA = module("example/a", listOf(dependency("example/b")))
             val moduleB = module("example/b", listOf(dependency("example/a")))
             val graphBuilder = GraphBuilder(moduleA, moduleB)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
@@ -226,7 +226,7 @@ class GraphTest {
             val moduleA = module("example/a", listOf(dependency("example/b")))
             val moduleB = module("example/b", listOf(dependency("example/a")))
             val graphBuilder = GraphBuilder(moduleA, moduleB)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
@@ -245,7 +245,7 @@ class GraphTest {
             val moduleB = module("example/b", listOf(dependency("example/c")))
             val moduleC = module("example/c", listOf(dependency("example/a")))
             val graphBuilder = GraphBuilder(moduleA, moduleB, moduleC)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
@@ -265,7 +265,7 @@ class GraphTest {
             val moduleB = module("example/b", listOf(dependency("example/c")))
             val moduleC = module("example/c", listOf(dependency("example/a")))
             val graphBuilder = GraphBuilder(moduleA, moduleB, moduleC)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
@@ -287,7 +287,7 @@ class GraphTest {
             val moduleD = module("example/d")
             val moduleE = module("example/e")
             val graphBuilder = GraphBuilder(moduleA, moduleB, moduleC, moduleE, moduleD)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
@@ -311,7 +311,7 @@ class GraphTest {
             val moduleD = module("example/d")
             val moduleE = module("example/e")
             val graphBuilder = GraphBuilder(moduleA, moduleB, moduleC, moduleE, moduleD)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
@@ -328,14 +328,14 @@ class GraphTest {
 
         @Test
         @DisplayName("Циклическая цепочка с двумя зависимыми")
-        fun linealTwoSplitToCyclicChainNoFmtTest() {
+        fun linearTwoSplitToCyclicChainNoFmtTest() {
             val moduleA = module("example/a", listOf(dependency("example/b"), dependency("example/c")))
             val moduleB = module("example/b", listOf(dependency("example/d")))
             val moduleC = module("example/c", listOf(dependency("example/e")))
             val moduleD = module("example/d", listOf(dependency("example/e")))
             val moduleE = module("example/e", listOf(dependency("example/d")))
             val graphBuilder = GraphBuilder(moduleA, moduleB, moduleC, moduleE, moduleD)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
@@ -355,14 +355,14 @@ class GraphTest {
 
         @Test
         @DisplayName("Циклическая цепочка с двумя зависимыми")
-        fun linealTwoSplitToCyclicChainTest() {
+        fun linearTwoSplitToCyclicChainTest() {
             val moduleA = module("example/a", listOf(dependency("example/b"), dependency("example/c")))
             val moduleB = module("example/b", listOf(dependency("example/d")))
             val moduleC = module("example/c", listOf(dependency("example/e")))
             val moduleD = module("example/d", listOf(dependency("example/e")))
             val moduleE = module("example/e", listOf(dependency("example/d")))
             val graphBuilder = GraphBuilder(moduleA, moduleB, moduleC, moduleE, moduleD)
-            val graph = graphBuilder.buildLineal(moduleA)
+            val graph = graphBuilder.buildLinear(moduleA)
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
@@ -457,7 +457,7 @@ class GraphTest {
 
         @Test
         @DisplayName("Линейная цепочка зависимостей")
-        fun linealChainNoFmtTest() {
+        fun linearChainNoFmtTest() {
             val moduleA = module("example/a", listOf(dependency("example/b")))
             val moduleB = module("example/b", listOf(dependency("example/c")))
             val moduleC = module("example/c")
@@ -476,7 +476,7 @@ class GraphTest {
 
         @Test
         @DisplayName("Линейная цепочка зависимостей")
-        fun linealChainTest() {
+        fun linearChainTest() {
             val moduleA = module("example/a", listOf(dependency("example/b")))
             val moduleB = module("example/b", listOf(dependency("example/c")))
             val moduleC = module("example/c")
@@ -495,7 +495,7 @@ class GraphTest {
 
         @Test
         @DisplayName("Линейная цепочка с разделением на двое")
-        fun linealChainTwoSplitNoFmtTest() {
+        fun linearChainTwoSplitNoFmtTest() {
             val moduleA = module("example/a", listOf(dependency("example/b"), dependency("example/c")))
             val moduleB = module("example/b", listOf(dependency("example/d")))
             val moduleC = module("example/c", listOf(dependency("example/e")))
@@ -518,7 +518,7 @@ class GraphTest {
 
         @Test
         @DisplayName("Линейная цепочка с разделением на двое")
-        fun linealChainTwoSplitTest() {
+        fun linearChainTwoSplitTest() {
             val moduleA = module("example/a", listOf(dependency("example/b"), dependency("example/c")))
             val moduleB = module("example/b", listOf(dependency("example/d")))
             val moduleC = module("example/c", listOf(dependency("example/e")))
@@ -681,7 +681,7 @@ class GraphTest {
 
         @Test
         @DisplayName("Циклическая цепочка с двумя зависимыми")
-        fun linealTwoSplitToCyclicChainNoFmtTest() {
+        fun linearTwoSplitToCyclicChainNoFmtTest() {
             val moduleA = module("example/a", listOf(dependency("example/b"), dependency("example/c")))
             val moduleB = module("example/b", listOf(dependency("example/d")))
             val moduleC = module("example/c", listOf(dependency("example/e")))
@@ -704,7 +704,7 @@ class GraphTest {
 
         @Test
         @DisplayName("Циклическая цепочка с двумя зависимыми")
-        fun linealTwoSplitToCyclicChainTest() {
+        fun linearTwoSplitToCyclicChainTest() {
             val moduleA = module("example/a", listOf(dependency("example/b"), dependency("example/c")))
             val moduleB = module("example/b", listOf(dependency("example/d")))
             val moduleC = module("example/c", listOf(dependency("example/e")))

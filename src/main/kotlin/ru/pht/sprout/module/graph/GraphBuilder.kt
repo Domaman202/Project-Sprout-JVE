@@ -5,20 +5,16 @@ import java.util.*
 
 class GraphBuilder(val resolver: (dependency: ModuleHeader.Dependency) -> ModuleHeader) {
     fun buildCombine(module: ModuleHeader): GraphNode {
-        val graph = buildLineal(module, HashMap())
-        while (true){
-            if (buildCombine(graph, Stack()))
-                continue
-            break
-        }
+        val graph = buildLinear(module, HashMap())
+        while (buildCombine(graph, ArrayDeque())) { /* empty */ }
         return graph
     }
 
-    fun buildLineal(module: ModuleHeader): GraphNode {
-        return buildLineal(module, HashMap())
+    fun buildLinear(module: ModuleHeader): GraphNode {
+        return buildLinear(module, HashMap())
     }
 
-    private fun buildCombine(last: GraphNode, parents: Stack<GraphNode>): Boolean {
+    private fun buildCombine(last: GraphNode, parents: ArrayDeque<GraphNode>): Boolean {
         val loop = parents.find { it == last }
         if (loop != null) {
             while (true) {
@@ -43,14 +39,14 @@ class GraphBuilder(val resolver: (dependency: ModuleHeader.Dependency) -> Module
         return false
     }
 
-    private fun buildLineal(last: ModuleHeader, other: MutableMap<ModuleHeader, GraphNode>): GraphNode {
+    private fun buildLinear(last: ModuleHeader, other: MutableMap<ModuleHeader, GraphNode>): GraphNode {
         return other[last] ?: run {
             val dependencies = ArrayList<GraphNode.Dependency>()
             GraphNode(mutableListOf(last), dependencies, ArrayList()).apply {
                 other[last] = this
                 for (dependency in last.dependencies) {
                     val module = resolver(dependency)
-                    val graph = buildLineal(module, other)
+                    val graph = buildLinear(module, other)
                     GraphNode.Dependency(graph, module, dependency).let {
                         graph.dependent0 += it
                         dependencies += it
