@@ -18,14 +18,17 @@ object TestConfig {
         // ===== (АРХИВАЦИЯ) ===== //
         // Тесты с архивацией данных
         const val ZIP_TEST = true
-        // ===== (СЕТЬ) ===== //
-        // Тесты с реальными сетевыми запросами.
-        const val REAL_NET_TEST = true
+        // ===== (ГРАФЫ) ===== //
+        // Тесты с графами
+        const val GRAPH_TEST = true
         // ===== (ЗАГОЛОВОК) ===== //
         // Тесты парсинга заголовка
         const val HEADER_PARSE_TEST = true
         // ===== (РЕПОЗИТОРИИ) ===== //
         // Тесты репозиториев
         const val REPO_TEST = true
+        // ===== (СЕТЬ) ===== //
+        // Тесты с реальными сетевыми запросами.
+        const val REAL_NET_TEST = false
     }
 }
