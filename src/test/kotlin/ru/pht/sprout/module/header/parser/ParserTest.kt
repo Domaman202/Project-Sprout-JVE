@@ -1,5 +1,6 @@
 package ru.pht.sprout.module.header.parser
 
+import io.github.z4kn4fein.semver.constraints.toConstraint
 import io.github.z4kn4fein.semver.toVersion
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertNotNull
@@ -14,7 +15,6 @@ import ru.pht.sprout.module.header.ModuleHeader.PathOrDependency
 import ru.pht.sprout.module.header.lexer.Lexer
 import ru.pht.sprout.module.header.lexer.LexerException
 import ru.pht.sprout.module.header.lexer.Token
-import ru.pht.sprout.utils.ValueOrAny
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -123,7 +123,7 @@ class ParserTest {
                 PathOrDependency.ofPath("src/*"),
                 PathOrDependency.ofPath("src/*.pht"),
                 PathOrDependency.ofPath("src/main.pht"),
-                PathOrDependency.ofDependency(Dependency.Builder().name("pht/example/sources").version(ValueOrAny.any()).build())
+                PathOrDependency.ofDependency(Dependency.Builder().name("pht/example/sources").version("*".toConstraint()).build())
             ),
             header.source
         )
@@ -132,7 +132,7 @@ class ParserTest {
                 PathOrDependency.ofPath("res/*"),
                 PathOrDependency.ofPath("res/*.png"),
                 PathOrDependency.ofPath("res/icon.png"),
-                PathOrDependency.ofDependency(Dependency.Builder().name("pht/example/resources").version(ValueOrAny.any()).build())
+                PathOrDependency.ofDependency(Dependency.Builder().name("pht/example/resources").version("*".toConstraint()).build())
             ),
             header.resource
         )
@@ -141,7 +141,7 @@ class ParserTest {
                 PathOrDependency.ofPath("plg/*"),
                 PathOrDependency.ofPath("plg/*.pht"),
                 PathOrDependency.ofPath("plg/main.pht"),
-                PathOrDependency.ofDependency(Dependency.Builder().name("pht/example/plugin").version(ValueOrAny.any()).build())
+                PathOrDependency.ofDependency(Dependency.Builder().name("pht/example/plugin").version("*".toConstraint()).build())
             ),
             header.plugin
         )

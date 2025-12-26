@@ -29,7 +29,11 @@ abstract class ParserException : Exception, ITranslatedThrowable<ParserException
         override val token: Token?
             get() = context.lastToken
         override val message: String?
-            get() = null
+            get() = exception.message
+        override fun translate(language: Language): String =
+            if (exception is ITranslatedThrowable<*>)
+                    (exception as ITranslatedThrowable<*>).translate(language)
+            else message ?: ""
 
         class FromLexer(context: ExceptionWrapContext, override val exception: LexerException) : Wrapped(context, exception) {
             override fun print(parser: Parser, language: Language, builder: StringBuilder): StringBuilder =

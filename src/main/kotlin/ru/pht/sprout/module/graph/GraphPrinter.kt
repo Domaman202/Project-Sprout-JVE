@@ -3,7 +3,6 @@ package ru.pht.sprout.module.graph
 import io.github.z4kn4fein.semver.constraints.Constraint
 import ru.DmN.cmd.style.FmtUtils.fmt
 import ru.pht.sprout.module.header.ModuleHeader
-import ru.pht.sprout.utils.ValueOrAny
 import java.util.*
 
 class GraphPrinter(val graph: GraphNode, val formatting: Boolean) {
@@ -21,7 +20,7 @@ class GraphPrinter(val graph: GraphNode, val formatting: Boolean) {
         return this.output.value
     }
 
-    private fun printNode(node: GraphNode, original: ModuleHeader?, version: ValueOrAny<Constraint>?) {
+    private fun printNode(node: GraphNode, original: ModuleHeader?, version: Constraint?) {
         this.text.appendIndent()
         if (node.modules.size == 1) {
             this.text.append(node.modules.first(), version)
@@ -46,30 +45,32 @@ class GraphPrinter(val graph: GraphNode, val formatting: Boolean) {
                     .append(if (this.formatting) "§sb@§sr" else "@")
                     .append(dependency.original.version)
                     .append(if (this.formatting) " (§f3" else " (")
-                    .append(dependency.dependency.version.let { if (it.isAny) '*' else it.value() })
+                    .append(dependency.dependency.version)
                     .append(if (this.formatting) "§sr)\n" else ")\n")
             } else printNode(dependency.node, dependency.original, dependency.dependency.version)
             this.printing.pop()
         }
     }
 
-    private fun StringBuilder.append(module: ModuleHeader, original: ModuleHeader?, version: ValueOrAny<Constraint>?): StringBuilder {
+    private fun StringBuilder.append(module: ModuleHeader, original: ModuleHeader?, version: Constraint?): StringBuilder {
         if (formatting) {
             if (module == original) {
                 append("§sb").append(module.name).append('@').append(module.version).append("§sr")
-                append(" (§f3").append(if (version == null || version.isAny) '*' else version.value()).append("§sr)")
+                append(" (§f3").append(version!!).append("§sr)")
             } else append(module.name).append("§sb@§sr").append(module.version)
         } else append(module.name).append('@').append(module.version)
         return this
     }
 
-    private fun StringBuilder.append(module: ModuleHeader, version: ValueOrAny<Constraint>?): StringBuilder {
+    private fun StringBuilder.append(module: ModuleHeader, version: Constraint?): StringBuilder {
         append(module.name)
         append(if (formatting) "§sr§sb@§sr" else "@")
         append(module.version)
-        append(if (formatting) " (§f3" else " (")
-        append(if (version == null || version.isAny) '*' else version.value())
-        append(if (formatting) "§sr)" else ")")
+        if (version != null) {
+            append(if (formatting) " (§f3" else " (")
+            append(version)
+            append(if (formatting) "§sr)" else ")")
+        }
         return this
     }
 

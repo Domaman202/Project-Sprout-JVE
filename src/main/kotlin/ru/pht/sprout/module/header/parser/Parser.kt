@@ -4,6 +4,7 @@ import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.constraints.Constraint
 import io.github.z4kn4fein.semver.constraints.ConstraintFormatException
+import io.github.z4kn4fein.semver.constraints.toConstraint
 import ru.pht.sprout.module.header.ModuleHeader
 import ru.pht.sprout.module.header.lexer.Lexer
 import ru.pht.sprout.module.header.lexer.LexerException
@@ -11,8 +12,8 @@ import ru.pht.sprout.module.header.lexer.Token
 import ru.pht.sprout.module.header.lexer.Token.Type
 import ru.pht.sprout.module.header.lexer.Token.Type.*
 import ru.pht.sprout.module.header.parser.ParserException.ExceptionWrapContext
-import ru.pht.sprout.utils.exception.NotInitializedException
 import ru.pht.sprout.utils.ValueOrAny
+import ru.pht.sprout.utils.exception.NotInitializedException
 
 /**
  * Парсер заголовков модулей.
@@ -292,11 +293,11 @@ class Parser(val lexer: Lexer) {
         }
     }
 
-    private fun parseVersionStringOrAny(): ValueOrAny<Constraint> {
+    private fun parseVersionStringOrAny(): Constraint {
         val token = popTk()
         return when (token.type) {
-            ANY -> ValueOrAny.any() // [*]
-            STRING -> ValueOrAny.of(checkDependencyVersionString(token)) // "1.0.0"
+            ANY -> "*".toConstraint() // [*]
+            STRING -> checkDependencyVersionString(token) // "1.0.0"
             else -> throw ParserException.UnexpectedToken(token, listOf(ANY, STRING))
         }
     }
@@ -322,7 +323,7 @@ class Parser(val lexer: Lexer) {
 
     private fun checkDependencyVersionString(token: Token?, string: String): Constraint {
         try {
-            return Constraint.parse(string)
+            return string.toConstraint()
         } catch (_: ConstraintFormatException) {
             throw ParserException.ValidationException(token, string)
         }

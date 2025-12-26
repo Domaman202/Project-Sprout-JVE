@@ -1,12 +1,12 @@
 package ru.pht.sprout.module.graph
 
+import io.github.z4kn4fein.semver.constraints.toConstraint
 import io.github.z4kn4fein.semver.toVersion
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.condition.EnabledIf
 import ru.DmN.cmd.style.FmtUtils.fmt
 import ru.pht.sprout.module.header.ModuleHeader
-import ru.pht.sprout.utils.ValueOrAny
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -23,7 +23,7 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
+                    example/a@1.0.0
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -38,7 +38,7 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -56,10 +56,10 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
-                    ├── example/b@1.0.0 (*)
-                    ├── example/c@1.0.0 (*)
-                    └── example/d@1.0.0 (*)
+                    example/a@1.0.0
+                    ├── example/b@1.0.0 (>=0.0.0)
+                    ├── example/c@1.0.0 (>=0.0.0)
+                    └── example/d@1.0.0 (>=0.0.0)
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -77,10 +77,10 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7├── §srexample/b§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7├── §srexample/c§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7└── §srexample/d§sr§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
+                    §f7├── §srexample/b§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7├── §srexample/c§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7└── §srexample/d§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -97,9 +97,9 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
-                    └── example/b@1.0.0 (*)
-                        └── example/c@1.0.0 (*)
+                    example/a@1.0.0
+                    └── example/b@1.0.0 (>=0.0.0)
+                        └── example/c@1.0.0 (>=0.0.0)
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -116,9 +116,9 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7└── §srexample/b§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7    └── §srexample/c§sr§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
+                    §f7└── §srexample/b§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7    └── §srexample/c§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -137,11 +137,11 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
-                    ├── example/b@1.0.0 (*)
-                    │   └── example/d@1.0.0 (*)
-                    └── example/c@1.0.0 (*)
-                        └── example/e@1.0.0 (*)
+                    example/a@1.0.0
+                    ├── example/b@1.0.0 (>=0.0.0)
+                    │   └── example/d@1.0.0 (>=0.0.0)
+                    └── example/c@1.0.0 (>=0.0.0)
+                        └── example/e@1.0.0 (>=0.0.0)
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -160,11 +160,11 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7├── §srexample/b§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7│   └── §srexample/d§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7└── §srexample/c§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7    └── §srexample/e§sr§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
+                    §f7├── §srexample/b§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7│   └── §srexample/d§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7└── §srexample/c§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7    └── §srexample/e§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -179,8 +179,8 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
-                    └── [cyclic] example/a@1.0.0 (*)
+                    example/a@1.0.0
+                    └── [cyclic] example/a@1.0.0 (>=0.0.0)
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -195,8 +195,8 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7└── §sr§f5[cyclic]§sr example/a§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
+                    §f7└── §sr§f5[cyclic]§sr example/a§sb@§sr1.0.0 (§f3>=0.0.0§sr)
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -212,9 +212,9 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
-                    └── example/b@1.0.0 (*)
-                        └── [cyclic] example/a@1.0.0 (*)
+                    example/a@1.0.0
+                    └── example/b@1.0.0 (>=0.0.0)
+                        └── [cyclic] example/a@1.0.0 (>=0.0.0)
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -230,9 +230,9 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7└── §srexample/b§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7    └── §sr§f5[cyclic]§sr example/a§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
+                    §f7└── §srexample/b§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7    └── §sr§f5[cyclic]§sr example/a§sb@§sr1.0.0 (§f3>=0.0.0§sr)
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -249,10 +249,10 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
-                    └── example/b@1.0.0 (*)
-                        └── example/c@1.0.0 (*)
-                            └── [cyclic] example/a@1.0.0 (*)
+                    example/a@1.0.0
+                    └── example/b@1.0.0 (>=0.0.0)
+                        └── example/c@1.0.0 (>=0.0.0)
+                            └── [cyclic] example/a@1.0.0 (>=0.0.0)
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -269,10 +269,10 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7└── §srexample/b§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7    └── §srexample/c§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7        └── §sr§f5[cyclic]§sr example/a§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
+                    §f7└── §srexample/b§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7    └── §srexample/c§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7        └── §sr§f5[cyclic]§sr example/a§sb@§sr1.0.0 (§f3>=0.0.0§sr)
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -291,12 +291,12 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
-                    └── example/b@1.0.0 (*)
-                        ├── example/c@1.0.0 (*)
-                        │   ├── [cyclic] example/b@1.0.0 (*)
-                        │   └── example/e@1.0.0 (*)
-                        └── example/d@1.0.0 (*)
+                    example/a@1.0.0
+                    └── example/b@1.0.0 (>=0.0.0)
+                        ├── example/c@1.0.0 (>=0.0.0)
+                        │   ├── [cyclic] example/b@1.0.0 (>=0.0.0)
+                        │   └── example/e@1.0.0 (>=0.0.0)
+                        └── example/d@1.0.0 (>=0.0.0)
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -315,12 +315,12 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7└── §srexample/b§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7    ├── §srexample/c§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7    │   ├── §sr§f5[cyclic]§sr example/b§sb@§sr1.0.0 (§f3*§sr)
-                    §f7    │   └── §srexample/e§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7    └── §srexample/d§sr§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
+                    §f7└── §srexample/b§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7    ├── §srexample/c§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7    │   ├── §sr§f5[cyclic]§sr example/b§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7    │   └── §srexample/e§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7    └── §srexample/d§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -339,15 +339,15 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
-                    ├── example/b@1.0.0 (*)
-                    │   └── example/d@1.0.0 (*)
-                    │       └── example/e@1.0.0 (*)
-                    │           └── [cyclic] example/d@1.0.0 (*)
-                    └── example/c@1.0.0 (*)
-                        └── example/e@1.0.0 (*)
-                            └── example/d@1.0.0 (*)
-                                └── [cyclic] example/e@1.0.0 (*)
+                    example/a@1.0.0
+                    ├── example/b@1.0.0 (>=0.0.0)
+                    │   └── example/d@1.0.0 (>=0.0.0)
+                    │       └── example/e@1.0.0 (>=0.0.0)
+                    │           └── [cyclic] example/d@1.0.0 (>=0.0.0)
+                    └── example/c@1.0.0 (>=0.0.0)
+                        └── example/e@1.0.0 (>=0.0.0)
+                            └── example/d@1.0.0 (>=0.0.0)
+                                └── [cyclic] example/e@1.0.0 (>=0.0.0)
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -366,15 +366,15 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7├── §srexample/b§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7│   └── §srexample/d§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7│       └── §srexample/e§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7│           └── §sr§f5[cyclic]§sr example/d§sb@§sr1.0.0 (§f3*§sr)
-                    §f7└── §srexample/c§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7    └── §srexample/e§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7        └── §srexample/d§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7            └── §sr§f5[cyclic]§sr example/e§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
+                    §f7├── §srexample/b§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7│   └── §srexample/d§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7│       └── §srexample/e§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7│           └── §sr§f5[cyclic]§sr example/d§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7└── §srexample/c§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7    └── §srexample/e§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7        └── §srexample/d§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7            └── §sr§f5[cyclic]§sr example/e§sb@§sr1.0.0 (§f3>=0.0.0§sr)
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -392,7 +392,7 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
+                    example/a@1.0.0
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -407,7 +407,7 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -425,10 +425,10 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
-                    ├── example/b@1.0.0 (*)
-                    ├── example/c@1.0.0 (*)
-                    └── example/d@1.0.0 (*)
+                    example/a@1.0.0
+                    ├── example/b@1.0.0 (>=0.0.0)
+                    ├── example/c@1.0.0 (>=0.0.0)
+                    └── example/d@1.0.0 (>=0.0.0)
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -446,10 +446,10 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7├── §srexample/b§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7├── §srexample/c§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7└── §srexample/d§sr§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
+                    §f7├── §srexample/b§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7├── §srexample/c§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7└── §srexample/d§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -466,9 +466,9 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
-                    └── example/b@1.0.0 (*)
-                        └── example/c@1.0.0 (*)
+                    example/a@1.0.0
+                    └── example/b@1.0.0 (>=0.0.0)
+                        └── example/c@1.0.0 (>=0.0.0)
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -485,9 +485,9 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7└── §srexample/b§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7    └── §srexample/c§sr§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
+                    §f7└── §srexample/b§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7    └── §srexample/c§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -506,11 +506,11 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
-                    ├── example/b@1.0.0 (*)
-                    │   └── example/d@1.0.0 (*)
-                    └── example/c@1.0.0 (*)
-                        └── example/e@1.0.0 (*)
+                    example/a@1.0.0
+                    ├── example/b@1.0.0 (>=0.0.0)
+                    │   └── example/d@1.0.0 (>=0.0.0)
+                    └── example/c@1.0.0 (>=0.0.0)
+                        └── example/e@1.0.0 (>=0.0.0)
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -529,11 +529,11 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7├── §srexample/b§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7│   └── §srexample/d§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7└── §srexample/c§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7    └── §srexample/e§sr§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
+                    §f7├── §srexample/b§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7│   └── §srexample/d§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7└── §srexample/c§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7    └── §srexample/e§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -548,7 +548,7 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
+                    example/a@1.0.0
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -563,7 +563,7 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -648,10 +648,10 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
+                    example/a@1.0.0
                     └── [combine] example/b@1.0.0 | example/c@1.0.0
-                        ├── example/d@1.0.0 (*)
-                        └── example/e@1.0.0 (*)
+                        ├── example/d@1.0.0 (>=0.0.0)
+                        └── example/e@1.0.0 (>=0.0.0)
                 """.trimIndent(),
                 graphPrinter.print()
             )
@@ -670,10 +670,10 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7└── §sr§f1[combine]§sr §sbexample/b@1.0.0§sr (§f3*§sr) §sb|§sr example/c§sb@§sr1.0.0
-                    §f7    ├── §srexample/d§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7    └── §srexample/e§sr§sb@§sr1.0.0 (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
+                    §f7└── §sr§f1[combine]§sr §sbexample/b@1.0.0§sr (§f3>=0.0.0§sr) §sb|§sr example/c§sb@§sr1.0.0
+                    §f7    ├── §srexample/d§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7    └── §srexample/e§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -692,10 +692,10 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, false)
             assertEquals(
                 """
-                    example/a@1.0.0 (*)
-                    ├── example/b@1.0.0 (*)
+                    example/a@1.0.0
+                    ├── example/b@1.0.0 (>=0.0.0)
                     │   └── [combine] example/d@1.0.0 | example/e@1.0.0
-                    └── example/c@1.0.0 (*)
+                    └── example/c@1.0.0 (>=0.0.0)
                         └── [combine] example/d@1.0.0 | example/e@1.0.0
                 """.trimIndent(),
                 graphPrinter.print()
@@ -715,11 +715,11 @@ class GraphTest {
             val graphPrinter = GraphPrinter(graph, true)
             assertEquals(
                 """
-                    example/a§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7├── §srexample/b§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7│   └── §sr§f1[combine]§sr §sbexample/d@1.0.0§sr (§f3*§sr) §sb|§sr example/e§sb@§sr1.0.0
-                    §f7└── §srexample/c§sr§sb@§sr1.0.0 (§f3*§sr)
-                    §f7    └── §sr§f1[combine]§sr example/d§sb@§sr1.0.0 §sb|§sr §sbexample/e@1.0.0§sr (§f3*§sr)
+                    example/a§sr§sb@§sr1.0.0
+                    §f7├── §srexample/b§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7│   └── §sr§f1[combine]§sr §sbexample/d@1.0.0§sr (§f3>=0.0.0§sr) §sb|§sr example/e§sb@§sr1.0.0
+                    §f7└── §srexample/c§sr§sb@§sr1.0.0 (§f3>=0.0.0§sr)
+                    §f7    └── §sr§f1[combine]§sr example/d§sb@§sr1.0.0 §sb|§sr §sbexample/e@1.0.0§sr (§f3>=0.0.0§sr)
                 """.trimIndent().fmt,
                 graphPrinter.print()
             )
@@ -729,8 +729,8 @@ class GraphTest {
     private fun GraphBuilder(vararg modules: ModuleHeader): GraphBuilder {
         return GraphBuilder { (name, version) ->
             modules
-                .find { it.name == name && (version.isAny || version.isValue && version.value().isSatisfiedBy(it.version)) }
-                ?: throw RuntimeException("${name}@${if (version.isAny) "(*)" else version.value()} not found")
+                .find { it.name == name && version.isSatisfiedBy(it.version) }
+                ?: throw RuntimeException("${name}@${version} not found")
         }
     }
 
@@ -752,7 +752,7 @@ class GraphTest {
     private fun dependency(name: String): ModuleHeader.Dependency {
         return ModuleHeader.Dependency.Builder()
             .name(name)
-            .version(ValueOrAny.any())
+            .version("*".toConstraint())
             .build()
     }
 }

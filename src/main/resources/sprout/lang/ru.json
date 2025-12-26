@@ -13,29 +13,37 @@
   "ru.pht.sprout.cli.App.printHelp.long":                   "§sb[> Длинная:  §sr§si§f3--{long}",
   "ru.pht.sprout.cli.App.printHelp.noDescription":          "§sb[> Описание: §sr§f1Отсутствует",
   "ru.pht.sprout.cli.App.printHelp.description":            "§sb[> Описание: §sr§f7{description}",
-  "ru.pht.sprout.cli.App.printInfo.header":                 "§sb[> -------- ИНФОРМАЦИЯ -------- <]",
+
+  "ru.pht.sprout.cli.App.printInfo.header":                 "§sb[> ---------- ВЫПУСК ---------- <]",
   "ru.pht.sprout.cli.App.printInfo.os":                     "§sb§f7Система:     §f3{name} {version}",
   "ru.pht.sprout.cli.App.printInfo.java":                   "§sb§f7Запуск:      §f3Java {version} {vendor}",
   "ru.pht.sprout.cli.App.printInfo.lang":                   "§sb§f7Язык:        §f3Русский",
-  "ru.pht.sprout.cli.App.printInfo.project.name":           "§sb§f7Проект:      §f4Росток",
-  "ru.pht.sprout.cli.App.printInfo.project.version":        "§sb§f7Версия:      §f4{version}",
-  "ru.pht.sprout.cli.App.printInfo.project.author":         "§sb§f7Автор:       §f4{author}",
+  "ru.pht.sprout.cli.App.printInfo.name":                   "§sb§f7Проект:      §f4Росток",
+  "ru.pht.sprout.cli.App.printInfo.version":                "§sb§f7Версия:      §f4{version}",
+  "ru.pht.sprout.cli.App.printInfo.author":                 "§sb§f7Автор:       §f4{author}",
+  "ru.pht.sprout.cli.App.printInfo.buildSystem.header":     "§sb[> ------ СИСТЕМА СБОРКИ ------ <]",
   "ru.pht.sprout.cli.App.printInfo.buildSystem.repository": "§sb§f7Источники:   §f6{count}",
   "ru.pht.sprout.cli.App.printInfo.buildSystem.cached":     "§sb§f7Загружено:   §f6{download}",
   "ru.pht.sprout.cli.App.printInfo.buildSystem.caching":    "§sb§f7Кеширование: §f6{repository}",
-  "ru.pht.sprout.cli.App.printInfo.project.moduleError":    "§sb§f7Модуль:      §f1{error}",
-  "ru.pht.sprout.cli.App.printInfo.project.moduleName":     "§sb§f7Модуль:      §f5{name}",
-  "ru.pht.sprout.cli.App.printInfo.project.moduleVersion":  "§sb§f7Версия:      §f5{version}",
+  "ru.pht.sprout.cli.App.printInfo.project.header":         "§sb[> ---------- МОДУЛЬ ---------- <]",
+  "ru.pht.sprout.cli.App.printInfo.project.error":          "§sb§f7Модуль:      §f1Ошибка: §sr{error}",
+  "ru.pht.sprout.cli.App.printInfo.project.name":           "§sb§f7Модуль:      §f5{name}",
+  "ru.pht.sprout.cli.App.printInfo.project.version":        "§sb§f7Версия:      §f5{version}",
+  "ru.pht.sprout.cli.App.printInfo.project.tree":           "§sb[> ---- ДЕРЕВО ЗАВИСИМОСТЕЙ --- <]",
+  "ru.pht.sprout.cli.App.printInfo.project.treeError":      "§sb§f7Ошибка:      §f1Ошибка: §sr{error}",
 
   "ru.pht.sprout.cli.App.cmd.help.arg0":    "Команда",
   "ru.pht.sprout.cli.App.cmd.help.desc":    "Выводит этот текст / Помощь о команде",
   "ru.pht.sprout.cli.App.cmd.version.desc": "Выводит версию программы",
+  "ru.pht.sprout.cli.App.cmd.info.desc":    "Выводит информацию о модуле",
+  "ru.pht.sprout.cli.App.cmd.tree.desc":    "Выводит дерево зависимостей модуля",
   "ru.pht.sprout.cli.App.cmd.shell.desc":   "Интерактивная консоль",
 
-  "ru.pht.sprout.cli.build.BuildSystemInfo.serialize.exception": "Ошибка сериализации типа '§sb{name}§sr'",
+  "ru.pht.sprout.cli.build.BuildSystemInfo.serialize.exception":   "Ошибка сериализации типа '§sb{name}§sr'",
   "ru.pht.sprout.cli.build.BuildSystemInfo.deserialize.exception": "Ошибка десериализации типа '§sb{name}§sr'",
-  "ru.pht.sprout.cli.build.ProjectInfo.alreadyInitialized": "Проект уже инициализирован",
-  "ru.pht.sprout.cli.build.ProjectInfo.headerNotFounded": "Заголовок модуля в проекте '{dir}' не найден",
+
+  "ru.pht.sprout.cli.build.ProjectInfo.alreadyInitialized":        "Проект уже инициализирован",
+  "ru.pht.sprout.cli.build.ProjectInfo.headerNotFounded":          "Заголовок модуля в проекте '{dir}' не найден",
 
   "ru.pht.sprout.module.repo.cache.impl.CombinedDownloadable.exception": "Не все источники в списке принадлежат модулю '§sb{name}§sr'",
 
@@ -50,13 +58,9 @@
   "ru.pht.sprout.module.header.parser.ParserException$UnexpectedToken":         "Неожиданный токен '§sb{accepted}§sr', ожидались токены типа: §sb{expected}",
   "ru.pht.sprout.module.header.parser.ParserException$UnexpectedToken.print":   "Неожиданный токен '§sb{accepted}§sr'\nОжидались токены типа: §sb{expected}",
 
-  "ru.pht.sprout.utils.fmt.FmtUtils.0": "Неожиданный цветовой код текста '{char}'",
-  "ru.pht.sprout.utils.fmt.FmtUtils.1": "Неожиданный цветовой код фона '{char}'",
-  "ru.pht.sprout.utils.fmt.FmtUtils.2": "Неожиданный код стиля '{char}'",
-  "ru.pht.sprout.utils.fmt.FmtUtils.3": "Неожиданный код форматирования '{char}'",
-
-  "ru.pht.sprout.utils.NotInitializedException": "Неинициализированное обязательное поле '{field}'",
-  "ru.pht.sprout.utils.NotValueException": "Значение не было установлено",
+  "ru.pht.sprout.utils.exception.ModuleNotFoundException": "Модуль '§sb{name}§sr' версии '§sb{version}§sr' не найден",
+  "ru.pht.sprout.utils.exception.NotInitializedException": "Неинициализированное обязательное поле '§sb{field}§sr'",
+  "ru.pht.sprout.utils.exception.NotValueException":       "Значение не было установлено",
 
   "ru.pht.sprout.utils.SproutTranslate.test": "I = §sb{i}"
 }

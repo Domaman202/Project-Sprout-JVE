@@ -14,11 +14,11 @@ class NotInitializedExceptionTest {
     fun translateTest() {
         val exception = NotInitializedException("i")
         assertEquals(
-            "Uninitialized required field 'i'".fmt,
+            "Uninitialized required field '§sbi§sr'".fmt,
             exception.message
         )
         assertEquals(
-            "Uninitialized required field 'i'".fmt,
+            "Uninitialized required field '§sbi§sr'".fmt,
             exception.translate(Language.ENGLISH)
         )
     }

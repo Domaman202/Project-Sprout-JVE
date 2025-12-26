@@ -4,9 +4,10 @@ package ru.pht.sprout.module.header
 
 import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.constraints.Constraint
+import io.github.z4kn4fein.semver.constraints.toConstraint
+import ru.pht.sprout.utils.ValueOrAny
 import ru.pht.sprout.utils.exception.NotInitializedException
 import ru.pht.sprout.utils.exception.NotValueException
-import ru.pht.sprout.utils.ValueOrAny
 
 /**
  * Заголовок модуля.
@@ -61,7 +62,7 @@ data class ModuleHeader(
      */
     data class Dependency(
         val name: String,
-        val version: ValueOrAny<Constraint>,
+        val version: Constraint,
         val uses: Boolean,
         val adapters: ValueOrAny<List<String>>,
         val injectInto: Boolean,
@@ -72,7 +73,7 @@ data class ModuleHeader(
     ) {
         class Builder {
             var name: String? = null
-            var version: ValueOrAny<Constraint>? = null
+            var version: Constraint? = null
             var uses: Boolean? = null
             var adapters: ValueOrAny<List<String>>? = null
             var injectInto: Boolean? = null
@@ -90,12 +91,12 @@ data class ModuleHeader(
                 return this.name
             }
 
-            fun version(value: ValueOrAny<Constraint>): Builder {
+            fun version(value: Constraint): Builder {
                 this.version = value
                 return this
             }
 
-            fun version(): ValueOrAny<Constraint>? {
+            fun version(): Constraint? {
                 return this.version
             }
 
@@ -165,7 +166,7 @@ data class ModuleHeader(
             fun build(): Dependency {
                 return Dependency(
                     this.name ?: throw NotInitializedException("name"),
-                    this.version ?: ValueOrAny.any(),
+                    this.version ?: "*".toConstraint(),
                     this.uses ?: false,
                     this.adapters ?: ValueOrAny.of(emptyList()),
                     this.injectInto ?: false,

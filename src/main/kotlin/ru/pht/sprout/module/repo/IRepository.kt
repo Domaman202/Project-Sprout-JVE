@@ -14,6 +14,7 @@ interface IRepository {
      * Поиск модулей.
      *
      * @param name Имя искомого модуля.
+     * @param version Версия искомого модуля.
      * @return Отсортированный список модулей соответствующих имени и версии.
      */
     @Throws(IOException::class)
@@ -27,6 +28,7 @@ interface IRepository {
      * Асинхронный поиск модулей.
      *
      * @param name Имя искомого модуля.
+     * @param version Версия искомого модуля.
      * @return Отсортированный список модулей соответствующих имени и версии.
      */
     @Throws(IOException::class)
