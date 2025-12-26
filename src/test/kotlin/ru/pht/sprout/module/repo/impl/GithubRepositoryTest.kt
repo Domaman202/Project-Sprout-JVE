@@ -75,12 +75,12 @@ class GithubRepositoryTest {
     }
 
     companion object {
-        lateinit var REPO: GithubRepository
+        lateinit var REPO: GitRepository
 
         @JvmStatic
         @BeforeAll
         fun init() {
-            REPO = GithubRepository()
+            REPO = GitRepository.github()
         }
     }
 }

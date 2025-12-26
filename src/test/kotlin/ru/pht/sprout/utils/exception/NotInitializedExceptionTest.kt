@@ -1,4 +1,4 @@
-package ru.pht.sprout.utils
+package ru.pht.sprout.utils.exception
 
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.EnabledIf
@@ -7,7 +7,7 @@ import ru.DmN.translate.Language
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@EnabledIf("ru.pht.sprout.TestConfigInternal#otherUtilsTest", disabledReason = "Тест выключен конфигурацией")
+@EnabledIf("ru.pht.sprout.TestConfigInternal#exceptionWithTranslateTest", disabledReason = "Тест выключен конфигурацией")
 class NotInitializedExceptionTest {
     @Test
     @DisplayName("Перевод")

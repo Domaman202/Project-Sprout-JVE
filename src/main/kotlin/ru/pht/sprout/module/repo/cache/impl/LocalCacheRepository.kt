@@ -27,9 +27,9 @@ class LocalCacheRepository(
     private val localized: MutableList<MaybeCachedDownloadable>
     private val cached: MutableSet<IDownloadable>
 
-    constructor(sproutDirectory: String, repositories: List<IRepository>) : this(
-        File("$sproutDirectory/cache/modules").toPath(),
-        File("$sproutDirectory/cache/modules.json").toPath(),
+    constructor(workdir: String, repositories: List<IRepository>) : this(
+        File("$workdir/cache/modules").toPath(),
+        File("$workdir/cache/modules.json").toPath(),
         repositories
     )
 

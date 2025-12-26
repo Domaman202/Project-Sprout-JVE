@@ -4,8 +4,8 @@ package ru.pht.sprout.module.header
 
 import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.constraints.Constraint
-import ru.pht.sprout.utils.NotInitializedException
-import ru.pht.sprout.utils.NotValueException
+import ru.pht.sprout.utils.exception.NotInitializedException
+import ru.pht.sprout.utils.exception.NotValueException
 import ru.pht.sprout.utils.ValueOrAny
 
 /**

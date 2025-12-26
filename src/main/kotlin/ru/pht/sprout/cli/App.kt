@@ -4,12 +4,15 @@ import ru.DmN.cmd.style.FmtUtils.fmt
 import ru.DmN.translate.Language
 import ru.DmN.translate.TranslationKey
 import ru.DmN.translate.TranslationPair
+import ru.DmN.translate.exception.ITranslatedThrowable
 import ru.pht.sprout.cli.args.ArgumentsParser
 import ru.pht.sprout.cli.args.Command
 import ru.pht.sprout.cli.args.CommandArgument
-import ru.pht.sprout.cli.build.BuildInfo
+import ru.pht.sprout.cli.build.BuildSystemInfo
+import ru.pht.sprout.cli.build.ProjectInfo
 import ru.pht.sprout.utils.SproutTranslate
 import java.util.*
+import kotlin.io.path.Path
 
 object App {
     // ===== КОНСТАНТЫ ===== //
@@ -19,7 +22,8 @@ object App {
     val COMMANDS: Array<Command.Definition>
     // ===== RUNTIME ===== //
     val LANG = Language.of(Locale.getDefault())
-    val BUILD_INFO = BuildInfo()
+    val BUILD_SYSTEM_INFO = BuildSystemInfo()
+    val PROJECT_INFO = ProjectInfo()
 
     // ===== MAIN ===== //
 
@@ -81,9 +85,14 @@ object App {
         println()
         printVersionInfo()
         println()
-        println(translate("printInfo.build.module",     "status"     to if (BUILD_INFO.tryParseModule()) "§f6${BUILD_INFO.moduleHeader!!.name}" else if (BUILD_INFO.moduleHeaderError == null) "§f1Не найден" else "§f1Ошибка чтения"))
-        println(translate("printInfo.build.download",   "download"   to BUILD_INFO.cachingRepository.findAllCached().size))
-        println(translate("printInfo.build.repository", "repository" to BUILD_INFO.repositories.size))
+        println(translate("printInfo.buildSystem.repository", "count"      to BUILD_SYSTEM_INFO.repositories.size))
+        println(translate("printInfo.buildSystem.cached",     "download"   to BUILD_SYSTEM_INFO.cachingRepository.findAllCached().size))
+        println(translate("printInfo.buildSystem.caching",    "repository" to BUILD_SYSTEM_INFO.cachingRepository.javaClass.simpleName))
+        println()
+        tryParseModule {
+            println(translate("printInfo.project.moduleName",    "name"    to PROJECT_INFO.header.name))
+            println(translate("printInfo.project.moduleVersion", "version" to PROJECT_INFO.header.version))
+        }
     }
 
     private fun printVersionInfo() {
@@ -97,6 +106,15 @@ object App {
 
     private fun translationPair(group: String): TranslationPair =
         TranslationPair(TranslationKey("${App.javaClass.name}.$group"), SproutTranslate)
+
+    private fun tryParseModule(block: () -> Unit) {
+        try {
+            PROJECT_INFO.init(Path("."))
+            block()
+        } catch (e: Exception) {
+            println(translate("printInfo.project.moduleError", "error" to if (e is ITranslatedThrowable<*>) "§f1${e.translate(LANG)}§sr" else "§f1${e.message ?: e.javaClass.name}§sr"))
+        }
+    }
 
     init {
         COMMANDS = arrayOf(

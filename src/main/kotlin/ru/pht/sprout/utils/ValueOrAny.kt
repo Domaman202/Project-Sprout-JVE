@@ -1,5 +1,7 @@
 package ru.pht.sprout.utils
 
+import ru.pht.sprout.utils.exception.NotValueException
+
 /**
  * Вариация `значение` или `любое`.
  */
@@ -15,7 +17,7 @@ class ValueOrAny<T> private constructor(private val value: T?, private val any: 
      * Возвращает значения, иначе кидает исключение.
      *
      * @return Значение.
-     * @throws NotValueException Если значения не было установлено.
+     * @throws ru.pht.sprout.utils.exception.NotValueException Если значения не было установлено.
      */
     @Suppress("UNCHECKED_CAST")
     fun value(): T {

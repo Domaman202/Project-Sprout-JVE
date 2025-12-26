@@ -5,6 +5,7 @@ import org.junit.jupiter.api.condition.EnabledIf
 import ru.DmN.cmd.style.FmtUtils.fmt
 import ru.DmN.translate.Language
 import ru.pht.sprout.cli.App
+import ru.pht.sprout.utils.exception.NotValueException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

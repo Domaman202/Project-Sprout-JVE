@@ -11,7 +11,7 @@ import ru.pht.sprout.module.header.lexer.Token
 import ru.pht.sprout.module.header.lexer.Token.Type
 import ru.pht.sprout.module.header.lexer.Token.Type.*
 import ru.pht.sprout.module.header.parser.ParserException.ExceptionWrapContext
-import ru.pht.sprout.utils.NotInitializedException
+import ru.pht.sprout.utils.exception.NotInitializedException
 import ru.pht.sprout.utils.ValueOrAny
 
 /**

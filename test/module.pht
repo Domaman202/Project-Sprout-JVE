@@ -1,0 +1,3 @@
+(module "pht/module"
+    {[name "example/module"]}
+    {[vers "1.0.0"]})

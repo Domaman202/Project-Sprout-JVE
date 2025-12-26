@@ -11,7 +11,7 @@ import ru.DmN.translate.Language
 import ru.pht.sprout.module.repo.impl.*
 import ru.pht.sprout.module.utils.ZipUtils
 import ru.pht.sprout.module.utils.useTmpDir
-import ru.pht.sprout.utils.SproutIllegalArgumentException
+import ru.pht.sprout.utils.exception.SproutIllegalArgumentException
 import kotlin.io.path.createDirectory
 import kotlin.io.path.exists
 import kotlin.io.path.readBytes

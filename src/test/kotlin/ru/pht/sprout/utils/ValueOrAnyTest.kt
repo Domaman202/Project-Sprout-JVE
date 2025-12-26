@@ -5,6 +5,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.condition.EnabledIf
 import ru.DmN.cmd.style.FmtUtils.fmt
 import ru.DmN.translate.Language
+import ru.pht.sprout.utils.exception.NotValueException
 import kotlin.test.*
 
 @EnabledIf("ru.pht.sprout.TestConfigInternal#otherUtilsTest", disabledReason = "Тест выключен конфигурацией")

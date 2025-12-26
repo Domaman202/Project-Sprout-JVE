@@ -14,25 +14,26 @@ import kotlin.io.path.exists
 import kotlin.io.path.readBytes
 import kotlin.test.*
 
-@EnabledIf("ru.pht.sprout.TestConfigInternal#gitflicRepoTest", disabledReason = "Тест выключен конфигурацией")
-class GitflicRepositoryTest {
+@Deprecated("Защита от DDOS ломает API.")
+@EnabledIf("ru.pht.sprout.TestConfigInternal#giteaRepoTest", disabledReason = "Тест выключен конфигурацией")
+class GiteaRepositoryTest {
     @Test
     @DisplayName("Поиск конкретного модуля")
     fun findTest() {
-        val find = REPO.find("pht/example/example-gitflic-module", "1.0.0".toConstraint())
+        val find = REPO.find("pht/example/example-gitea-module", "1.0.0".toConstraint())
         assertEquals(1, find.size)
         val download = find.first()
         val header = download.header()
-        assertEquals("pht/example/example-gitflic-module", header.name)
+        assertEquals("pht/example/example-gitea-module", header.name)
         assertEquals("1.0.0".toVersion(), header.version)
-        useTmpDir("ProjectSprout.GitflicRepositoryTest.findTest") { tmp ->
+        useTmpDir("ProjectSprout.GiteaRepositoryTest.findTest") { tmp ->
             val zip = tmp.resolve("module.zip")
             download.downloadZip(zip)
             assertTrue(zip.exists())
             assertEquals(ZipUtils.calcSHA512(zip.readBytes()), download.hash)
             val tmpUnzip = tmp.resolve("unzip").createDirectory()
             download.download(tmpUnzip)
-            val unzip = tmpUnzip.resolve("pht/example/example-gitflic-module")
+            val unzip = tmpUnzip.resolve("pht/example/example-gitea-module")
             assertTrue(unzip.resolve("module.pht").exists())
             assertTrue(unzip.resolve("src/example.pht").exists())
             assertTrue(unzip.resolve("plg/example.pht").exists())
@@ -44,7 +45,7 @@ class GitflicRepositoryTest {
     fun findAllTest() {
         val all = REPO.findAll()
         assertTrue(all.isNotEmpty())
-        val find = REPO.find("pht/example/example-gitflic-module", "1.0.0".toConstraint())
+        val find = REPO.find("pht/example/example-gitea-module", "1.0.0".toConstraint())
         assertEquals(1, find.size)
         assertContains(all, find.first())
     }
@@ -52,23 +53,22 @@ class GitflicRepositoryTest {
     @Test
     @DisplayName("Верификация во время загрузки")
     fun verifyTest() {
-        val find = REPO.find("pht/example/crack-example-gitflic-module", "1.0.1".toConstraint())
+        val find = REPO.find("pht/example/crack-example-gitea-module", "1.0.1".toConstraint())
         assertEquals(1, find.size)
         val download = find.first()
-        useTmpDir("ProjectSprout.GitflicRepositoryTest.verifyTest") { tmp ->
+        useTmpDir("ProjectSprout.GiteaRepositoryTest.verifyTest") { tmp ->
             assertThrows<IOException> { download.header() }
             assertThrows<IOException> { download.download(tmp.resolve("module.zip")) }
             assertThrows<IOException> { download.downloadZip(tmp.resolve("unzip")) }
         }
     }
 
-
     @Test
     @DisplayName("equals & hash")
     fun equalsAndHashTest() {
-        val normal0 = REPO.find("pht/example/example-gitflic-module", "1.0.0".toConstraint())
-        val normal1 = REPO.find("pht/example/example-gitflic-module", "1.0.0".toConstraint())
-        val cracked = REPO.find("pht/example/crack-example-gitflic-module", "1.0.1".toConstraint())
+        val normal0 = REPO.find("pht/example/example-gitea-module", "1.0.0".toConstraint())
+        val normal1 = REPO.find("pht/example/example-gitea-module", "1.0.0".toConstraint())
+        val cracked = REPO.find("pht/example/crack-example-gitea-module", "1.0.1".toConstraint())
         assertEquals(normal0, normal1)
         assertEquals(normal0.hashCode(), normal1.hashCode())
         assertNotEquals(normal0, cracked)
@@ -81,7 +81,7 @@ class GitflicRepositoryTest {
         @JvmStatic
         @BeforeAll
         fun init() {
-            REPO = GitRepository.gitflic()
+            REPO = GitRepository.gitea()
         }
     }
 }

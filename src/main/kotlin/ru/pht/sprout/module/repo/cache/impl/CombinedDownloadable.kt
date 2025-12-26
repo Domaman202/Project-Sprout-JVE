@@ -5,7 +5,7 @@ import kotlinx.io.IOException
 import ru.DmN.translate.TranslationKey
 import ru.pht.sprout.module.header.ModuleHeader
 import ru.pht.sprout.module.repo.IDownloadable
-import ru.pht.sprout.utils.SproutIllegalArgumentException
+import ru.pht.sprout.utils.exception.SproutIllegalArgumentException
 import java.nio.file.Path
 
 /**

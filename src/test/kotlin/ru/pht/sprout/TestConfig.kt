@@ -8,6 +8,9 @@ object TestConfig {
         const val FMT_TEST = true
         // Тесты на перевод
         const val TRANSLATE_TEST = true
+        // ===== (ИСКЛЮЧЕНИЯ) ===== //
+        // Тесты исключений
+        const val EXCEPTION_TEST = true
         // ===== (ОСТАЛЬНЫЕ УТИЛИТЫ) ===== //
         // Тесты остальных утилит
         const val OTHER_UTILS_TEST = true

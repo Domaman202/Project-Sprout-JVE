@@ -30,7 +30,7 @@ import kotlin.io.path.notExists
  */
 open class GitRepository(
     private val client: HttpClient = HttpUtils.clientWithoutLogging(),
-    private val repository: String
+    val repository: String
 ) : IRepository {
     override suspend fun findAsync(name: String, version: Constraint): List<IDownloadable> =
         this
@@ -110,5 +110,14 @@ open class GitRepository(
 
         override fun hashCode(): Int =
             this.hash.hashCode() + this.file.hashCode() * 31
+    }
+
+    companion object {
+        @Deprecated("Защита от DDOS ломает API.")
+        fun gitea(): GitRepository =
+            GitRepository(repository = "https://gitea.com/Domaman202/Project-Sprout-Module-List-Gitea/raw/branch/master/verified.json")
+        fun gitflic(): GitRepository =
+            GitRepository(repository = "https://gitflic.ru/project/domaman202/project-sprout-module-list-gitflic/blob/raw?file=verified.json")
+        fun github(): GitRepository =GitRepository(repository = "https://github.com/Domaman202/Project-Sprout-Module-List-Github/raw/refs/heads/master/verified.json")
     }
 }
