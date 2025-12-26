@@ -36,8 +36,8 @@ object App {
         when (command.definition.long) {
             "help" -> printHelp(command.argument("command") as String?)
             "version" -> printAllInfo(buildSystemInfo = false, moduleInfo = false, moduleDependencyTree = false)
-            "info" -> printAllInfo(version = false, systemInfo = false, moduleDependencyTree = false)
-            "tree" -> printAllInfo(version = false, systemInfo = false)
+            "module-info" -> printAllInfo(version = false, systemInfo = false, moduleDependencyTree = false)
+            "repo-tree" -> printAllInfo(version = false, systemInfo = false)
             "shell" -> runShell()
         }
     }
