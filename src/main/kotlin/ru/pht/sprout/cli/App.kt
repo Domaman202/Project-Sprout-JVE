@@ -180,13 +180,13 @@ object App {
             ),
             Command.Definition(
                 null,
-                "info",
+                "module-info",
                 emptyArray(),
                 translationPair("cmd.info.desc")
             ),
             Command.Definition(
                 null,
-                "tree",
+                "repo-tree",
                 emptyArray(),
                 translationPair("cmd.tree.desc")
             ),
