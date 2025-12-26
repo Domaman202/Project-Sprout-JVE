@@ -36,8 +36,8 @@ object App {
         when (command.definition.long) {
             "help" -> printHelp(command.argument("command") as String?)
             "version" -> printAllInfo(buildSystemInfo = false, moduleInfo = false, moduleDependencyTree = false)
-            "module-info" -> printAllInfo(version = false, systemInfo = false, moduleDependencyTree = false)
-            "repo-tree" -> printAllInfo(version = false, systemInfo = false)
+            "module info" -> printAllInfo(version = false, systemInfo = false, moduleDependencyTree = false)
+            "module tree" -> printAllInfo(version = false, systemInfo = false)
             "shell" -> runShell()
         }
     }
@@ -158,7 +158,7 @@ object App {
 
     init {
         COMMANDS = arrayOf(
-            Command.Definition(
+            Command.short(
                 "h",
                 "help",
                 arrayOf(
@@ -172,26 +172,23 @@ object App {
                 ),
                 translationPair("cmd.help.desc")
             ),
-            Command.Definition(
+            Command.short(
                 "v",
                 "version",
                 emptyArray(),
                 translationPair("cmd.version.desc")
             ),
-            Command.Definition(
-                null,
-                "module-info",
+            Command.long(
+                "module info",
                 emptyArray(),
                 translationPair("cmd.info.desc")
             ),
-            Command.Definition(
-                null,
-                "repo-tree",
+            Command.long(
+                "module tree",
                 emptyArray(),
                 translationPair("cmd.tree.desc")
             ),
-            Command.Definition(
-                null,
+            Command.long(
                 "shell",
                 emptyArray(),
                 translationPair("cmd.shell.desc")

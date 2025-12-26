@@ -4,7 +4,9 @@
   "ru.pht.sprout.cli.args.ArgumentsParser.notFoundedCommand": "Command '§sb{command}§sr' not found",
   "ru.pht.sprout.cli.args.ArgumentsParser.notFoundedVariant": "Unrecognized variant '§sb{variant}§sr' of argument '§sb{argument}§sr'",
   "ru.pht.sprout.cli.args.ArgumentsParser.formattingError":   "Argument formatting error '§sb{argument}§sr'",
-  "ru.pht.sprout.cli.args.ArgumentsParser.requiredArguments": "Missing required arguments: §sb{list}",
+  "ru.pht.sprout.cli.args.ArgumentsParser.requiredArguments": "Missing required arguments: §sb{arguments}",
+  "ru.pht.sprout.cli.args.Command.splitNotAllowed":           "Split syntax not allowed for short commands",
+  "ru.pht.sprout.cli.args.CommandArgument.invalidParsing":    "Invoked invalid parse method",
 
   "ru.pht.sprout.cli.App.printHelp.header" :                "§sb[> ----------- HELP ----------- <]",
   "ru.pht.sprout.cli.App.printHelp.command":                "§sb[§f4{long}§sr§sb]",

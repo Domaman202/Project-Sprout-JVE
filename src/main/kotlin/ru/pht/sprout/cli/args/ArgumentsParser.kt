@@ -15,19 +15,36 @@ class ArgumentsParser(
         if (this.args.isEmpty())
             throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "noCommand"))
         // Нахождение команды
-        val command = this.args.first()
-        val definition =
-            if (command.startsWith("--")) {
-                val commandName = command.drop(2)
-                this.commands.find { it.long == commandName }
-            } else if (command.startsWith("-")) {
-                val commandName = command.drop(1)
-                this.commands.find { it.short == commandName }
-            } else throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "notCommand", "command" to command))
-        definition ?: throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "notFoundedCommand", "command" to command))
+        val definition = run {
+            val first = this.args.first()
+            when {
+                first.startsWith("--") -> {
+                    val name = first.drop(2)
+                    commands@for (it in this.commands) {
+                        it.split ?: if (it.long == name) return@run it else continue@commands
+                        if (it.split.size <= this.args.size) {
+                            if (it.split.first() != name)
+                                continue@commands
+                            for (i in 1 until it.split.size)
+                                if (it.split[i] != this.args[i])
+                                    continue@commands
+                            return@run it
+                        }
+                    }
+                    throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "notFoundedCommand", "command" to first))
+                }
+
+                first.startsWith("-") -> {
+                    val name = first.drop(1)
+                    return@run this.commands.find { it.short == name } ?: throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "notFoundedCommand", "command" to first))
+                }
+
+                else -> throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "notCommand", "command" to first))
+            }
+        }
         // Парсинг аргументов
         val arguments = ArrayList<CommandArgument>()
-        var argI = 1
+        var argI = definition.split?.size ?: 1
         var cmdI = 0
         while (argI < this.args.size) {
             val cmdArg = definition.arguments[cmdI]
@@ -60,7 +77,7 @@ class ArgumentsParser(
         val definedArgs = arguments.map { it.definition.name }
         val undefinedArgs = definition.arguments.filter { !it.optional && !definedArgs.contains(it.name) }
         if (undefinedArgs.isNotEmpty())
-            throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "requiredArguments", "arguments" to definedArgs.joinToString(", ")))
+            throw ArgumentsParserException(SproutTranslate.of<ArgumentsParser>(lang, "requiredArguments", "arguments" to undefinedArgs.joinToString(", ") { it.name }))
         //
         return Command(definition, arguments)
     }
