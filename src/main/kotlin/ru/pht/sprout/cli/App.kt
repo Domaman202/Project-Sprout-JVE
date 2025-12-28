@@ -8,7 +8,7 @@ import ru.DmN.translate.exception.ITranslatedThrowable
 import ru.pht.sprout.cli.args.ArgumentsParser
 import ru.pht.sprout.cli.args.Command
 import ru.pht.sprout.cli.args.CommandArgument
-import ru.pht.sprout.cli.build.BuildSystemInfo
+import ru.pht.sprout.cli.build.BuildSystemInfo.Companion.BuildSystemInfo
 import ru.pht.sprout.cli.build.ProjectInfo
 import ru.pht.sprout.module.graph.GraphBuilder
 import ru.pht.sprout.module.graph.GraphPrinter

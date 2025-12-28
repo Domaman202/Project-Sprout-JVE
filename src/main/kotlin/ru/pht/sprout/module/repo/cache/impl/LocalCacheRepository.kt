@@ -27,9 +27,9 @@ class LocalCacheRepository(
     private val localized: MutableList<MaybeCachedDownloadable>
     private val cached: MutableSet<IDownloadable>
 
-    constructor(workdir: String, repositories: List<IRepository>) : this(
-        File("$workdir/cache/modules").toPath(),
-        File("$workdir/cache/modules.json").toPath(),
+    constructor(workdir: Path, repositories: List<IRepository>) : this(
+        workdir.resolve("cache/modules"),
+        workdir.resolve("cache/modules.json"),
         repositories
     )
 

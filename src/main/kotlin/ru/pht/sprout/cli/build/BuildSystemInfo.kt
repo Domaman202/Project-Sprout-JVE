@@ -14,13 +14,15 @@ import ru.pht.sprout.module.repo.cache.ICachingRepository
 import ru.pht.sprout.module.repo.cache.impl.LocalCacheRepository
 import ru.pht.sprout.module.repo.cache.impl.NoCacheRepository
 import ru.pht.sprout.module.repo.impl.GitRepository
+import ru.pht.sprout.utils.JsonUtils
 import ru.pht.sprout.utils.exception.SproutIllegalArgumentException
-import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
+import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.*
 
 @Serializable(BuildSystemInfo.Serializer::class)
-class BuildSystemInfo(
-    val workdir: String = Path("${System.getProperty("user.home")}/.sprout/").absolutePathString(),
+class BuildSystemInfo private constructor(
+    val workdir: Path,
     val repositories: List<IRepository> = mutableListOf(GitRepository.github(), GitRepository.gitflic()),
     val cachingRepository: ICachingRepository = LocalCacheRepository(workdir, repositories)
 ) {
@@ -33,7 +35,7 @@ class BuildSystemInfo(
 
         override fun serialize(encoder: Encoder, value: BuildSystemInfo) {
             encoder.encodeStructure(descriptor) {
-                encodeStringElement(descriptor, 0, value.workdir)
+                encodeStringElement(descriptor, 0, value.workdir.toString())
                 encodeSerializableElement(descriptor, 1, ListSerializer(RepositorySerializer), value.repositories)
                 encodeSerializableElement(descriptor, 2, CachingRepositorySerializer(value.workdir, value.repositories), value.cachingRepository)
             }
@@ -41,7 +43,7 @@ class BuildSystemInfo(
 
         override fun deserialize(decoder: Decoder): BuildSystemInfo {
             return decoder.decodeStructure(descriptor) {
-                val workdir = decodeStringElement(descriptor, decodeElementIndex(descriptor))
+                val workdir = File(decodeStringElement(descriptor, decodeElementIndex(descriptor))).toPath()
                 val repositories = decodeSerializableElement(descriptor, decodeElementIndex(descriptor), ListSerializer(RepositorySerializer))
                 val cachingRepository = decodeSerializableElement(descriptor, decodeElementIndex(descriptor), CachingRepositorySerializer(workdir, repositories))
                 BuildSystemInfo(
@@ -72,7 +74,7 @@ class BuildSystemInfo(
         }
     }
 
-    class CachingRepositorySerializer(val workdir: String, val repositories: List<IRepository>) : KSerializer<ICachingRepository> {
+    class CachingRepositorySerializer(val workdir: Path, val repositories: List<IRepository>) : KSerializer<ICachingRepository> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(ICachingRepository::class.qualifiedName!!, PrimitiveKind.STRING)
 
         override fun serialize(encoder: Encoder, value: ICachingRepository) {
@@ -88,6 +90,19 @@ class BuildSystemInfo(
                 "no-cache" -> NoCacheRepository(this.repositories)
                 "local-cache" -> LocalCacheRepository(this.workdir, this.repositories)
                 else -> throw SproutIllegalArgumentException(TranslationKey.of<BuildSystemInfo>("serialize.exception"), "url" to url)
+            }
+        }
+    }
+
+    companion object {
+        val DEFAULT_WORKDIR: Path = Path("${System.getProperty("user.home")}/.sprout/").absolute().normalize()
+
+        fun BuildSystemInfo(): BuildSystemInfo {
+            val config = DEFAULT_WORKDIR.resolve("config.json")
+            if (config.exists())
+                return JsonUtils.fromJson(config.readText(Charsets.UTF_8))
+            return BuildSystemInfo(DEFAULT_WORKDIR).also {
+                config.writeText(JsonUtils.toJson(it), Charsets.UTF_8)
             }
         }
     }
