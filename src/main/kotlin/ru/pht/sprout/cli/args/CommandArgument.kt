@@ -1,5 +1,6 @@
 package ru.pht.sprout.cli.args
 
+import ru.DmN.translate.Language
 import ru.DmN.translate.TranslationKey
 import ru.DmN.translate.TranslationPair
 import ru.pht.sprout.utils.exception.SproutIllegalArgumentException
@@ -26,11 +27,21 @@ class CommandArgument(
      */
     class Definition(
         val name: String,
-        val displayedName: TranslationPair,
+        val displayedName: TranslationPair?,
         val type: Type,
         val variants: Variants?,
         val optional: Boolean
-    )
+    ) {
+        init {
+            if (!Regex("[a-zA-Z0-9_]+").matches(name))
+                throw SproutIllegalArgumentException(TranslationKey.of<CommandArgument>("invalidName"), "name" to name)
+            if (type == Type.VARIATION && variants == null)
+                throw SproutIllegalArgumentException(TranslationKey.of<CommandArgument>("noVariants"))
+        }
+
+        fun displayedName(language: Language): String =
+            this.displayedName?.translate(language) ?: this.name
+    }
 
     /**
      * Тип аргумента.

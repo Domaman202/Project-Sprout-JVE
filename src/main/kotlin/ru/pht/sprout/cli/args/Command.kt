@@ -40,7 +40,26 @@ class Command(
         val split: List<String>?,
         val arguments: Array<CommandArgument.Definition>,
         val description: TranslationPair?
-    )
+    ) {
+        init {
+            short?.let(::validateName)
+            if (split != null)
+                split.forEach(::validateName)
+            else validateName(long)
+        }
+
+        /**
+         * Проверка допустимости имени.
+         *
+         * @param name Имя.
+         * @throws SproutIllegalArgumentException Имя недопустимо.
+         */
+        private fun validateName(name: String) {
+            if (!Regex("[a-zA-Z0-9_]+").matches(name)) {
+                throw SproutIllegalArgumentException(TranslationKey.of<Command>("invalidName"), "name" to name)
+            }
+        }
+    }
 
     companion object {
         /**

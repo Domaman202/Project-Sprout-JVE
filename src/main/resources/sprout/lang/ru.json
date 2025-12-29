@@ -6,6 +6,9 @@
   "ru.pht.sprout.cli.args.ArgumentsParser.formattingError":     "Ошибка форматирования аргумента '§sb§{argument}§sr'",
   "ru.pht.sprout.cli.args.ArgumentsParser.requiredArguments":   "Не указаны обязательные аргументы: §sb§{arguments}",
   "ru.pht.sprout.cli.args.Command.splitNotAllowed":             "Разделение в синтаксисе коротких команд не допускается",
+  "ru.pht.sprout.cli.args.Command.invalidName":                 "Неверное имя команды '§sb§{name}§sr'",
+  "ru.pht.sprout.cli.args.CommandArgument.invalidName":         "Неверное имя аргумента '§sb§{name}§sr'",
+  "ru.pht.sprout.cli.args.CommandArgument.noVariants":          "Не указаны варианты аргумента",
   "ru.pht.sprout.cli.args.CommandArgument.invalidParsing":      "Вызван неверный метод парсинга",
 
   "ru.pht.sprout.cli.App.printHelp.header" :                "§sb[> ---------- ПОМОЩЬ ---------- <]",
@@ -64,5 +67,6 @@
   "ru.pht.sprout.utils.exception.NotInitializedException": "Неинициализированное обязательное поле '§sb§{field}§sr'",
   "ru.pht.sprout.utils.exception.NotValueException":       "Значение не было установлено",
 
-  "ru.pht.sprout.utils.SproutTranslate.test": "I = §sb§{i}"
+  "ru.pht.sprout.utils.SproutTranslate.test":    "I = §sb§{i}",
+  "ru.pht.sprout.utils.SproutTranslate.test123": "I = 123"
 }

@@ -22,7 +22,7 @@ object App {
     const val VERSION = "1.0.0"
     const val AUTHOR = "DomamaN202"
     // ===== INITIAL ===== //
-    val COMMANDS: Array<Command.Definition>
+    val ARGUMENTS_PARSER: ArgumentsParser
     // ===== RUNTIME ===== //
     val LANG = Language.of(Locale.getDefault())
     val BUILD_SYSTEM_INFO = BuildSystemInfo()
@@ -32,7 +32,7 @@ object App {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val command = ArgumentsParser(args, COMMANDS, LANG).findCommand()
+        val command = ARGUMENTS_PARSER.parse(LANG, args)
         when (command.definition.long) {
             "help" -> printHelp(command.argument("command") as String?)
             "version" -> printAllInfo(buildSystemInfo = false, moduleInfo = false, moduleDependencyTree = false)
@@ -52,9 +52,9 @@ object App {
         println(translate("printHelp.header"))
         if (command != null) {
             println()
-            printHelp(COMMANDS.find { it.long == command }!!)
+            printHelp(ARGUMENTS_PARSER.commands.find { it.long == command }!!)
         } else {
-            for (command in COMMANDS) {
+            for (command in ARGUMENTS_PARSER.commands) {
                 println()
                 printHelp(command)
             }
@@ -157,41 +157,43 @@ object App {
     }
 
     init {
-        COMMANDS = arrayOf(
-            Command.short(
-                "h",
-                "help",
-                arrayOf(
-                    CommandArgument.Definition(
-                        "command",
-                        translationPair("cmd.help.arg0"),
-                        CommandArgument.Type.VARIATION,
-                        CommandArgument.Variants.of { COMMANDS.map { it.long } },
-                        true
-                    )
+        ARGUMENTS_PARSER = ArgumentsParser(
+            arrayOf(
+                Command.short(
+                    "h",
+                    "help",
+                    arrayOf(
+                        CommandArgument.Definition(
+                            "command",
+                            translationPair("cmd.help.arg0"),
+                            CommandArgument.Type.VARIATION,
+                            CommandArgument.Variants.of { ARGUMENTS_PARSER.commands.map { it.long } },
+                            true
+                        )
+                    ),
+                    translationPair("cmd.help.desc")
                 ),
-                translationPair("cmd.help.desc")
-            ),
-            Command.short(
-                "v",
-                "version",
-                emptyArray(),
-                translationPair("cmd.version.desc")
-            ),
-            Command.long(
-                "module info",
-                emptyArray(),
-                translationPair("cmd.info.desc")
-            ),
-            Command.long(
-                "module tree",
-                emptyArray(),
-                translationPair("cmd.tree.desc")
-            ),
-            Command.long(
-                "shell",
-                emptyArray(),
-                translationPair("cmd.shell.desc")
+                Command.short(
+                    "v",
+                    "version",
+                    emptyArray(),
+                    translationPair("cmd.version.desc")
+                ),
+                Command.long(
+                    "module info",
+                    emptyArray(),
+                    translationPair("cmd.info.desc")
+                ),
+                Command.long(
+                    "module tree",
+                    emptyArray(),
+                    translationPair("cmd.tree.desc")
+                ),
+                Command.long(
+                    "shell",
+                    emptyArray(),
+                    translationPair("cmd.shell.desc")
+                )
             )
         )
     }
