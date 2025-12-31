@@ -18,54 +18,99 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.*
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
+/**
+ * Локальный кеширующий репозиторий.
+ *
+ * @param cacheDirectory Папка хранения кешированных модулей.
+ * @param cacheListFile Файл списка кешированных модулей.
+ * @param lastInvalidationTimeFile Файл времени последнего обновления кеша.
+ * @param repositories Репозитории загрузки.
+ * @param invalidationPeriod Период между обновлениями кеша, `-1` - никогда не обновлять кеш без необходимости, `0` - всегда обновлять кеш.
+ */
 class LocalCacheRepository(
     private val cacheDirectory: Path,
     private val cacheListFile: Path,
-    private val repositories: List<IRepository>
+    private val lastInvalidationTimeFile: Path,
+    private val repositories: List<IRepository>,
+    private val invalidationPeriod: Duration
 ) : ICachingRepository {
+    private var lastInvalidationTime: Duration
     private val localized: MutableList<MaybeCachedDownloadable>
     private val cached: MutableSet<IDownloadable>
 
-    constructor(workdir: Path, repositories: List<IRepository>) : this(
+    constructor(workdir: Path, repositories: List<IRepository>, invalidationPeriod: Duration) : this(
         workdir.resolve("cache/modules"),
         workdir.resolve("cache/modules.json"),
-        repositories
+        workdir.resolve("cache/modules.lastInvalidationTime.raw"),
+        repositories,
+        invalidationPeriod,
     )
 
     init {
         if (this.cacheDirectory.notExists()) {
             this.cacheDirectory.createDirectories()
             this.cacheListFile.deleteIfExists()
+            this.lastInvalidationTimeFile.deleteIfExists()
+            this.lastInvalidationTime = Duration.ZERO
             this.localized = ArrayList()
             this.cached = HashSet()
         } else {
-            if (this.cacheListFile.exists()) {
-                this.localized = Json.Default.decodeFromString(this.cacheListFile.readText(Charsets.UTF_8))
-                this.cached = this.localized.toMutableSet()
-            } else {
-                this.localized = ArrayList()
-                this.cached = HashSet()
-            }
+            this.lastInvalidationTime =
+                if (this.lastInvalidationTimeFile.exists())
+                    Duration.parse(this.lastInvalidationTimeFile.readText(Charsets.UTF_8))
+                else Duration.ZERO
+            this.localized =
+                if (this.cacheListFile.exists())
+                    Json.decodeFromString(this.cacheListFile.readText(Charsets.UTF_8))
+                else ArrayList()
+            this.cached = this.localized.toMutableSet()
         }
     }
 
-    override suspend fun findAsync(name: String, version: Constraint): List<IDownloadable> {
-        val cached = this.cached.filterTo(ArrayList()) { it.name == name && version.isSatisfiedBy(it.version) }
-        RepoUtils.findUnavailableAndVerifySortedAsync(this.repositories, cached, name, version, this::tryAddCache)
-        return cached
-    }
+    override suspend fun findAsync(name: String, version: Constraint): List<IDownloadable> =
+        checkCacheValidation(
+            this.cached.filterTo(ArrayList()) { it.name == name && version.isSatisfiedBy(it.version) },
+            { it },
+            { RepoUtils.findUnavailableAndVerifySortedAsync(this.repositories, it, name, version, this::tryAddCache) }
+        )
 
-    override suspend fun findAllAsync(): List<IDownloadable> {
-        RepoUtils.findAllAndVerifyAsync(this.repositories) { tryAddCache(it) { } }
-        return this.cached.toList()
-    }
+    override suspend fun findAllAsync(): List<IDownloadable> =
+        checkCacheValidation(
+            this.cached,
+            { it.toList() },
+            { RepoUtils.findAllAndVerifyAsync(this.repositories) { tryAddCache(it) { } } }
+        )
 
     override fun findAllCached(): List<IDownloadable> =
         this.localized
 
     override suspend fun findAllCachedAsync(): List<IDownloadable> =
         this.findAllCached()
+
+    /**
+     * @return [invalidationPeriod].
+     */
+    internal fun getInvalidationPeriod(): Duration =
+        this.invalidationPeriod
+
+    private inline fun <T : Collection<IDownloadable>> checkCacheValidation(cached: T, map: (T) -> List<IDownloadable>, update: (T) -> Unit): List<IDownloadable> {
+        if (cached.isNotEmpty()) {
+            if (this.invalidationPeriod.isNegative())
+                return map(cached)
+            if (this.invalidationPeriod.isPositive()) {
+                val time = System.currentTimeMillis().milliseconds
+                if (time - this.lastInvalidationTime < this.invalidationPeriod)
+                    return map(cached)
+                this.lastInvalidationTime = time
+                this.lastInvalidationTimeFile.writeText(time.toString(), Charsets.UTF_8)
+            }
+        }
+        update(cached)
+        return map(cached)
+    }
 
     private inline fun tryAddCache(combine: (List<IDownloadable>), addTo: (IDownloadable) -> Unit) {
         val first = combine.first()

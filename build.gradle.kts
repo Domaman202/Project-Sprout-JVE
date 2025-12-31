@@ -1,7 +1,6 @@
 plugins {
     kotlin("jvm") version "2.3.0"
     kotlin("plugin.serialization") version "2.3.0"
-    id("jacoco")
 }
 
 group = "ru.pht.sprout"
@@ -53,10 +52,6 @@ kotlin {
     jvmToolchain(25)
 }
 
-jacoco {
-    toolVersion = "0.8.8"
-}
-
 tasks.jar {
     manifest {
         attributes(
@@ -76,14 +71,4 @@ tasks.jar {
 tasks.test {
     useJUnitPlatform()
     testLogging { showStandardStreams = true }
-    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
-}
-
-tasks.jacocoTestReport {
-    dependsOn(tasks.test) // tests are required to run before generating the report
-    reports {
-        xml.required.set(true)
-        csv.required.set(false)
-        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
-    }
 }

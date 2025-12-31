@@ -6,13 +6,18 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.EnabledIf
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import ru.pht.sprout.module.repo.IRepository
 import ru.pht.sprout.module.repo.impl.*
 import ru.pht.sprout.module.utils.ZipUtils
 import ru.pht.sprout.module.utils.useTmpDir
+import java.lang.Thread.sleep
 import kotlin.io.path.createDirectory
 import kotlin.io.path.exists
 import kotlin.io.path.readBytes
+import kotlin.io.path.readText
 import kotlin.test.*
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 @EnabledIf("ru.pht.sprout.TestConfigInternal#repoTest", disabledReason = "Тест выключен конфигурацией")
 class LocalCacheRepositoryTest {
@@ -23,7 +28,9 @@ class LocalCacheRepositoryTest {
             val repository = LocalCacheRepository(
                 tmp.resolve("modules"),
                 tmp.resolve("modules.json"),
-                listOf(TestRepositoryA, TestRepositoryC, TestRepositoryD, AssertNoCacheRepository)
+                tmp.resolve("modules.lastInvalidationTime.raw"),
+                listOf(TestRepositoryA, TestRepositoryC, TestRepositoryD, AssertNoCacheRepository),
+                Duration.ZERO
             )
             val find = repository.find("test/a", ">=2.0.0".toConstraint())
             assertEquals(2, find.size)
@@ -47,7 +54,9 @@ class LocalCacheRepositoryTest {
             val repository = LocalCacheRepository(
                 tmp.resolve("modules"),
                 tmp.resolve("modules.json"),
-                listOf(TestRepositoryB, TestRepositoryD, TestRepositoryDCrack)
+                tmp.resolve("modules.lastInvalidationTime.raw"),
+                listOf(TestRepositoryB, TestRepositoryD, TestRepositoryDCrack),
+                Duration.ZERO
             )
             val find = repository.find("test/b", "2.0.0".toConstraint())
             assertEquals(find.size, 1)
@@ -77,9 +86,11 @@ class LocalCacheRepositoryTest {
             val repository = LocalCacheRepository(
                 tmp.resolve("modules"),
                 tmp.resolve("modules.json"),
+                tmp.resolve("modules.lastInvalidationTime.raw"),
                 if (reversed)
                     listOf(TestRepositoryDBroken, TestRepositoryD)
-                else listOf(TestRepositoryD, TestRepositoryDBroken)
+                else listOf(TestRepositoryD, TestRepositoryDBroken),
+                Duration.ZERO
             )
             // Проверка кеширования
             assertTrue(repository.findAllCachedAsync().isEmpty())
@@ -122,15 +133,17 @@ class LocalCacheRepositoryTest {
     }
 
     @Test
-    @DisplayName("Только новое / Только кеш / Кеш + Новое")
-    fun cacheDownloadTest() {
+    @DisplayName("Только новое / Только кеш / Кеш + Новое (без обновления кеша)")
+    fun cacheDownloadNoInvalidationTest() {
         useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest") { tmp ->
             // Загрузка в кеш
             run {
                 val original = LocalCacheRepository(
                     tmp.resolve("modules"),
                     tmp.resolve("modules.json"),
-                    listOf(TestRepositoryA)
+                    tmp.resolve("modules.lastInvalidationTime.raw"),
+                    listOf(TestRepositoryA),
+                    Duration.ZERO
                 )
                 val find = original.find("test/a", ">=2.0.0".toConstraint())
                 assertEquals(2, find.size)
@@ -145,7 +158,9 @@ class LocalCacheRepositoryTest {
                 val cached = LocalCacheRepository(
                     tmp.resolve("modules"),
                     tmp.resolve("modules.json"),
-                    emptyList()
+                    tmp.resolve("modules.lastInvalidationTime.raw"),
+                    emptyList(),
+                    Duration.ZERO
                 )
                 assertEquals(2, cached.findAllCached().size)
                 val find = cached.find("test/a", ">=1.0.0".toConstraint())
@@ -156,12 +171,178 @@ class LocalCacheRepositoryTest {
                     assertTrue(tmp.resolve("test/a@3.0.0").exists())
                 }
             }
-            // Добираем вне кеша
+            // Добираем вне кеша, без обновления кеша.
             run {
                 val new = LocalCacheRepository(
                     tmp.resolve("modules"),
                     tmp.resolve("modules.json"),
-                    listOf(TestRepositoryA)
+                    tmp.resolve("modules.lastInvalidationTime.raw"),
+                    listOf(TestRepositoryA),
+                    (-1).milliseconds
+                )
+                assertEquals(2, new.findAllCached().size)
+                val find = new.find("test/a", ">=1.0.0".toConstraint())
+                assertEquals(2, find.size)
+                useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest.new") { tmp ->
+                    find.forEach { it.downloadZip(tmp.resolve("${it.name}@${it.version}")) }
+                    assertTrue(tmp.resolve("test/a@2.0.0").exists())
+                    assertTrue(tmp.resolve("test/a@3.0.0").exists())
+                }
+                assertEquals(2, new.findAllCached().size)
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("Только новое / Только кеш / Кеш + Новое (с переодическим обновлением кеша)")
+    fun cacheDownloadTimedInvalidationTest() {
+        useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest") { tmp ->
+            // Загрузка в кеш
+            run {
+                val original = LocalCacheRepository(
+                    tmp.resolve("modules"),
+                    tmp.resolve("modules.json"),
+                    tmp.resolve("modules.lastInvalidationTime.raw"),
+                    listOf(TestRepositoryA),
+                    Duration.ZERO
+                )
+                val find = original.find("test/a", ">=2.0.0".toConstraint())
+                assertEquals(2, find.size)
+                useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest.original") { tmp ->
+                    find.forEach { it.downloadZip(tmp.resolve("${it.name}@${it.version}")) }
+                    assertTrue(tmp.resolve("test/a@2.0.0").exists())
+                    assertTrue(tmp.resolve("test/a@3.0.0").exists())
+                }
+            }
+            // Проверка кеша
+            run {
+                val cached = LocalCacheRepository(
+                    tmp.resolve("modules"),
+                    tmp.resolve("modules.json"),
+                    tmp.resolve("modules.lastInvalidationTime.raw"),
+                    emptyList(),
+                    Duration.ZERO
+                )
+                assertEquals(2, cached.findAllCached().size)
+                val find = cached.find("test/a", ">=1.0.0".toConstraint())
+                assertEquals(2, find.size)
+                useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest.cached") { tmp ->
+                    find.forEach { it.downloadZip(tmp.resolve("${it.name}@${it.version}")) }
+                    assertTrue(tmp.resolve("test/a@2.0.0").exists())
+                    assertTrue(tmp.resolve("test/a@3.0.0").exists())
+                }
+            }
+            // Добираем вне кеша, с временным обновлением кеша.
+            run {
+                val repositories = ArrayList<IRepository>()
+                val new = LocalCacheRepository(
+                    tmp.resolve("modules"),
+                    tmp.resolve("modules.json"),
+                    tmp.resolve("modules.lastInvalidationTime.raw"),
+                    repositories,
+                    10.milliseconds
+                )
+                // Первая попытка - новых репозиториев нет, обновляем кеш
+                var lastInvalidationTime: Duration? = null
+                run {
+                    assertEquals(2, new.findAllCached().size)
+                    val find = new.find("test/a", ">=1.0.0".toConstraint())
+                    assertEquals(2, find.size)
+                    useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest.new") { tmp1 ->
+                        find.forEach { it.downloadZip(tmp1.resolve("${it.name}@${it.version}")) }
+                        assertTrue(tmp1.resolve("test/a@2.0.0").exists())
+                        assertTrue(tmp1.resolve("test/a@3.0.0").exists())
+                        val lastInvalidationTimeFile = tmp.resolve("modules.lastInvalidationTime.raw")
+                        assertTrue(lastInvalidationTimeFile.exists())
+                        lastInvalidationTime = Duration.parse(lastInvalidationTimeFile.readText(Charsets.UTF_8))
+                    }
+                    assertEquals(2, new.findAllCached().size)
+                }
+                // Вторая попытка - новый репозиторий есть, но прошло мало времени с обновления кеша
+                repositories += TestRepositoryA
+                run {
+                    assertEquals(2, new.findAllCached().size)
+                    val find = new.find("test/a", ">=1.0.0".toConstraint())
+                    assertEquals(2, find.size)
+                    useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest.new") { tmp1 ->
+                        find.forEach { it.downloadZip(tmp1.resolve("${it.name}@${it.version}")) }
+                        assertTrue(tmp1.resolve("test/a@2.0.0").exists())
+                        assertTrue(tmp1.resolve("test/a@3.0.0").exists())
+                        val lastInvalidationTimeFile = tmp.resolve("modules.lastInvalidationTime.raw")
+                        assertTrue(lastInvalidationTimeFile.exists())
+                        assertEquals(lastInvalidationTime.toString(), lastInvalidationTimeFile.readText(Charsets.UTF_8))
+                    }
+                    assertEquals(2, new.findAllCached().size)
+                }
+                // Третья попытка - новый репозиторий есть, снова обновляем кеш
+                sleep(11)
+                run {
+                    assertEquals(2, new.findAllCached().size)
+                    val find = new.find("test/a", ">=1.0.0".toConstraint())
+                    assertEquals(4, find.size)
+                    useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest.new") { tmp1 ->
+                        find.forEach { it.downloadZip(tmp1.resolve("${it.name}@${it.version}")) }
+                        assertTrue(tmp1.resolve("test/a@1.0.0").exists())
+                        assertTrue(tmp1.resolve("test/a@1.1.0").exists())
+                        assertTrue(tmp1.resolve("test/a@2.0.0").exists())
+                        assertTrue(tmp1.resolve("test/a@3.0.0").exists())
+                        val lastInvalidationTimeFile = tmp.resolve("modules.lastInvalidationTime.raw")
+                        assertTrue(lastInvalidationTimeFile.exists())
+                        assertNotEquals(lastInvalidationTime.toString(), lastInvalidationTimeFile.readText(Charsets.UTF_8))
+                    }
+                    assertEquals(4, new.findAllCached().size)
+                }
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("Только новое / Только кеш / Кеш + Новое (с постоянным обновлением кеша)")
+    fun cacheDownloadAlwaysInvalidationTest() {
+        useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest") { tmp ->
+            // Загрузка в кеш
+            run {
+                val original = LocalCacheRepository(
+                    tmp.resolve("modules"),
+                    tmp.resolve("modules.json"),
+                    tmp.resolve("modules.lastInvalidationTime.raw"),
+                    listOf(TestRepositoryA),
+                    Duration.ZERO
+                )
+                val find = original.find("test/a", ">=2.0.0".toConstraint())
+                assertEquals(2, find.size)
+                useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest.original") { tmp ->
+                    find.forEach { it.downloadZip(tmp.resolve("${it.name}@${it.version}")) }
+                    assertTrue(tmp.resolve("test/a@2.0.0").exists())
+                    assertTrue(tmp.resolve("test/a@3.0.0").exists())
+                }
+            }
+            // Проверка кеша
+            run {
+                val cached = LocalCacheRepository(
+                    tmp.resolve("modules"),
+                    tmp.resolve("modules.json"),
+                    tmp.resolve("modules.lastInvalidationTime.raw"),
+                    emptyList(),
+                    Duration.ZERO
+                )
+                assertEquals(2, cached.findAllCached().size)
+                val find = cached.find("test/a", ">=1.0.0".toConstraint())
+                assertEquals(2, find.size)
+                useTmpDir("ProjectSprout.LocalCacheRepositoryTest.cacheDownloadTest.cached") { tmp ->
+                    find.forEach { it.downloadZip(tmp.resolve("${it.name}@${it.version}")) }
+                    assertTrue(tmp.resolve("test/a@2.0.0").exists())
+                    assertTrue(tmp.resolve("test/a@3.0.0").exists())
+                }
+            }
+            // Добираем вне кеша, с постоянным обновлением кеша.
+            run {
+                val new = LocalCacheRepository(
+                    tmp.resolve("modules"),
+                    tmp.resolve("modules.json"),
+                    tmp.resolve("modules.lastInvalidationTime.raw"),
+                    listOf(TestRepositoryA),
+                    Duration.ZERO
                 )
                 assertEquals(2, new.findAllCached().size)
                 val find = new.find("test/a", ">=1.0.0".toConstraint())
@@ -185,7 +366,9 @@ class LocalCacheRepositoryTest {
             val repository = LocalCacheRepository(
                 tmp.resolve("modules"),
                 tmp.resolve("modules.json"),
-                listOf(TestRepositoryA, TestRepositoryC, TestRepositoryD, AssertNoCacheRepository)
+                tmp.resolve("modules.lastInvalidationTime.raw"),
+                listOf(TestRepositoryA, TestRepositoryC, TestRepositoryD, AssertNoCacheRepository),
+                Duration.ZERO
             )
             val list = repository.findAll()
             assertEquals(8, list.size)
@@ -218,7 +401,9 @@ class LocalCacheRepositoryTest {
             val repository = LocalCacheRepository(
                 tmp.resolve("modules"),
                 tmp.resolve("modules.json"),
-                listOf(TestRepositoryB, TestRepositoryD, TestRepositoryDCrack)
+                tmp.resolve("modules.lastInvalidationTime.raw"),
+                listOf(TestRepositoryB, TestRepositoryD, TestRepositoryDCrack),
+                Duration.ZERO
             )
             val list = repository.findAll()
             assertEquals(6, list.size)

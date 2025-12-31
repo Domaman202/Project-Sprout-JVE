@@ -19,18 +19,20 @@ import ru.pht.sprout.utils.exception.SproutIllegalArgumentException
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.*
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 
 @Serializable(BuildSystemInfo.Serializer::class)
 class BuildSystemInfo private constructor(
     val workdir: Path,
     val repositories: List<IRepository> = mutableListOf(GitRepository.github(), GitRepository.gitflic()),
-    val cachingRepository: ICachingRepository = LocalCacheRepository(workdir, repositories)
+    val cachingRepository: ICachingRepository = LocalCacheRepository(workdir, repositories, 1.hours)
 ) {
     class Serializer : KSerializer<BuildSystemInfo> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor(BuildSystemInfo::class.qualifiedName!!) {
             element<String>("workdir")
             element<List<IRepository>>("repositories")
-            element<ICachingRepository>("cachingRepository")
+            element<ICachingRepository>("caching-repository")
         }
 
         override fun serialize(encoder: Encoder, value: BuildSystemInfo) {
@@ -75,21 +77,36 @@ class BuildSystemInfo private constructor(
     }
 
     class CachingRepositorySerializer(val workdir: Path, val repositories: List<IRepository>) : KSerializer<ICachingRepository> {
-        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(ICachingRepository::class.qualifiedName!!, PrimitiveKind.STRING)
+        override val descriptor: SerialDescriptor = buildClassSerialDescriptor(ICachingRepository::class.qualifiedName!!) {
+            element<String>("type")
+            element<String>("period")
+        }
 
         override fun serialize(encoder: Encoder, value: ICachingRepository) {
-            when (value) {
-                is NoCacheRepository -> encoder.encodeString("no-cache")
-                is LocalCacheRepository -> encoder.encodeString("local-cache")
-                else -> throw SproutIllegalArgumentException(TranslationKey.of<BuildSystemInfo>("serialize.exception"), "type" to value.javaClass.name)
+            encoder.encodeStructure(descriptor) {
+                when (value) {
+                    is NoCacheRepository -> {
+                        encodeStringElement(descriptor, 0, "no-cache")
+                        encodeStringElement(descriptor, 1, "0")
+                    }
+                    is LocalCacheRepository -> {
+                        encodeStringElement(descriptor, 0, "local-cache")
+                        encodeStringElement(descriptor, 1, value.getInvalidationPeriod().toString())
+                    }
+                    else -> throw SproutIllegalArgumentException(TranslationKey.of<BuildSystemInfo>("serialize.exception"), "type" to value.javaClass.name)
+                }
             }
         }
 
         override fun deserialize(decoder: Decoder): ICachingRepository {
-            return when(val url = decoder.decodeString()) {
-                "no-cache" -> NoCacheRepository(this.repositories)
-                "local-cache" -> LocalCacheRepository(this.workdir, this.repositories)
-                else -> throw SproutIllegalArgumentException(TranslationKey.of<BuildSystemInfo>("serialize.exception"), "url" to url)
+            return decoder.decodeStructure(descriptor) {
+                val url = decodeStringElement(descriptor, decodeElementIndex(descriptor))
+                val invalidationPeriod = Duration.parse(decodeStringElement(descriptor, decodeElementIndex(descriptor)))
+                when(url) {
+                    "no-cache" -> NoCacheRepository(repositories)
+                    "local-cache" -> LocalCacheRepository(workdir, repositories, invalidationPeriod)
+                    else -> throw SproutIllegalArgumentException(TranslationKey.of<BuildSystemInfo>("serialize.exception"), "url" to url)
+                }
             }
         }
     }

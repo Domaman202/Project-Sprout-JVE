@@ -6,6 +6,12 @@ import ru.pht.sprout.module.repo.IRepository
 import ru.pht.sprout.module.repo.cache.ICachingRepository
 import ru.pht.sprout.module.utils.RepoUtils
 
+/**
+ * Фейковый кеширующий репозиторий.
+ * Выполняет функции проверки и объединения для источников модулей.
+ *
+ * @param repositories Репозитории загрузки.
+ */
 class NoCacheRepository(private val repositories: List<IRepository>) : ICachingRepository {
     override suspend fun findAsync(name: String, version: Constraint): List<IDownloadable> =
         RepoUtils.findAndVerifySortedAsync(this.repositories, name, version, CombinedDownloadable::combineAndAdd)
