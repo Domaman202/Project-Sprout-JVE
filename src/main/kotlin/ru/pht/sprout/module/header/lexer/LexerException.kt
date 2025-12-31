@@ -22,7 +22,7 @@ abstract class LexerException : Exception(), ITranslatedThrowable<LexerException
      */
     class InvalidIdentifier(val snapshot: Lexer.Snapshot, val identifier: String) : LexerException() {
         override fun print(lexer: Lexer, language: Language, builder: StringBuilder): StringBuilder =
-            builder.append(ErrorFormatter.formatErrorWithToken(lexer.source, snapshot.start, identifier.length, snapshot.startLine, snapshot.startColumn, message!!))
+            builder.append(ErrorFormatter.formatErrorWithToken(lexer.source, snapshot.start, identifier.length, snapshot.startLine, snapshot.startColumn, message))
     }
 
     /**
@@ -30,7 +30,7 @@ abstract class LexerException : Exception(), ITranslatedThrowable<LexerException
      */
     class UnexpectedSymbol(val symbol: Char) : LexerException() {
         override fun print(lexer: Lexer, language: Language, builder: StringBuilder): StringBuilder =
-            builder.append(ErrorFormatter.formatErrorWithToken(lexer.source, lexer.ptr - 1, 1, lexer.line, lexer.column - 1, message!!))
+            builder.append(ErrorFormatter.formatErrorWithToken(lexer.source, lexer.ptr - 1, 1, lexer.line, lexer.column - 1, message))
     }
 
     /**
@@ -38,7 +38,7 @@ abstract class LexerException : Exception(), ITranslatedThrowable<LexerException
      */
     class UncompletedString(val snapshot: Lexer.Snapshot) : LexerException() {
         override fun print(lexer: Lexer, language: Language, builder: StringBuilder): StringBuilder =
-            builder.append(ErrorFormatter.formatErrorWithToken(lexer.source, snapshot.start, 1, snapshot.startLine, snapshot.startColumn, message!!))
+            builder.append(ErrorFormatter.formatErrorWithToken(lexer.source, snapshot.start, 1, snapshot.startLine, snapshot.startColumn, message))
     }
 
     /**

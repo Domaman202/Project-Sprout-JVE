@@ -31,11 +31,11 @@
   "ru.pht.sprout.cli.App.printInfo.buildSystem.cached":     "§sb§f7Загружено:   §f6§{download}",
   "ru.pht.sprout.cli.App.printInfo.buildSystem.caching":    "§sb§f7Кеширование: §f6§{repository}",
   "ru.pht.sprout.cli.App.printInfo.project.header":         "§sb[> ---------- МОДУЛЬ ---------- <]",
-  "ru.pht.sprout.cli.App.printInfo.project.error":          "§sb§f7Модуль:      §f1Ошибка: §sr§{error}",
+  "ru.pht.sprout.cli.App.printInfo.project.error":          "§sb§f1Ошибка: §sr§{error}",
   "ru.pht.sprout.cli.App.printInfo.project.name":           "§sb§f7Модуль:      §f5§{name}",
   "ru.pht.sprout.cli.App.printInfo.project.version":        "§sb§f7Версия:      §f5§{version}",
   "ru.pht.sprout.cli.App.printInfo.project.tree":           "§sb[> ---- ДЕРЕВО ЗАВИСИМОСТЕЙ --- <]",
-  "ru.pht.sprout.cli.App.printInfo.project.treeError":      "§sb§f7Ошибка:      §f1Ошибка: §sr§{error}",
+  "ru.pht.sprout.cli.App.printInfo.project.treeError":      "§sb§f1Ошибка: §sr§{error}",
 
   "ru.pht.sprout.cli.App.cmd.help.arg0":    "Команда",
   "ru.pht.sprout.cli.App.cmd.help.desc":    "Выводит этот текст / Помощь о команде",
@@ -44,11 +44,16 @@
   "ru.pht.sprout.cli.App.cmd.tree.desc":    "Выводит дерево зависимостей модуля",
   "ru.pht.sprout.cli.App.cmd.shell.desc":   "Интерактивная консоль",
 
+  "ru.pht.sprout.cli.App.shell.onExit":            "§si§f2До свидания! Спасибо, что остаётесь с нами!",
+  "ru.pht.sprout.cli.App.shell.sproutNotRealized": "§si§f1Простите. Поддержка скриптового языка \"Росток\" §sbещё§sr§si§f1 не реализована :'(",
+
   "ru.pht.sprout.cli.build.BuildSystemInfo.serialize.exception":   "Ошибка сериализации типа '§sb§{name}§sr'",
   "ru.pht.sprout.cli.build.BuildSystemInfo.deserialize.exception": "Ошибка десериализации типа '§sb§{name}§sr'",
 
   "ru.pht.sprout.cli.build.ProjectInfo.alreadyInitialized":        "Проект уже инициализирован",
   "ru.pht.sprout.cli.build.ProjectInfo.headerNotFounded":          "Заголовок модуля в проекте '§{dir}' не найден",
+
+  "ru.pht.sprout.cli.shell.ShellPrintWrapper.notInitialized": "ShellPrintWrapper не инициализирован",
 
   "ru.pht.sprout.module.repo.cache.impl.CombinedDownloadable.exception": "Не все источники в списке принадлежат модулю '§sb§{name}§sr'",
 

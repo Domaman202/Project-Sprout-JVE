@@ -31,11 +31,11 @@
   "ru.pht.sprout.cli.App.printInfo.buildSystem.cached":     "§sb§f7Download:    §f6§{download}",
   "ru.pht.sprout.cli.App.printInfo.buildSystem.caching":    "§sb§f7Caching:     §f6§{repository}",
   "ru.pht.sprout.cli.App.printInfo.project.header":         "§sb[> ---------- MODULE ---------- <]",
-  "ru.pht.sprout.cli.App.printInfo.project.error":          "§sb§f7Module:      §f1Error: §{error}",
+  "ru.pht.sprout.cli.App.printInfo.project.error":          "§sb§f1Error: §{error}",
   "ru.pht.sprout.cli.App.printInfo.project.name":           "§sb§f7Module:      §f5§{name}",
   "ru.pht.sprout.cli.App.printInfo.project.version":        "§sb§f7Version:     §f5§{version}",
   "ru.pht.sprout.cli.App.printInfo.project.tree":           "§sb[> ------ DEPENDENCY TREE ----- <]",
-  "ru.pht.sprout.cli.App.printInfo.project.treeError":      "§sb§f7Ошибка:      §f1Ошибка: §sr§{error}",
+  "ru.pht.sprout.cli.App.printInfo.project.treeError":      "§sb§f1Error: §sr§{error}",
 
   "ru.pht.sprout.cli.App.cmd.help.arg0":    "Command",
   "ru.pht.sprout.cli.App.cmd.help.desc":    "Print it text / Help about command",
@@ -44,11 +44,16 @@
   "ru.pht.sprout.cli.App.cmd.tree.desc":    "Print module dependency tree",
   "ru.pht.sprout.cli.App.cmd.shell.desc":   "Interactive shell",
 
+  "ru.pht.sprout.cli.App.shell.onExit":            "§si§f2Goodbye! Thank you for staying with us!",
+  "ru.pht.sprout.cli.App.shell.sproutNotRealized": "§si§f1Sorry. Support for the Sprout Scripting Language has §sbnot yet§sr§si§f1 been implemented :'(",
+
   "ru.pht.sprout.cli.build.BuildSystemInfo.serialize.exception":   "Serialization error for type '§sb§{name}§sr'",
   "ru.pht.sprout.cli.build.BuildSystemInfo.deserialize.exception": "Deserialization error for type '§sb§{name}§sr'",
 
   "ru.pht.sprout.cli.build.ProjectInfo.alreadyInitialized": "Project already initialized",
   "ru.pht.sprout.cli.build.ProjectInfo.headerNotFounded":   "Module header in project '§{dir}' not founded",
+
+  "ru.pht.sprout.cli.shell.ShellPrintWrapper.notInitialized": "ShellPrintWrapper not initialized",
 
   "ru.pht.sprout.module.repo.cache.impl.CombinedDownloadable.exception": "Not all sources in the list belong to module '§sb§{name}§sr'",
 

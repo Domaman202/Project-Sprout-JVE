@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.2.20"
-    kotlin("plugin.serialization") version "2.2.20"
+    kotlin("jvm") version "2.3.0"
+    kotlin("plugin.serialization") version "2.3.0"
     id("jacoco")
 }
 
@@ -16,7 +16,7 @@ dependencies {
     // ===== РАБОЧИЕ ===== //
 
     // Хеш SHA-512
-    implementation("org.kotlincrypto.hash:sha2-512:0.2.7")
+    implementation("org.kotlincrypto.hash:sha2-512:${project.properties["kotlincrypto_version"]}")
     // Цвета
     implementation("io.github.domaman202:CmdStyleKt:${project.properties["cmdstyle_version"]}")
     // Перевод
@@ -50,7 +50,7 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(25)
 }
 
 jacoco {
