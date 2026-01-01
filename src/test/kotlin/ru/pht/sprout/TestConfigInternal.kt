@@ -1,6 +1,5 @@
 package ru.pht.sprout
 
-import ru.pht.sprout.TestConfig.CLI.ARGS_PARSE_TEST
 import ru.pht.sprout.TestConfig.Common.EXCEPTION_TEST
 import ru.pht.sprout.TestConfig.Common.FMT_TEST
 import ru.pht.sprout.TestConfig.Common.OTHER_UTILS_TEST
@@ -17,7 +16,6 @@ object TestConfigInternal {
     @JvmStatic fun exceptionTest(): Boolean = EXCEPTION_TEST
     @JvmStatic fun exceptionWithTranslateTest(): Boolean = exceptionTest() and translateTest()
     @JvmStatic fun otherUtilsTest(): Boolean = OTHER_UTILS_TEST
-    @JvmStatic fun argsParseTest(): Boolean = ARGS_PARSE_TEST
     @JvmStatic fun zipTest(): Boolean = ZIP_TEST
     @JvmStatic fun graphTest(): Boolean = GRAPH_TEST
     @JvmStatic fun headerParseTest(): Boolean = HEADER_PARSE_TEST

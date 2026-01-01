@@ -16,13 +16,6 @@ object TestConfig {
         const val OTHER_UTILS_TEST = true
     }
 
-    // ========== [(КОНСОЛЬ)] ========== //
-    object CLI {
-        // ===== (АРГУМЕНТЫ) ===== //
-        // Тесты парсинга аргументов
-        const val ARGS_PARSE_TEST = true
-    }
-
     // ========== [(МОДУЛЬ)] ========== //
     object Module {
         // ===== (АРХИВАЦИЯ) ===== //
