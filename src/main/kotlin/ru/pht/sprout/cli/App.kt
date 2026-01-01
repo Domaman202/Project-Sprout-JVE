@@ -1,13 +1,13 @@
 package ru.pht.sprout.cli
 
+import ru.DmN.cmd.args.ArgumentsParser
+import ru.DmN.cmd.args.Command
+import ru.DmN.cmd.args.CommandArgument
 import ru.DmN.cmd.style.FmtUtils.fmt
 import ru.DmN.translate.Language
 import ru.DmN.translate.TranslationKey
 import ru.DmN.translate.TranslationPair
 import ru.DmN.translate.exception.ITranslatedThrowable
-import ru.pht.sprout.cli.args.ArgumentsParser
-import ru.pht.sprout.cli.args.Command
-import ru.pht.sprout.cli.args.CommandArgument
 import ru.pht.sprout.cli.build.BuildSystemInfo.Companion.BuildSystemInfo
 import ru.pht.sprout.cli.build.ProjectInfo
 import ru.pht.sprout.cli.shell.ShellPrintWrapper
@@ -92,7 +92,7 @@ object App {
         println(
             if (command.description == null)
                 translate("printHelp.noDescription")
-            else translate("printHelp.description", "description" to command.description.translate(LANG))
+            else translate("printHelp.description", "description" to command.description!!.translate(LANG))
         )
     }
 

@@ -16,8 +16,9 @@ dependencies {
 
     // Хеш SHA-512
     implementation("org.kotlincrypto.hash:sha2-512:${project.properties["kotlincrypto_version"]}")
-    // Цвета
+    // Консоль
     implementation("io.github.domaman202:CmdStyleKt:${project.properties["cmdstyle_version"]}")
+    implementation("io.github.domaman202:CmdArgsKt:${project.properties["cmdargs_version"]}")
     // Перевод
     implementation("io.github.domaman202:TranslateKt:${project.properties["translate_version"]}")
     // Версии

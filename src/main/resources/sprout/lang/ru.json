@@ -1,16 +1,4 @@
 {
-  "ru.pht.sprout.cli.args.ArgumentsParser.noCommand":           "Команда отсутствует",
-  "ru.pht.sprout.cli.args.ArgumentsParser.notCommand":          "'§sb§{command}§sr' не является командой",
-  "ru.pht.sprout.cli.args.ArgumentsParser.notFoundedCommand":   "Команда '§sb§{command}§sr' не найдена",
-  "ru.pht.sprout.cli.args.ArgumentsParser.notFoundedVariant":   "Неопознанный вариант '§sb§{variant}§sr' аргумента '§sb§{argument}§sr'",
-  "ru.pht.sprout.cli.args.ArgumentsParser.formattingError":     "Ошибка форматирования аргумента '§sb§{argument}§sr'",
-  "ru.pht.sprout.cli.args.ArgumentsParser.requiredArguments":   "Не указаны обязательные аргументы: §sb§{arguments}",
-  "ru.pht.sprout.cli.args.Command.splitNotAllowed":             "Разделение в синтаксисе коротких команд не допускается",
-  "ru.pht.sprout.cli.args.Command.invalidName":                 "Неверное имя команды '§sb§{name}§sr'",
-  "ru.pht.sprout.cli.args.CommandArgument.invalidName":         "Неверное имя аргумента '§sb§{name}§sr'",
-  "ru.pht.sprout.cli.args.CommandArgument.noVariants":          "Не указаны варианты аргумента",
-  "ru.pht.sprout.cli.args.CommandArgument.invalidParsing":      "Вызван неверный метод парсинга",
-
   "ru.pht.sprout.cli.App.printHelp.header" :                "§sb[> ---------- ПОМОЩЬ ---------- <]",
   "ru.pht.sprout.cli.App.printHelp.command":                "§sb[§f4§{long}§sr§sb]",
   "ru.pht.sprout.cli.App.printHelp.short":                  "§sb[> Короткая: §sr§si§f3-§{short}",
